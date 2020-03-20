@@ -1,7 +1,6 @@
 import AuthController from "../user/auth.controller";
 import DriverController from '../driver/driver.controller'
 import UserController from "../user/user.controller";
-import {createDriver, updateDriver} from "../driver/driver.validators";
 import {createUpdateUser, updateProfile, updateSignUpStatus} from "../user/user.validators";
 
 function registerRoutes() {
@@ -11,8 +10,7 @@ function registerRoutes() {
         let verify = AuthController.verifySuperAdminOrAdmin;
 
         // Create update driver user
-        apiRouter.route("/user/create_driver").post(verify, createDriver, DriverController.createDriver);
-        apiRouter.route("/user/update_driver/:userId").put(verify, updateDriver, DriverController.updateDriver);
+       
         apiRouter.route("/user/drivers").get(verify, UserController.getAllDrivers);
         apiRouter.route("/user/get_driver/:userId").get(verify, DriverController.getDriverDetails);
 
