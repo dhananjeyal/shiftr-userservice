@@ -13,6 +13,10 @@ import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
 import NotifyService from "../../services/notifyServices";
+import ExperienceDetails from "../driver/model/experience.model";
+import FinancialDetails from "../driver/model/financial.model";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns } from "../driver/model/driver.columns";
+import SpecialityDetails from "../driver/model/driverspeciality.model";
 
 class UserController extends BaseController {
 
@@ -825,14 +829,13 @@ class UserController extends BaseController {
             let columnList = adminListColumns;
 
             if (userType === UserRole.DRIVER_R) {
-                userQuery = userQuery.join(VehicleDetails.tableName,
-                    `${VehicleDetails.tableName}.SRU03_USER_MASTER_D`,
+                //To fetch drivers financial details
+                userQuery = userQuery.join(FinancialDetails.tableName,
+                    `${FinancialDetails.tableName}.SRU03_USER_MASTER_D`,
                     `${Users.tableName}.SRU03_USER_MASTER_D`,
                 );
 
-                columnList = [...columnList, `${VehicleDetails.tableName}.SRU07_VIN_N as vin`];
-
-
+                columnList = [...columnList, ...driverFinancialColumns];
             }
 
             if (search) {
@@ -861,6 +864,25 @@ class UserController extends BaseController {
                 list: userQuery.results,
                 pageMetaData
             };
+
+            if(userType === UserRole.DRIVER_R) {
+                // To fetch drivers experience details
+                for(let currUser of result.list) {
+                    const driverExperience = await ExperienceDetails.query().select(driverExperienceColumns).where({
+                            SRU03_USER_MASTER_D: currUser.userId
+                    });
+
+                    if(driverExperience) {
+                        for(let result of driverExperience) {
+                            const driverSpeciality = await SpecialityDetails.query().select(driverExpSpecialityColumns).where({
+                                SRU09_DRIVEREXP_D: result.specialityKey
+                            });
+                            result['speciality'] = [...driverSpeciality];
+                        }
+                    }
+                    currUser['experience'] = driverExperience;
+                }
+            }
 
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (e) {

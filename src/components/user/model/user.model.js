@@ -3,6 +3,7 @@ import UsersDetails from "./userDetails.model";
 import AddressDetails from "./address.model";
 import UserDocument from "./userDocument.model";
 import FinancialDetails from "../../driver/model/financial.model";
+import ExperienceDetails from '../../driver/model/experience.model';
 
 class Users extends BaseModel {
 
@@ -31,6 +32,14 @@ class Users extends BaseModel {
                     from: 'SRU06_ADDRESS.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 },
+            },            
+            experienceDetails: {
+                relation: BaseModel.HasOneRelation,
+                modelClass: ExperienceDetails,
+                join: {
+                    from: 'SRU09_DRIVEREXP.SRU03_USER_MASTER_D',
+                    to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
+                }
             },            
             financialDetails: {
                 relation: BaseModel.HasOneRelation,

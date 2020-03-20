@@ -11,9 +11,12 @@ function registerRoutes() {
         let verify = AuthController.verifySuperAdminOrAdmin;
 
         // Create update driver user
-        apiRouter.route("/user/create_driver").post(verify, createDriver, DriverController.createDriver);
-        apiRouter.route("/user/update_driver/:userId").put(verify, updateDriver, DriverController.updateDriver);
-        apiRouter.route("/user/drivers").get(verify, UserController.getAllDrivers);
+        //Commented the admin create & update driver api, since its not in use
+        // apiRouter.route("/user/create_driver").post(verify, createDriver, DriverController.createDriver);
+        // apiRouter.route("/user/update_driver/:userId").put(verify, updateDriver, DriverController.updateDriver);
+        // apiRouter.route("/user/drivers").get(verify, UserController.getAllDrivers);
+        //For Testing purpose
+        apiRouter.route("/user/drivers").get(UserController.getAllDrivers);
         apiRouter.route("/user/get_driver/:userId").get(verify, DriverController.getDriverDetails);
 
         // Update user's signup status
