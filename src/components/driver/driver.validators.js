@@ -22,32 +22,31 @@ const CreateExperienceSchema = {
 
 // add joi schema
 const schemas = {
-  
+
     CreateDriverProfile: (isImage = true) => {
         const rule = {
-            userAddress: Joi.string().max(200).required(),
-            type: Joi.number().valid(UserRole.DRIVER_R).required(),
-            age: Joi.number().min(18).required(),
-            // gender: Joi.string().valid(
-            //     Gender.MALE,
-            //     Gender.FEMALE,
-            // ).required(),
-            phone: Joi.string().min(10).max(15).required(),
-            experience: Joi.string().required(),
-            // workingWithOthers: Joi.string().valid(booleanType.YES, booleanType.NO),
-            // otherServiceInfo: Joi.when('workingWithOthers', {
-            //     is: booleanType.YES,
-            //     then: Joi.string().required().max(60)
-            // })
+            unit: Joi.number().required(),
+            streetone: Joi.string().required(),
+            streettwo: Joi.string(),
+            city: Joi.string().required(),
+            province: Joi.string().required(),
+            postalCode: Joi.string().required(),
+            languages: Joi.array().items(lang),
+            radious: Joi.string().required(),
+            phones: Joi.array().items(phone),
+            km: Joi.string().valid(booleanType.YES, booleanType.NO),
+            miles: Joi.string().valid(booleanType.YES, booleanType.NO),
+            openDistance: Joi.string().valid(booleanType.YES, booleanType.NO),
+            alcoholTest: Joi.string().valid(booleanType.YES, booleanType.NO),
+            latitude: Joi.number().required(),
+            longitude: Joi.number().required()
         }
-
         if (isImage) {
             rule.userprofile = Joi.string().required()
         }
         return Joi.object().keys(rule)
     },
-
-
+    
     CreateExperienceDetails: Joi.object().keys({
         data: Joi.array().items(CreateExperienceSchema).min(1)
     }),

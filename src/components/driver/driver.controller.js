@@ -21,6 +21,9 @@ import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
 import SpecialityTraining from './model/speciality.model';
 import SpecialityDetails from './model/driverspeciality.model';
+import Language from "./model/language.model";
+import Radious from "./model/radious.model";
+import ContactInfo from "./model/contactInfo.model";
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -32,105 +35,152 @@ class DriverController extends BaseController {
     }
 
     
-
     /**
      * @DESC :Create Driver Profile
      * @param string/Integer/object
      * @return array/json
      */
     CreateDriverProfile = async (req, res) => {//fromApp
-        try {
-            // Insert user details
+        try {// Insert user details
+            let phoneNumbers = [];
+            let languagesKnown = [];
             const {
-                userAddress,
-                phone,
-                age,
-                gender,
-                experience,
-                workingWithOthers,
-                otherServiceInfo,
+                unit,
+                streetone,
+                streettwo,
+                city,
+                province,
+                postalCode,
+                languages,
+                radious,
+                km,
+                miles,
+                openDistance,
+                alcoholTest,
+                phones,
                 latitude,
                 longitude,
-                userprofile,
-                postalCode
+                userprofile
             } = req.body;
 
             let ActiveUser = req.user;
+
+            //Row Exists
             let UserDetailsResponse = await UserDetails.query()
-                .findOne('SRU03_USER_MASTER_D', ActiveUser.userId).select(driverUserDetailsColumns)
+                .findOne('SRU03_USER_MASTER_D', ActiveUser.userId)
+                .select(driverUserDetailsColumns);
+
+            //Row exists
+            let rowExists = await ContactInfo.query()
+                .select('SRU09_PHONE_D')
+                .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+
+
+            if (rowExists) {
+                await ContactInfo.query()
+                    .delete()
+                    .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+            }
+
+            //Format data
+            phones.map((data) => {
+                phoneNumbers.push({
+                    SRU03_USER_MASTER_D: ActiveUser.userId,
+                    SRU09_PHONE_R: data.phoneNumber
+                });
+            });
+
+            //Insert contact Info
+            await ContactInfo.query()
+                .insertGraph(phoneNumbers);
+
+            //Row exists
+            let langRowExists = await Language.query()
+                .select('SRU11_LANGUAGE_D')
+                .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+
+            if (langRowExists) {
+                await Language.query()
+                    .delete()
+                    .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+            };
+
+            languages.map((data) => {
+                languagesKnown.push({
+                    SRU03_USER_MASTER_D: ActiveUser.userId,
+                    SRU11_LANGUAGE_N: data.language
+                });
+            });
+
+            //Insert language Info
+            await Language.query()
+                .insertGraph(languagesKnown);
 
             if (UserDetailsResponse) {
                 await UserDetails.query()
-                    .patchAndFetchById(UserDetailsResponse.detailsId, {
-                        SRU04_AGE_D: age || UserDetailsResponse.age,
-                        SRU04_GENDER_D: gender || UserDetailsResponse.gender,
-                        SRU04_EXPERIENCE_D: parseInt(experience),
-                        SRU04_CREATED_D: req.user.userId,
-                        SRU04_UPDATED_D: req.user.userId,
-                        SRU04_PROFILE_I: userprofile,
-                        SRU04_WORKING_WITH_OTHERS: workingWithOthers && 1 || 0, //(workingWithOthers !== "no" || workingWithOthers !== "false") && 1 || 0,
-                        SRU04_PHONE_N: phone,
-                        SRU04_OTHER_SERVICE_INFO: workingWithOthers ? otherServiceInfo : null, //(workingWithOthers !== "no" || workingWithOthers !== "false") && otherServiceInfo || null,                        
+                    .patch({
+                        SRU04_UNIT: unit || UserDetailsResponse.unit,
+                        SRU04_PROFILE_I:userprofile
+                    }).where({
+                        SRU03_USER_MASTER_D: ActiveUser.userId
+                    });
+
+                await AddressDetails.query()
+                    .patch({
+                        SRU06_LINE_1_N: streetone,
+                        SRU06_LINE_2_N: streettwo,
+                        SRU06_POSTAL_CODE_N: postalCode,
+                        SRU06_CITY_N: city,
+                        SRU06_PROVINCE_N: province,
+                        SRU06_LOCATION_LATITUDE_N: latitude,
+                        SRU06_LOCATION_LONGITUDE_N: longitude
+                    }).where({
+                        SRU03_USER_MASTER_D: ActiveUser.userId
+                    });
+
+                await Radious.query()
+                    .patch({
+                        SRU10_KM: km,
+                        SRU10_MAILS: miles,
+                        SRU10_DISTANCE_RANGE: radious,
+                        SRU10_OPEN_DISTANCE: openDistance,
+                        SRU10_ALCOHOL_TEST: alcoholTest
+                    }).where({
+                        SRU03_USER_MASTER_D: ActiveUser.userId
                     });
 
             } else {
-                await UserDetails.query().insert({
-                    SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU04_AGE_D: age,
-                    SRU04_GENDER_D: gender,
-                    SRU04_EXPERIENCE_D: parseInt(experience),
-                    SRU04_PROFILE_I: userprofile,
-                    SRU04_CREATED_D: ActiveUser.userId,
-                    SRU04_UPDATED_D: ActiveUser.userId,
-                    SRU04_WORKING_WITH_OTHERS: workingWithOthers && 1 || 0,//(workingWithOthers !== "no" || workingWithOthers !== "false") && 1 || 0,
-                    SRU04_PHONE_N: phone,
-                    SRU04_OTHER_SERVICE_INFO: workingWithOthers ? otherServiceInfo : null, // (workingWithOthers !== "no" || workingWithOthers !== "false") && otherServiceInfo || null,
-                    // SRU04_EMAIL_STATUS_D: EmailStatus.PENDING, //TODO:  Temporary for testing
-                    SRU04_SIGNUP_STATUS_D: signUpStatus.VEHICLE_DETAILS,
-                }).select(driverUserDetailsColumns);
-            }
-
-            let addressResponse = await AddressDetails.query()
-                .findOne('SRU03_USER_MASTER_D', ActiveUser.userId).select(userAddressColumns)
-
-
-            if (addressResponse) {
-                let userAddressResponse = await AddressDetails.query()
-                    .patchAndFetchById(addressResponse.addressId, {
-                        SRU03_USER_MASTER_D: ActiveUser.userId,
-                        SRU06_LINE_1_N: userAddress,
-                        SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
-                        SRU06_POSTAL_CODE_N: postalCode || null,
+                await AddressDetails.query()
+                    .insert({
+                        SRU06_LINE_1_N: streetone,
+                        SRU06_LINE_2_N: streettwo,
+                        SRU06_POSTAL_CODE_N: postalCode,
+                        SRU06_CITY_N: city,
+                        SRU06_PROVINCE_N: province,
                         SRU06_LOCATION_LATITUDE_N: latitude,
                         SRU06_LOCATION_LONGITUDE_N: longitude,
-                        SRU06_CREATED_D: ActiveUser.userId,
-                        SRU06_UPDATED_D: ActiveUser.userId,
+                        SRU03_USER_MASTER_D: ActiveUser.userId
                     });
-            } else {
-                // User Address
-                let userAddressResponse = await AddressDetails.query().insert({
-                    SRU03_USER_MASTER_D: req.user.userId,
-                    SRU06_LINE_1_N: userAddress,
-                    SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
-                    SRU06_POSTAL_CODE_N: postalCode || null,
-                    SRU06_LOCATION_LATITUDE_N: latitude,
-                    SRU06_LOCATION_LONGITUDE_N: longitude,
-                    SRU06_CREATED_D: ActiveUser.userId,
-                    SRU06_UPDATED_D: ActiveUser.userId,
-                });
+
+                await UserDetails.query().insert({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU04_UNIT: unit
+                })
+
+                await Radious.query().insert({
+                    SRU10_KM: km,
+                    SRU10_MAILS: miles,
+                    SRU10_DISTANCE_RANGE: radious,
+                    SRU10_OPEN_DISTANCE: openDistance,
+                    SRU10_ALCOHOL_TEST: alcoholTest
+                })
             }
-            return this.success(req, res, this.status.HTTP_OK, {
-                ...req.body,
-                userprofile: req.body.userprofile
-            }, this.messageTypes.successMessages.added);
 
-
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
     }
-
-   
 
     /**
      * @DESC : Update Driver Experience Details (Callback)
