@@ -92,7 +92,7 @@ const schemas = {
         criminalRecord: Joi.string(),
         abstract: Joi.string(), 
         cvor: Joi.string()
-    }),
+    }), 
 };
 
 export const CreateDriverProfile = (req, res, next) => {
