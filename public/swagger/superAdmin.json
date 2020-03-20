@@ -1,0 +1,219 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0",
+        "title": "PICKUPS USER SERVICE",
+        "description": "Only Super admin can consume following APIs.\nEvery API requires valid JWT authentication header.",
+        "contact": {}
+    },
+    "servers": [
+        {
+            "url": "http://192.168.10.106:2013/api",
+            "description": "Development server"
+        },
+        {
+            "url": "http://192.168.10.106:2012/api",
+            "description": "Integration server"
+        },
+        {
+            "url": "http://180.151.69.138:2081/api",
+            "description": "Staging server"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": [
+            ]
+        }
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/user/create_admin": {
+            "post": {
+                "summary": "Create admin",
+                "tags": [
+                    "Admin management"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/CreateAdmin"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/user/update_admin/{userId}": {
+            "put": {
+                "summary": "Update admin",
+                "tags": [
+                    "Admin management"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/UpdateAdmin"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/user/admins": {
+            "get": {
+                "summary": "Get all admins",
+                "tags": [
+                    "Admin management"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "type": "string",
+                        "default": "1"
+                    },
+                    {
+                        "name": "chunk",
+                        "in": "query",
+                        "type": "string",
+                        "default": "10"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "1 = Active users \n\n 2 = Suspended users",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "4"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "signUpStatus",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9"
+                            ]
+                        },
+                        "description": "5 = Personal details\n\n6 = Vehicle details\n\n7 = Driver documents\n\n8 = Financial details\n\n9 = Completed"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/get_admin/{userId}": {
+            "get": {
+                "summary": "Get a admin by ID",
+                "tags": [
+                    "Admin management"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "CreateAdmin": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "emailId": {
+                    "type": "string"
+                },
+                "phoneNo": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "emailId": "john@email.com",
+                "phoneNo": "0123456789",
+                "password": "Pa$$word1"
+            }
+        },
+        "UpdateAdmin": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "emailId": {
+                    "type": "string"
+                },
+                "phoneNo": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "emailId": "john@email.com",
+                "phoneNo": "0123456789"
+            }
+        }
+    }
+}
