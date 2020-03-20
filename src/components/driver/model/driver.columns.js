@@ -15,19 +15,33 @@ export let driverUserDetailsColumns = [
     'SRU04_OTHER_SERVICE_INFO as description',
 ];
 
-export let driverVehicleColumns = [
-    'SRU07_VEHICLE_D as vehicleId',
-    'SRU07_TYPE_N as type',//vehicleType
-    'SRU07_TYPE_N as vehicleType',//vehicleType
-    'SRU07_MAKE_N as make',
-    'SRU07_MODEL_N as model',
-    'SRU07_VIN_N as vin',
-    'SRU07_COLOR_N as color',
-    'SRU07_LICENSE_PLATE_N as licensePlate',
-    'SRU07_SEATS_UP_N as seatsUp',
-    'SRU07_SEATS_DOWN_N as seatsDown',
-    "SRU07_CREATED_AT as createdAt",
-    "SRU07_UPDATED_AT as updatedAt",
-    "SRU07_CREATED_D as createdBy",
-    "SRU07_UPDATED_D as updatedBy",
+
+
+export let driverExperienceColumns = [
+    'SRU09_DRIVEREXP_D as experienceId',
+    'SRU09_SPECIALITY_KEY_D as specialityKey',
+    'SRU09_TYPE_N as experienceType',//Experience Type = CANADA | USA
+    'SRU09_LICENSE_TYPE_N as licenseType',//Experience Type = CANADA | USA
+    'SRU09_TOTALEXP_N as totalExp',
+    'SRU09_CURRENT_N as currentExp', //Current Experience in State or Province
+    "SRU09_CREATED_AT as createdAt",
+    "SRU09_UPDATED_AT as updatedAt",
+    "SRU09_CREATED_D as createdBy",
+    "SRU09_UPDATED_D as updatedBy",
 ];
+
+export let driverExpSpecialityColumns = [
+    'SRU09_DRIVEREXP_D as driverExpId',
+    'SRU12_SPECIALITY_N as specialityType',
+    'SRU12_VALIDYEAR_N as validYear',
+];
+
+export let driverLicenseTypeColumns = [
+    'SRU10_LICENSE_TYPE_N as licenseType',
+    'SRU10_LICENSE_TYPE_DESC_X as licenseTypeDesc',
+]
+
+export let driverSpecialityColumns = [
+    'SRU11_SPECIALITY_TRAINING_N as specialityType',
+    'SRU11_SPECIALITY_TRAINING_X as specialityDesc',
+]

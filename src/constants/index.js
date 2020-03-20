@@ -11,6 +11,15 @@ export class DocumentType {
     static PCC = 7;
     static INSURANCE = 8;
     static OWNERSHIP = 9;
+    static CRIMINAL = 13;
+    static ABSTRACT = 14;
+    static CVOR = 15;
+    static OTHERS = 16;
+}
+
+export class CountryType {
+    static CANADA = 17;
+    static USA = 18;
 }
 
 export class DocumentName {
@@ -19,6 +28,10 @@ export class DocumentName {
     static PCC = "PCC_DOCUMENT";
     static INSURANCE = "INSURANCE_DOCUMENT";
     static OWNERSHIP = "OWNERSHIP_DOCUMENT";
+    static CRIMINAL = "CRIMINAL_DOCUMENT";
+    static ABSTRACT = "ABSTRACT_DOCUMENT";
+    static CVOR = "CVOR_DOCUMENT";
+    static OTHERS = "ADDITIONAL_DOCUMENT";
 }
 
 export class DocumentStatus {

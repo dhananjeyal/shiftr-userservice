@@ -2,7 +2,6 @@ import BaseModel from '../../../config/db'
 import UsersDetails from "./userDetails.model";
 import AddressDetails from "./address.model";
 import UserDocument from "./userDocument.model";
-import VehicleDetails from "../../driver/model/vehicle.model";
 import FinancialDetails from "../../driver/model/financial.model";
 
 class Users extends BaseModel {
@@ -32,15 +31,7 @@ class Users extends BaseModel {
                     from: 'SRU06_ADDRESS.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 },
-            },
-            vehicleDetails: {
-                relation: BaseModel.HasOneRelation,
-                modelClass: VehicleDetails,
-                join: {
-                    from: 'SRU07_VEHICLE.SRU03_USER_MASTER_D',
-                    to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
-                }
-            },
+            },            
             financialDetails: {
                 relation: BaseModel.HasOneRelation,
                 modelClass: FinancialDetails,
