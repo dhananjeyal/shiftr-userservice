@@ -15,23 +15,22 @@ export let driverUserDetailsColumns = [
     'SRU04_OTHER_SERVICE_INFO as description',
 ];
 
-
+export let driverFinancialColumns = [
+    'SRU08_BANK_N as bankName',
+    'SRU08_ACCOUNT_N as accountNo',
+    'SRU08_INSTITUTION_N as institutionName',
+    'SRU08_TRANSIT_N as transitNo',
+];
 
 export let driverExperienceColumns = [
-    'SRU09_DRIVEREXP_D as experienceId',
     'SRU09_SPECIALITY_KEY_D as specialityKey',
     'SRU09_TYPE_N as experienceType',//Experience Type = CANADA | USA
     'SRU09_LICENSE_TYPE_N as licenseType',//Experience Type = CANADA | USA
     'SRU09_TOTALEXP_N as totalExp',
     'SRU09_CURRENT_N as currentExp', //Current Experience in State or Province
-    "SRU09_CREATED_AT as createdAt",
-    "SRU09_UPDATED_AT as updatedAt",
-    "SRU09_CREATED_D as createdBy",
-    "SRU09_UPDATED_D as updatedBy",
 ];
 
 export let driverExpSpecialityColumns = [
-    'SRU09_DRIVEREXP_D as driverExpId',
     'SRU12_SPECIALITY_N as specialityType',
     'SRU12_VALIDYEAR_N as validYear',
 ];
