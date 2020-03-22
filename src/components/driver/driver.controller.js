@@ -40,14 +40,15 @@ class DriverController extends BaseController {
      * @param string/Integer/object
      * @return array/json
      */
-    CreateDriverProfile = async (req, res) => {//fromApp
-        try {// Insert user details
+    CreateDriverProfile = async (req, res) => {
+        try {
+
             let phoneNumbers = [];
             let languagesKnown = [];
             const {
                 unit,
-                streetone,
-                streettwo,
+                street1,
+                street2,
                 city,
                 province,
                 postalCode,
@@ -83,10 +84,11 @@ class DriverController extends BaseController {
             }
 
             //Format data
-            phones.map((data) => {
+            phones.map((data,index) => {
+                console.log(data)
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU09_PHONE_R: data.phoneNumber
+                    SRU09_PHONE_R: phones[index]
                 });
             });
 
@@ -105,10 +107,10 @@ class DriverController extends BaseController {
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             };
 
-            languages.map((data) => {
+            languages.map((data,index) => {
                 languagesKnown.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU11_LANGUAGE_N: data.language
+                    SRU11_LANGUAGE_N: languages[index]
                 });
             });
 
@@ -127,8 +129,8 @@ class DriverController extends BaseController {
 
                 await AddressDetails.query()
                     .patch({
-                        SRU06_LINE_1_N: streetone,
-                        SRU06_LINE_2_N: streettwo,
+                        SRU06_LINE_1_N: street1,
+                        SRU06_LINE_2_N: street2,
                         SRU06_POSTAL_CODE_N: postalCode,
                         SRU06_CITY_N: city,
                         SRU06_PROVINCE_N: province,
@@ -152,21 +154,18 @@ class DriverController extends BaseController {
             } else {
                 await AddressDetails.query()
                     .insert({
-                        SRU06_LINE_1_N: streetone,
-                        SRU06_LINE_2_N: streettwo,
-                        SRU06_POSTAL_CODE_N: postalCode,
+                        SRU03_USER_MASTER_D:ActiveUser.userId,
+                        SRU06_LINE_1_N: street1,
+                        SRU06_LINE_2_N: street2,                        
                         SRU06_CITY_N: city,
                         SRU06_PROVINCE_N: province,
+                        SRU06_ADDRESS_TYPE_D:AddressType.PERMANENT,
+                        SRU06_POSTAL_CODE_N: postalCode,
                         SRU06_LOCATION_LATITUDE_N: latitude,
                         SRU06_LOCATION_LONGITUDE_N: longitude,
-                        SRU03_USER_MASTER_D: ActiveUser.userId
+                        SRU06_CREATED_D: ActiveUser.userId
                     });
-
-                await UserDetails.query().insert({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU04_UNIT: unit
-                })
-
+                    
                 await Radious.query().insert({
                     SRU10_KM: km,
                     SRU10_MAILS: miles,

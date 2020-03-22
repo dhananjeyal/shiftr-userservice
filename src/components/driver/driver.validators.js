@@ -20,24 +20,37 @@ const CreateExperienceSchema = {
     countryType: Joi.number().required(),
 }
 
+const phone = {    
+    phones: Joi.object({
+        phoneNumber: Joi.number().required()        
+    })
+}
+
+const lang = {    
+    languages: Joi.object({
+        language: Joi.number().required()        
+    })
+}
+
+
 // add joi schema
 const schemas = {
 
     CreateDriverProfile: (isImage = true) => {
         const rule = {
             unit: Joi.number().required(),
-            streetone: Joi.string().required(),
-            streettwo: Joi.string(),
+            street1: Joi.string().required(),
+            street2: Joi.string(),
             city: Joi.string().required(),
             province: Joi.string().required(),
             postalCode: Joi.string().required(),
-            languages: Joi.array().items(lang),
+            // languages: Joi.array().items(lang),
             radious: Joi.string().required(),
-            phones: Joi.array().items(phone),
-            km: Joi.string().valid(booleanType.YES, booleanType.NO),
-            miles: Joi.string().valid(booleanType.YES, booleanType.NO),
-            openDistance: Joi.string().valid(booleanType.YES, booleanType.NO),
-            alcoholTest: Joi.string().valid(booleanType.YES, booleanType.NO),
+            // phones: Joi.array().items(phone),
+            km: Joi.number().valid(booleanType.YES, booleanType.NO),
+            miles: Joi.number().valid(booleanType.YES, booleanType.NO),
+            openDistance: Joi.number().valid(booleanType.YES, booleanType.NO),
+            alcoholTest: Joi.number().valid(booleanType.YES, booleanType.NO),
             latitude: Joi.number().required(),
             longitude: Joi.number().required()
         }
