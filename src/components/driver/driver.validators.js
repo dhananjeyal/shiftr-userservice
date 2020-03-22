@@ -100,7 +100,7 @@ const schemas = {
 },
 
     /**Mobile App Driver Documents */
-    UploaddriverDocuments: Joi.object().keys({
+    driverDocuments: Joi.object().keys({
         driverLicense: Joi.string(), 
         criminalRecord: Joi.string(),
         abstract: Joi.string(), 
@@ -201,20 +201,10 @@ export const financialDetails = (req, res, next) => {
 /**
  * Upload Driver Documents - MobileApp
  */
-export const UploaddriverDocuments = (req, res, next) => {
+export const driverDocuments = (req, res, next) => {
     // Validate file
     if (validateFile(req, res)) {
-        let schema = schemas.UploaddriverDocuments;
-        let option = options.basic;
-        schema.validate({
-            ...req.body,
-        }, option).then(() => {
-            next();
-        }).catch(err => {
-            Response.joierrors(req, res, err);
-        });
-    } else {
-        let schema = schemas.UploaddriverDocuments;
+        let schema = schemas.driverDocuments;
         let option = options.basic;
         schema.validate({
             ...req.body,
@@ -224,4 +214,15 @@ export const UploaddriverDocuments = (req, res, next) => {
             Response.joierrors(req, res, err);
         });
     }
+    // } else {
+    //     let schema = schemas.driverDocuments;
+    //     let option = options.basic;
+    //     schema.validate({
+    //         ...req.body,
+    //     }, option).then(() => {
+    //         next();
+    //     }).catch(err => {
+    //         Response.joierrors(req, res, err);
+    //     });
+    // }
 };

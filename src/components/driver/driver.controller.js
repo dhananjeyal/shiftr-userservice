@@ -165,7 +165,7 @@ class DriverController extends BaseController {
                         SRU06_LOCATION_LONGITUDE_N: longitude,
                         SRU06_CREATED_D: ActiveUser.userId
                     });
-                    
+
                 await Radious.query().insert({
                     SRU10_KM: km,
                     SRU10_MAILS: miles,
@@ -431,7 +431,7 @@ class DriverController extends BaseController {
      * @param res
      * @param userId
      */
-    UploaddriverDocuments = async (req, res) => {
+    driverDocuments = async (req, res) => {
         try {
             let documents = [];
             const {
@@ -507,8 +507,7 @@ class DriverController extends BaseController {
             }
 
 
-        } catch (e) {
-            console.log(e);
+        } catch (e) {            
             return this.internalServerError(req, res, e);
         }
     }

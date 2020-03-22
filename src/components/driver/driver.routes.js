@@ -5,7 +5,7 @@ import {
     CreateDriverProfile,    
     updateDriverProfile,
     financialDetails,
-    UploaddriverDocuments,
+    driverDocuments,
     CreateExperienceDetails    
 } from '../driver/driver.validators'
 
@@ -22,12 +22,11 @@ function registerRoutes() {
         apiRouter.route("/user/signup_status").get(verify, UserController.getSignUpStatus);
 
         // Signup completion
-        apiRouter.route("/driver/driver_profile").post(verify, CreateDriverProfile, DriverController.CreateDriverProfile);
-        // apiRouter.route("/driver/driver_profile").post(verify, CreateDriverProfile, DriverController.CreateDriverProfile);
+        apiRouter.route("/driver/driver_profile").post(verify, CreateDriverProfile, DriverController.CreateDriverProfile);        
         apiRouter.route("/driver/driver_profile").put(verify, updateDriverProfile, DriverController.updateDriverProfile);        
         apiRouter.route("/driver/experience_details").post(verify, CreateExperienceDetails, DriverController.CreateExperienceDetails);
         apiRouter.route("/driver/financial_details").post(verify, financialDetails, DriverController.financialDetails);
-        apiRouter.route("/driver/upload_driver_documents").post(verify, UploaddriverDocuments, DriverController.UploaddriverDocuments);
+        apiRouter.route("/driver/driver_documents").post(verify, driverDocuments, DriverController.driverDocuments);
        
         // apiRouter.route("/driver/driver_profile").get(verify, DriverController.getDriverProfile);
         apiRouter.route("/driver/driver_profile").delete(verify, DriverController.deleteDriverProfile);
