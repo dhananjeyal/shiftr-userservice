@@ -31,16 +31,22 @@ export let driverExperienceColumns = [
 ];
 
 export let driverExpSpecialityColumns = [
+    'SRU12_DRIVER_SPECIALITY_D as driverSpecialityId',
     'SRU12_SPECIALITY_N as specialityType',
     'SRU12_VALIDYEAR_N as validYear',
 ];
 
 export let driverLicenseTypeColumns = [
-    'SRU10_LICENSE_TYPE_N as licenseType',
-    'SRU10_LICENSE_TYPE_DESC_X as licenseTypeDesc',
+    'SRU10_LICENSE_TYPE_D as licenseId',
+    'SRU10_LICENSE_TYPE_N as licenseType'
 ]
 
 export let driverSpecialityColumns = [
-    'SRU11_SPECIALITY_TRAINING_N as specialityType',
-    'SRU11_SPECIALITY_TRAINING_X as specialityDesc',
+    'SRU11_SPECIALITY_TRAINING_D as specialitytrainingId',
+    'SRU11_SPECIALITY_TRAINING_N as specialityType'
+]
+
+export let experienceListColumns = [
+    'SRU13_EXPERIENCE_D as ExperienceListId',
+    'SRU13_EXPERIENCE_R as Experience'
 ]

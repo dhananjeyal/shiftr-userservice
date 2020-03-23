@@ -15,12 +15,13 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns,experienceListColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
 import SpecialityTraining from './model/speciality.model';
 import SpecialityDetails from './model/driverspeciality.model';
+import ExperienceList from './model/experienceList.model';
 import Language from "./model/language.model";
 import Radious from "./model/radious.model";
 import ContactInfo from "./model/contactInfo.model";
@@ -84,8 +85,7 @@ class DriverController extends BaseController {
             }
 
             //Format data
-            phones.map((data,index) => {
-                console.log(data)
+            phones.map((data,index) => {               
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
                     SRU09_PHONE_R: phones[index]
@@ -563,7 +563,9 @@ class DriverController extends BaseController {
         try {
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
+            const experienceList = await ExperienceList.query().select(experienceListColumns);
             const result = {
+                experienceList,
                 licenseType,
                 speciality
             }
