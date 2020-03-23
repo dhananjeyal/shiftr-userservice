@@ -196,6 +196,7 @@ class DriverController extends BaseController {
             let specialityData = [];
             const { data } = req.body;
             
+            //Experience Details
             data.map((currExpDetails, index) => {      
                 const { licenseType, driverExp, countryType } = currExpDetails;
                 experienceData.push({
