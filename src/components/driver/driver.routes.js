@@ -32,7 +32,7 @@ function registerRoutes() {
         apiRouter.route("/driver/driver_profile").delete(verify, DriverController.deleteDriverProfile);
                             
         // Get Driver Master
-        apiRouter.route("/driver/fetch_master").get(verify, DriverController.getMasterData);
+        apiRouter.route("/driver/fetch_master").get(DriverController.getMasterData);
     };
 }
 
