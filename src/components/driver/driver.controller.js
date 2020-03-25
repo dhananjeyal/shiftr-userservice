@@ -443,6 +443,12 @@ class DriverController extends BaseController {
                 abstract,
                 cvor
             } = req.body;
+
+
+console.log(req.body);
+return;
+
+
             const { userId } = req.user;
             documents.push(
                 {
@@ -493,7 +499,7 @@ class DriverController extends BaseController {
                     );
                 }
             });
-
+console.log(documents);
             await UserDocument.query().delete().where({
                 SRU03_USER_MASTER_D: userId,
             }).whereIn('SRU01_TYPE_D', [DocumentType.CVOR, DocumentType.ABSTRACT, DocumentType.CRIMINAL, DocumentType.LICENSE, DocumentType.OTHERS]);
