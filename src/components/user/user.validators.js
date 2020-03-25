@@ -21,6 +21,27 @@ const schemas = {
             then: Joi.string().min(10).max(15).required()
         })
     }),
+
+    travelsSignup: Joi.object().keys({
+        firstName: Joi.string().regex(/[a-zA-Z][a-zA-Z\s]*$/).max(50).required(),
+        lastName: Joi.string().regex(/^[a-zA-Z]*$/).max(50).required(),
+        emailId: Joi.string().email().required(),
+        password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,20}$/).min(8).max(20).required(),
+        type: Joi.number().valid(
+            UserRole.CUSTOMER_R
+        ).required(),
+        phoneNo: Joi.number().min(10).max(15).required(),
+        compnayName:Joi.string().required(),
+        numberofBuses:Joi.number().required(),
+        address1:Joi.string().required(),
+        address2:Joi.string().required(),
+        postalCode:Joi.string().required(),
+        latitude:Joi.string().required(),
+        longitude:Joi.string().required()
+        // longitude:Joi.string().required()
+    }),
+
+
     createUpdateUser: Joi.object().keys({
         firstName: Joi.string().regex(/[a-zA-Z][a-zA-Z\s]*$/).max(50).required(),
         lastName: Joi.string().regex(/^[a-zA-Z]*$/).max(50).required(),
@@ -95,6 +116,20 @@ export const options = {
 
 export const signUpUser = (req, res, next) => {
     let schema = schemas.signUpUser;
+    let option = options.basic;
+    schema.validate({
+        ...req.body,
+        type: req.headers['user-type']
+    }, option).then(() => {
+        next();
+    }).catch(err => {
+        Response.joierrors(req, res, err);
+    });
+};
+
+//TRAVELS - SIGNUP
+export const travelsSignup = (req, res, next) => {
+    let schema = schemas.travelsSignup;
     let option = options.basic;
     schema.validate({
         ...req.body,

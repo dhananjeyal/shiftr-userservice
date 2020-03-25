@@ -1,6 +1,6 @@
 import AuthController from "../user/auth.controller";
 import UserController from './user.controller'
-import { forgetPassword, loginUser, resetPassword, signUpUser, existingEmail } from './user.validators'
+import { forgetPassword, loginUser, resetPassword, signUpUser, existingEmail,travelsSignup } from './user.validators'
 import { mailer } from "../../utils";
 
 function registerRoutes() {
