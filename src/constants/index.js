@@ -88,3 +88,8 @@ export class booleanType {
 export class screeningcanadastatus {
     static FILE_COMPLETED = 'file.completed';    
 }
+
+export class phonenumbertype {
+    static OFFICE = 19;    
+    static HOME = 20;    
+}

@@ -7,7 +7,8 @@ import {
     DocumentName,
     DocumentStatus,
     DocumentType,    
-    SignUpStatus   
+    SignUpStatus,
+    phonenumbertype   
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
@@ -88,6 +89,7 @@ class DriverController extends BaseController {
             phones.map((data,index) => {               
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
+                    SRU01_TYPE_D:phonenumbertype.HOME,
                     SRU09_PHONE_R: phones[index]
                 });
             });

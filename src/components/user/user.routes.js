@@ -8,6 +8,7 @@ function registerRoutes() {
 
         // User {Driver, Customer, Admin}
         openRouter.route("/api/user/sign_up").post(signUpUser, UserController.signUp);
+        openRouter.route("/api/user/travels_Signup").post(UserController.travelsSignup);
 
         openRouter.route("/api/user/login").post(loginUser, UserController.loginUser);
         openRouter.route("/api/user/forget_password").post(forgetPassword, UserController.forgetPassword);
