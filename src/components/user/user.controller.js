@@ -1059,6 +1059,15 @@ class UserController extends BaseController {
     };
 
     /**
+     * @DESC : Get all the driver list
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    getAllDriverList = async (req, res) => {
+        this._getAllUsersList(req, res, UserRole.DRIVER_R);
+    };
+    /**
      * @DESC : Get all the drivers
      * @return array/json
      * @param req
