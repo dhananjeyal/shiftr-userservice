@@ -8,7 +8,7 @@ function registerRoutes() {
 
         /// Admin or super-admin check
         let verify = AuthController.verifySuperAdminOrAdmin;
-        let verifyCustomer = AuthController.verifyCustomer
+        let verifyCustomer = AuthController.verifyCustomer;
         // Create update driver user
        
         apiRouter.route("/user/drivers").get(verify, UserController.getAllDrivers);
@@ -20,7 +20,9 @@ function registerRoutes() {
         // Create update user
         apiRouter.route("/user/create_user").post(verify, createUpdateUser, UserController.createCustomer);
         apiRouter.route("/user/update_user/:userId").put(verify, createUpdateUser, UserController.updateCustomer);
-        apiRouter.route("/user/users").get(UserController.getAllCustomers);
+        
+        apiRouter.route("/user/driver/list").get(verifyCustomer, UserController.getAllCustomers);
+        
         apiRouter.route("/user/get_user/:userId").get(verify, UserController.getUser);
 
         // Get user details

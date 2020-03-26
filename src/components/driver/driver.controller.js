@@ -6,9 +6,9 @@ import {
     AddressType,
     DocumentName,
     DocumentStatus,
-    DocumentType,    
+    DocumentType,
     SignUpStatus,
-    phonenumbertype   
+    phonenumbertype
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
@@ -16,7 +16,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns,experienceListColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, experienceListColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
@@ -36,7 +36,7 @@ class DriverController extends BaseController {
         super();
     }
 
-    
+
     /**
      * @DESC :Create Driver Profile
      * @param string/Integer/object
@@ -86,10 +86,10 @@ class DriverController extends BaseController {
             }
 
             //Format data
-            phones.map((data,index) => {               
+            phones.map((data, index) => {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU01_TYPE_D:phonenumbertype.HOME,
+                    SRU01_TYPE_D: phonenumbertype.HOME,
                     SRU09_PHONE_R: phones[index]
                 });
             });
@@ -109,7 +109,7 @@ class DriverController extends BaseController {
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             };
 
-            languages.map((data,index) => {
+            languages.map((data, index) => {
                 languagesKnown.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
                     SRU11_LANGUAGE_N: languages[index]
@@ -124,7 +124,7 @@ class DriverController extends BaseController {
                 await UserDetails.query()
                     .patch({
                         SRU04_UNIT: unit || UserDetailsResponse.unit,
-                        SRU04_PROFILE_I:userprofile
+                        SRU04_PROFILE_I: userprofile
                     }).where({
                         SRU03_USER_MASTER_D: ActiveUser.userId
                     });
@@ -156,12 +156,12 @@ class DriverController extends BaseController {
             } else {
                 await AddressDetails.query()
                     .insert({
-                        SRU03_USER_MASTER_D:ActiveUser.userId,
+                        SRU03_USER_MASTER_D: ActiveUser.userId,
                         SRU06_LINE_1_N: street1,
-                        SRU06_LINE_2_N: street2,                        
+                        SRU06_LINE_2_N: street2,
                         SRU06_CITY_N: city,
                         SRU06_PROVINCE_N: province,
-                        SRU06_ADDRESS_TYPE_D:AddressType.PERMANENT,
+                        SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
                         SRU06_POSTAL_CODE_N: postalCode,
                         SRU06_LOCATION_LATITUDE_N: latitude,
                         SRU06_LOCATION_LONGITUDE_N: longitude,
@@ -197,9 +197,9 @@ class DriverController extends BaseController {
             let experienceData = [];
             let specialityData = [];
             const { data } = req.body;
-            
+
             //Experience Details
-            data.map((currExpDetails, index) => {      
+            data.map((currExpDetails, index) => {
                 const { licenseType, driverExp, countryType } = currExpDetails;
                 experienceData.push({
                     SRU03_USER_MASTER_D: user.userId,
@@ -212,7 +212,7 @@ class DriverController extends BaseController {
                     SRU09_SPECIALITY_KEY_D: `${user.userId}SRDS${index}`
                 });
 
-                if(driverExp.driverSpeciality && driverExp.driverSpeciality.length > 0) {
+                if (driverExp.driverSpeciality && driverExp.driverSpeciality.length > 0) {
                     driverExp.driverSpeciality.map(currSpeciality => {
                         specialityData.push({
                             SRU03_USER_MASTER_D: user.userId,
@@ -410,7 +410,7 @@ class DriverController extends BaseController {
                     SRU06_CREATED_D: req.user.userId,
                 });
             }
-            
+
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED })
                 .where('SRU03_USER_MASTER_D', req.user.userId);
@@ -443,6 +443,7 @@ class DriverController extends BaseController {
                 abstract,
                 cvor
             } = req.body;
+
             const { userId } = req.user;
             documents.push(
                 {
@@ -478,9 +479,10 @@ class DriverController extends BaseController {
                     SRU05_CREATED_D: userId,
                 }
             );
-            
+
+            //push additional documents
             Object.keys(req.body).map(current => {
-                if(current.startsWith('others')) {
+                if (current.startsWith('others')) {
                     documents.push(
                         {
                             SRU03_USER_MASTER_D: userId,
@@ -494,23 +496,26 @@ class DriverController extends BaseController {
                 }
             });
 
+            //Delete Existing documents
             await UserDocument.query().delete().where({
                 SRU03_USER_MASTER_D: userId,
             }).whereIn('SRU01_TYPE_D', [DocumentType.CVOR, DocumentType.ABSTRACT, DocumentType.CRIMINAL, DocumentType.LICENSE, DocumentType.OTHERS]);
 
+            //Insert Documents
             await UserDocument.query().insertGraph(documents);
 
+            //Update signup status
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.FINANCIAL_DETAILS })
                 .where('SRU03_USER_MASTER_D', userId);
 
+            //get All users List (Driver)
             const driver = await this._getDriverDetails(req, res, userId);
             if (driver) {
                 this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
             }
-
-
-        } catch (e) {            
+            
+        } catch (e) {
             return this.internalServerError(req, res, e);
         }
     }
