@@ -9,15 +9,17 @@ import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType,AddressType} from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
 import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/experience.model";
 import FinancialDetails from "../driver/model/financial.model";
-import LicenceType from '../driver/model/licensetype.model';
+import AddressDetails from "../user/model/address.model";
 import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
+import ContactInfo from "../driver/model/contactInfo.model"
 
 class UserController extends BaseController {
 
@@ -101,6 +103,102 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     };
+
+    /**
+     * @DESC : Busowner /Travels signup
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    travelsSignup = async (req, res) => {
+        try {
+
+            const userType = parseInt(req.headers['user-type']);
+
+            // Create user
+            let result = await Users.query().insert({
+                SRU03_FIRST_N: req.body.firstName,
+                SRU03_LAST_N: req.body.lastName,
+                SRU03_EMAIL_N: req.body.emailId,
+                SRU03_PASSWORD_N: genHash(req.body.password),
+                SRU03_TYPE_D: userType,
+                SRU03_STATUS_D: UserStatus.ACTIVE,
+            });
+
+            let insertResult = {
+                userId: result.SRU03_USER_MASTER_D,
+                firstName: result.SRU03_FIRST_N,
+                lastName: result.SRU03_LAST_N,
+                emailId: result.SRU03_EMAIL_N,
+            };
+
+            let signUpStatus = SignUpStatus.COMPLETED;
+
+            // Insert user details
+            await UserDetails.query().insert({
+                SRU03_USER_MASTER_D: insertResult.userId,
+                SRU04_COMPANY_NAME_N: req.body.compnayName,
+                SRU04_NUMBER_OF_BUSES_R: req.body.numberofBuses,
+                SRU04_PHONE_N: req.body.phoneNo,
+                SRU04_EMAIL_STATUS_D: EmailStatus.PENDING,
+                SRU04_SIGNUP_STATUS_D: signUpStatus,
+            });
+
+            const phoneNumbers=[];
+            //Format data
+            req.body.phones.map((data) => {
+                phoneNumbers.push({
+                    SRU03_USER_MASTER_D: insertResult.userId,
+                    SRU01_TYPE_D:data.phonuemberType,
+                    SRU09_CONTACT_PERSON_N	: data.contactPerson,
+                    SRU09_PHONE_R:data.phoneNumber
+                });
+            });
+
+            //Insert contact Info
+            await ContactInfo.query()
+                .insertGraph(phoneNumbers);
+
+                await AddressDetails.query()
+                .insert({
+                    SRU03_USER_MASTER_D: insertResult.userId,
+                    SRU06_LINE_1_N: req.body.address1,
+                    SRU06_LINE_2_N: req.body.address2,
+                    SRU06_POSTAL_CODE_N: req.body.postalCode,
+                    SRU06_ADDRESS_TYPE_D:AddressType.RESIDENTIAL,
+                    SRU06_LOCATION_LATITUDE_N: req.body.latitude,
+                    SRU06_LOCATION_LONGITUDE_N: req.body.longitude
+                });
+
+            let emailToken = encrypt(JSON.stringify({
+                emailId: insertResult.emailId,
+                userId: insertResult.userId
+            }));
+
+            const token = encrypt(JSON.stringify({
+                emailId: insertResult.emailId,
+                userId: insertResult.userId,
+                for: "BEAMS"
+            }));
+
+            let host = req.protocol + '://' + req.get('host');
+            insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
+            insertResult.token = token
+
+            this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
+
+            //TODO: Send the mail
+            return await mailer.signUp(
+                insertResult.firstName,
+                insertResult.emailId,
+                insertResult.verifyEmailLink
+            );
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
 
     /**
      * @DESC : For other services
