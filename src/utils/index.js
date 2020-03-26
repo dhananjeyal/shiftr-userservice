@@ -52,6 +52,7 @@ module.exports = {
 };
 
 function validateFile(req, res) {
+
     let files = req.files;
     if (files && files.length) {
         let details = [];

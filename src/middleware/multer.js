@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
 });
 
 const filter = (req, res, file, cb) => {    
-    if (path.extname(file.originalname).toLowerCase() === ".png" || path.extname(file.originalname).toLowerCase() === ".jpg" || path.extname(file.originalname).toLowerCase() === ".jpeg") {
+    if (path.extname(file.originalname).toLowerCase() === ".png" || path.extname(file.originalname).toLowerCase() === ".jpg" || path.extname(file.originalname).toLowerCase() === ".jpeg" || path.extname(file.originalname).toLowerCase() === ".pdf") {
         cb(null, true);
     } else {
         cb(null, false);
