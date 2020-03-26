@@ -8,7 +8,6 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType } from "../../constants";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType,AddressType} from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
