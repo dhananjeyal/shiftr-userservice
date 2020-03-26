@@ -213,8 +213,8 @@ export const driverDocuments = (req, res, next) => {
         }).catch(err => {
             Response.joierrors(req, res, err);
         });
-    }
-    // } else {
+    } 
+    // else {
     //     let schema = schemas.driverDocuments;
     //     let option = options.basic;
     //     schema.validate({
