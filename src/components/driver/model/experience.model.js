@@ -1,5 +1,6 @@
 import BaseModel from '../../../config/db'
 import Users from "../../user/model/user.model";
+import Speciality from '../model/driverspeciality.model';
 
 class ExperienceDetails extends BaseModel {
 
@@ -19,6 +20,14 @@ class ExperienceDetails extends BaseModel {
                 join: {
                     from: 'SRU09_DRIVEREXP.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
+                }
+            },
+            SpecialityDetails: {
+                relation: BaseModel.HasOneRelation,
+                modelClass: Speciality,
+                join: {
+                    from: 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D',
+                    to: 'sru12_driver_speciality.SRU09_DRIVEREXP_D'
                 }
             }
         }

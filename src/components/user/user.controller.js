@@ -7,7 +7,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -15,6 +15,7 @@ import VehicleDetails from "../driver/model/vehicle.model";
 import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/experience.model";
 import FinancialDetails from "../driver/model/financial.model";
+import LicenceType from '../driver/model/licensetype.model';
 import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 
@@ -123,8 +124,8 @@ class UserController extends BaseController {
                 });
             }
             const result = await query.select([`${Users.tableName}.SRU03_USER_MASTER_D as userId`, `${Users.tableName}.SRU03_FIRST_N as firstName`, `${Users.tableName}.SRU03_LAST_N as lastName`, 'userDetails.SRU04_PHONE_N as phoneNo']).
-                orderBy('firstName', 'asc').
-                page(page - 1, chunk);
+            orderBy('firstName', 'asc').
+            page(page - 1, chunk);
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (error) {
             console.log(error);
@@ -133,11 +134,11 @@ class UserController extends BaseController {
     }
 
     /**
-        * @DESC : For other services - Get single User Result.
-        * @return array/json
-        * @param req
-        * @param res
-        */
+     * @DESC : For other services - Get single User Result.
+     * @return array/json
+     * @param req
+     * @param res
+     */
     getuserById = async (req, res) => {
         try {
             const userId = req.body.userId;
@@ -619,7 +620,7 @@ class UserController extends BaseController {
                 body: this.messageTypes.passMessages.deactivateUser,
                 type: NotifyType.DE_ACTIVATE_USER,
             }
-            notifyData = {
+            notifyData = { 
                 ...notifyData, ...newdata
             }
         }
@@ -865,15 +866,15 @@ class UserController extends BaseController {
                 pageMetaData
             };
 
-            if(userType === UserRole.DRIVER_R) {
+            if (userType === UserRole.DRIVER_R) {
                 // To fetch drivers experience details
-                for(let currUser of result.list) {
+                for (let currUser of result.list) {
                     const driverExperience = await ExperienceDetails.query().select(driverExperienceColumns).where({
-                            SRU03_USER_MASTER_D: currUser.userId
+                        SRU03_USER_MASTER_D: currUser.userId
                     });
 
-                    if(driverExperience) {
-                        for(let result of driverExperience) {
+                    if (driverExperience) {
+                        for (let result of driverExperience) {
                             const driverSpeciality = await SpecialityDetails.query().select(driverExpSpecialityColumns).where({
                                 SRU09_DRIVEREXP_D: result.specialityKey
                             });
@@ -890,6 +891,66 @@ class UserController extends BaseController {
         }
     };
 
+
+    /**
+     * @DESC : Get all the users by type
+     * @return array/json
+     * @param req
+     * @param res
+     * @param userType
+     */
+    _getAllUsersList = async (req, res, userType) => {
+        try {
+            const page = parseInt(req.query.page || 1);
+            const chunk = parseInt(req.query.chunk || 10);
+            const status = req.query.status;
+            const search = req.query.search;
+            const signUpStatus = req.query.signUpStatus;
+            let where = {
+                SRU03_TYPE_D: userType
+            };
+
+            if (status) {
+                where.SRU03_STATUS_D = parseInt(req.query.status)
+            }
+
+            if (signUpStatus) {
+                where.SRU04_SIGNUP_STATUS_D = parseInt(req.query.signUpStatus)
+            }
+
+            let userQuery = Users.query().where(where).join(UserDetails.tableName,
+                `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
+                `${Users.tableName}.SRU03_USER_MASTER_D`,
+            )
+            userQuery = await userQuery.select(userListColumns).page(page - 1, chunk);
+
+            let specialityQuery = SpecialityDetails.query()
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D');
+
+            specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
+
+            const result = {
+                userQuery,
+                specialityQuery
+            };
+            let Output = []
+            for (const user of userQuery.results) {
+                for (const data of specialityQuery.results) {
+                    if (user.userId === data.userId) {
+                        Output.push({
+                            "DriverInfo": {...user},
+                            "DriverExp": {...data}
+                        });
+                    }
+                }
+            }
+
+            return this.success(req, res, this.status.HTTP_OK, Output, this.messageTypes.successMessages.getAll);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
     /**
      * @DESC : Get all the customers
      * @return array/json
@@ -897,7 +958,7 @@ class UserController extends BaseController {
      * @param res
      */
     getAllCustomers = async (req, res) => {
-        this._getAllUsers(req, res, UserRole.CUSTOMER_R);
+        this._getAllUsersList(req, res, UserRole.CUSTOMER_R);
     };
 
     /**

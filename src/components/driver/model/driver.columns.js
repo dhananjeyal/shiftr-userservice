@@ -1,3 +1,5 @@
+import DriverExperience from './experience.model';
+
 export let driverUserDetailsColumns = [
     'SRU04_DETAIL_D as detailsId',
     'SRU03_USER_MASTER_D as userId',
@@ -23,6 +25,7 @@ export let driverFinancialColumns = [
 ];
 
 export let driverExperienceColumns = [
+    `${DriverExperience.tableName}.SRU03_USER_MASTER_D as userId`,
     'SRU09_SPECIALITY_KEY_D as specialityKey',
     'SRU09_TYPE_N as experienceType',//Experience Type = CANADA | USA
     'SRU09_LICENSE_TYPE_N as licenseType',//Experience Type = CANADA | USA

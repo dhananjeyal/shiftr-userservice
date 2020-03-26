@@ -71,6 +71,17 @@ export let adminListColumns = [
 ];
 
 
+export let userListColumns = [
+    `${Users.tableName}.SRU03_USER_MASTER_D as userId`,
+    `${Users.tableName}.SRU03_FIRST_N as firstName`,
+    `${Users.tableName}.SRU03_LAST_N as lastName`,
+    `${Users.tableName}.SRU03_EMAIL_N as emailId`,
+    `${Users.tableName}.SRU03_STATUS_D as status`,
+    `${Users.tableName}.SRU03_UPDATED_AT as updatedAt`,
+    `${UsersDetails.tableName}.SRU04_PHONE_N as phoneNo`,
+    `${UsersDetails.tableName}.SRU04_EXPERIENCE_D as experience`,
+];
+
 export let screeningCanadastatus = [
     'SRU09_SCREENING_CANADA_STATUS_D as SCstatusId',    
     'SRU09_SC_USER_N as screeningcanadaUserId',
