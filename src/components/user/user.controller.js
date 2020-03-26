@@ -1002,7 +1002,7 @@ class UserController extends BaseController {
             const page = parseInt(req.query.page || 1);
             const chunk = parseInt(req.query.chunk || 10);
             const status = req.query.status;
-            const search = req.query.search;
+            // const search = req.query.search;
             const signUpStatus = req.query.signUpStatus;
             let where = {
                 SRU03_TYPE_D: userType
