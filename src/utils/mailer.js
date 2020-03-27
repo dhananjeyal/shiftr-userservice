@@ -1,95 +1,107 @@
-import { SignUpStatus, UserRole, UserStatus } from "../constants";
+import {UserRole, UserStatus} from "../constants";
 
 const nodemailer = require("nodemailer");
 
-const transport = nodemailer.createTransport({
-    service: process.env.SMTP_SERVICE,
-    host: process.env.SMTP_HOST,
-    secureConnection: false,
-    logger: true,
-    debug: true,
-    port: process.env.SMTP_PORT,
-    auth: {
-        user: process.env.SMTP_USERNAME,
-        pass: process.env.SMTP_PASSWORD
-    }
-}, {
-    from: `${process.env.SMTP_FROM}`
-});
+export const sendMail = async (to, subject, html) => {
+    const transport = nodemailer.createTransport({
+        service: 'gmail',
+        host: "smtp.gmail.com",
+        secureConnection: false,
+        logger: true,
+        debug: true,
+        port: 465,
+        auth: {
+            user: "shiftr@joshiinc.com",
+            pass: "joshiinc123"
+        }
+    }, {
+        from: 'shiftR <shiftr@joshiinc.com>'
+    });
 
-export const sendMail = async (to, subject, template, options) => {
-    if (process.env.SMTP_ENABLED) {
-        return transport.sendMail({
-            to: to,
-            subject: subject,
-            headers: {
-                'X-MC-Template': template,
-                'X-MC-MergeVars':JSON.stringify(options)
-            }
-        });
-        /*if (context) {
-          options.viewEngine.defaultLayout = 'template';
-          transport.use('compile', mailerhbs(options));
-            return transport.sendMail({
-                to: to,
-                template: html,
-                subject: subject,
-                context: context
-            });
-        } else {
-            return transport.sendMail({
-                to: to,
-                subject: subject,
-                html: html
-            });
-        }*/
-    }
+    const mailOptions = {
+        to: to, // list of receivers
+        subject: subject, // Subject line
+        html: html // html body
+    };
+
+    return transport.sendMail(mailOptions);
 };
 
 export const signUp = (firstName, email, link) => {
-    let context = { firstName, link };
-    return sendMail(email, "Verification Email", "signup", context);
+    let html = `<b>Hello ${firstName}</b>
+                <p>Thank you for signing up on our platform please click on the below link to verify your account</p>
+                <a href="${link}">Verify your account</a>
+                <p>Best regards</p>`;
+    return sendMail(email, "Verification Email", html)
 };
 
 export const emailVerified = (user) => {
-    let context = { role: user.typeId, firstName: user.firstName };
-    return sendMail(user.emailId, "Email verified", "emailVerified", context);
+    let html = `<b>Hello ${user.firstName}</b>
+                    <p>You're email is successfully verified. You can now login to continue..</p>
+                    <p>Best regards</p>`;
+
+    if (user.typeId === UserRole.DRIVER_R) {
+        html = `<b>Hello ${user.firstName}</b>
+                    <p>The email verification process is done now you are just a few steps away to use the platform please log in and complete the entire sign up process.</p>
+                    <p>Best regards</p>`;
+    }
+    return sendMail(user.emailId, "Email verified", html)
 };
 
 export const accountCreated = (user, link) => {
-    let context = { role: user.typeId,link, firstName:user.firstName, emailId: user.emailId, password: user.password };
-    return sendMail(user.emailId, "Account created", "accountCreated", context)
+    let html = `<b>Hello ${user.firstName}</b>
+                    <p>ShiftR admin has created an account for you, please download the app "{app-link}" and log in with temporary credentials:</p>
+                    <p>Username / email address: ${user.emailId}</p>
+                    <p>Temporary password: ${user.password}</p>
+                    <hr>
+                    <p>OR</p>
+                    <p>Set a new password using below shown link:</p>
+                    <a href="${link}">Set new password</a>
+                    <p>Best regards</p>`;
+
+    if (user.typeId === UserRole.ADMIN_R) {
+        html = `<b>Hello ${user.firstName}</b>
+                    <p>ShiftR admin has created an account for you, you can log in the admin dashboard using following credential:</p>
+                    <p>Username / email address: ${user.emailId}</p>
+                    <p>Temporary password: ${user.password}</p>
+                    <hr>
+                    <p>OR</p>
+                    <p>Set a new password using below shown link:</p>
+                    <a href="${link}">Set new password</a>
+                    <p>Best regards</p>`;
+    }
+
+    return sendMail(user.emailId, "Account created", html)
 };
 
 export const activateDeactivate = (user) => {
-    let context = { status: user.status, firstName:user.firstName };
+    let html = `<b>Hello ${user.firstName}</b>
+                    <p>Your account has been activated please you can now log in to the account.</p>
+                    <p>Best regards</p>`;
     let subject = "Account activated";
-    if(user.status === UserStatus.INACTIVE){
+
+    if (user.status === UserStatus.INACTIVE) {
+        html = `<b>Hello ${user.firstName}</b>
+                    <p>Your account has been suspended please contact the admin for further clarification.</p>
+                    <p>Best regards</p>`;
         subject = "Account suspended";
     }
-    return sendMail(user.emailId, subject, "activateDeactivate", context)
+
+    return sendMail(user.emailId, subject, html)
 };
 
 export const forgetPassword = (user, link) => {
-  const context = { firstName:user.firstName, link };
-  return sendMail(user.emailId, "Forgot password", "forgetPassword", context);
+    let html = `<b>Hi ${user.firstName},</b>
+                    <p>You can reset your password by using the below link within 24 hours.</p>
+                    <a href="${link}">Reset Password</a>
+                    <p>Please ignore this email, if you haven't made this request. You can continue to use your current password.</p>
+                    <p>Best regards</p>`;
+    return sendMail(user.emailId, "Forget password", html)
 };
 
 export const resetPassword = (user) => {
-    let context = { firstName:user.firstName };
-    return sendMail(user.emailId, "Password reset",  "resetPassword", context);
-};
-
-export const signUpStatus = (user, signUpStatus) => {
-    let subject = null;
-    if (signUpStatus === SignUpStatus.VERIFIED) {
-        subject = "Profile approved";
-    } else if (signUpStatus === SignUpStatus.REJECTED) {
-        subject = "Profile rejected";
-    }
-    let context = { firstName:user.firstName, signUpStatus, link:'', adminEmail:'' }
-    if (!!subject) {
-        return sendMail(user.emailId, subject, 'signUpStatus', context);
-    }
-
+    let html = `<b>Hello ${user.firstName},</b>
+                    <p>You have successfully reset your password you can now log in to the app with your new credential.</p>
+                    <p>Best regards</p>`;
+    return sendMail(user.emailId, "Password reset", html)
 };
