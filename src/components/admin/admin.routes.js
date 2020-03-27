@@ -21,7 +21,10 @@ function registerRoutes() {
         apiRouter.route("/user/create_user").post(verify, createUpdateUser, UserController.createCustomer);
         apiRouter.route("/user/update_user/:userId").put(verify, createUpdateUser, UserController.updateCustomer);
         
-        apiRouter.route("/user/driver/list").get(verifyCustomer, UserController.getAllCustomers);
+        // apiRouter.route("/user/driver/list").get(verifyCustomer, UserController.getAllCustomers);
+
+        apiRouter.route("/user/driver/list").get(verifyCustomer, UserController.getAllDriverList);
+
         
         apiRouter.route("/user/get_user/:userId").get(verify, UserController.getUser);
 

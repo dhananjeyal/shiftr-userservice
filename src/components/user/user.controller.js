@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType,AddressType} from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -143,14 +143,14 @@ class UserController extends BaseController {
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
             });
 
-            const phoneNumbers=[];
+            const phoneNumbers = [];
             //Format data
             req.body.phones.map((data) => {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: insertResult.userId,
-                    SRU01_TYPE_D:data.phonuemberType,
-                    SRU09_CONTACT_PERSON_N	: data.contactPerson,
-                    SRU09_PHONE_R:data.phoneNumber
+                    SRU01_TYPE_D: data.phonuemberType,
+                    SRU09_CONTACT_PERSON_N: data.contactPerson,
+                    SRU09_PHONE_R: data.phoneNumber
                 });
             });
 
@@ -158,13 +158,13 @@ class UserController extends BaseController {
             await ContactInfo.query()
                 .insertGraph(phoneNumbers);
 
-                await AddressDetails.query()
+            await AddressDetails.query()
                 .insert({
                     SRU03_USER_MASTER_D: insertResult.userId,
                     SRU06_LINE_1_N: req.body.address1,
                     SRU06_LINE_2_N: req.body.address2,
                     SRU06_POSTAL_CODE_N: req.body.postalCode,
-                    SRU06_ADDRESS_TYPE_D:AddressType.RESIDENTIAL,
+                    SRU06_ADDRESS_TYPE_D: AddressType.RESIDENTIAL,
                     SRU06_LOCATION_LATITUDE_N: req.body.latitude,
                     SRU06_LOCATION_LONGITUDE_N: req.body.longitude
                 });
@@ -221,8 +221,8 @@ class UserController extends BaseController {
                 });
             }
             const result = await query.select([`${Users.tableName}.SRU03_USER_MASTER_D as userId`, `${Users.tableName}.SRU03_FIRST_N as firstName`, `${Users.tableName}.SRU03_LAST_N as lastName`, 'userDetails.SRU04_PHONE_N as phoneNo']).
-            orderBy('firstName', 'asc').
-            page(page - 1, chunk);
+                orderBy('firstName', 'asc').
+                page(page - 1, chunk);
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (error) {
             console.log(error);
@@ -717,7 +717,7 @@ class UserController extends BaseController {
                 body: this.messageTypes.passMessages.deactivateUser,
                 type: NotifyType.DE_ACTIVATE_USER,
             }
-            notifyData = { 
+            notifyData = {
                 ...notifyData, ...newdata
             }
         }
@@ -1004,7 +1004,7 @@ class UserController extends BaseController {
             // const search = req.query.search;
             const signUpStatus = req.query.signUpStatus;
             let where = {
-                SRU03_TYPE_D: userType
+                "SRU03_USER_MASTER.SRU03_TYPE_D": userType
             };
 
             if (status) {
@@ -1018,7 +1018,8 @@ class UserController extends BaseController {
             let userQuery = Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
-            )
+            ).orderBy("SRU03_USER_MASTER.SRU03_USER_MASTER_D", "desc");
+
             userQuery = await userQuery.select(userListColumns).page(page - 1, chunk);
 
             let specialityQuery = SpecialityDetails.query()
@@ -1026,17 +1027,17 @@ class UserController extends BaseController {
 
             specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
 
-            const result = {
-                userQuery,
-                specialityQuery
-            };
+            // const result = {
+            //     userQuery,
+            //     specialityQuery
+            // };
             let Output = []
             for (const user of userQuery.results) {
                 for (const data of specialityQuery.results) {
                     if (user.userId === data.userId) {
                         Output.push({
-                            "DriverInfo": {...user},
-                            "DriverExp": {...data}
+                            "DriverInfo": { ...user },
+                            "DriverExp": { ...data }
                         });
                     }
                 }
@@ -1058,6 +1059,15 @@ class UserController extends BaseController {
         this._getAllUsersList(req, res, UserRole.CUSTOMER_R);
     };
 
+    /**
+     * @DESC : Get all the driver list
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    getAllDriverList = async (req, res) => {
+        this._getAllUsersList(req, res, UserRole.DRIVER_R);
+    };
     /**
      * @DESC : Get all the drivers
      * @return array/json
