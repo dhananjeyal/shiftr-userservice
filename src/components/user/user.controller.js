@@ -93,7 +93,7 @@ class UserController extends BaseController {
             // Generate JWT token
             const authToken = jwt.sign({
                 userId: insertResult.userId,
-                type: 'signup'
+                type: 'login'
             }, process.env.JWT_SECRET
                 // , { expiresIn: 86400 }
             );
