@@ -89,6 +89,17 @@ class UserController extends BaseController {
             insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
             insertResult.token = token
 
+
+            // Generate JWT token
+            const authToken = jwt.sign({
+                userId: insertResult.userId,
+                type: 'signup'
+            }, process.env.JWT_SECRET
+                // , { expiresIn: 86400 }
+            );
+
+            insertResult.Authtoken = `Bearer ${authToken}`;
+            
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             //TODO: Send the mail
