@@ -87,7 +87,7 @@ class UserController extends BaseController {
 
             let host = req.protocol + '://' + req.get('host');
             insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
-            insertResult.token = token
+            insertResult.beamstoken = token
 
 
             // Generate JWT token
@@ -98,8 +98,8 @@ class UserController extends BaseController {
                 // , { expiresIn: 86400 }
             );
 
-            insertResult.Authtoken = `Bearer ${authToken}`;
-            
+            insertResult.token = `Bearer ${authToken}`;
+
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             //TODO: Send the mail
