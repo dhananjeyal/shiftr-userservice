@@ -20,6 +20,8 @@ export class DocumentType {
 export class CountryType {
     static CANADA = 17;
     static USA = 18;
+    static CANADA_LIST = 38;
+    static USA_LIST = 231;
 }
 
 export class DocumentName {
