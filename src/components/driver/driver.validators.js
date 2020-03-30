@@ -101,10 +101,17 @@ const schemas = {
 
     /**Mobile App Driver Documents */
     driverDocuments: Joi.object().keys({
-        driverLicense: Joi.string(), 
-        criminalRecord: Joi.string(),
-        abstract: Joi.string(), 
-        cvor: Joi.string()
+        driverLicense: Joi.string().required(), 
+        criminalRecord: Joi.string().required(),
+        abstract: Joi.string().required(), 
+        cvor: Joi.string().required()
+    }), 
+
+    /**Mobile App Driver - Upload Document*/
+    documentUpload: Joi.object().keys({
+        attachment: Joi.string().required(), 
+        DocName: Joi.string().required(),
+        DocType: Joi.number().required()
     }), 
 };
 
@@ -225,4 +232,23 @@ export const driverDocuments = (req, res, next) => {
     //         Response.joierrors(req, res, err);
     //     });
     // }
+};
+
+
+/**
+ * Upload Driver Documents - MobileApp
+ */
+export const documentUpload = (req, res, next) => {
+    // Validate file
+    if (validateFile(req, res)) {
+        let schema = schemas.documentUpload;
+        let option = options.basic;
+        schema.validate({
+            ...req.body,
+        }, option).then(() => {
+            next();
+        }).catch(err => {
+            Response.joierrors(req, res, err);
+        });
+    } 
 };

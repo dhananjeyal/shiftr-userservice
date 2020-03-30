@@ -6,6 +6,7 @@ import {
     updateDriverProfile,
     financialDetails,
     driverDocuments,
+    documentUpload,
     CreateExperienceDetails    
 } from '../driver/driver.validators'
 
@@ -27,6 +28,7 @@ function registerRoutes() {
         apiRouter.route("/driver/experience_details").post(verify, CreateExperienceDetails, DriverController.CreateExperienceDetails);
         apiRouter.route("/driver/financial_details").post(verify, financialDetails, DriverController.financialDetails);
         apiRouter.route("/driver/driver_documents").post(verify, driverDocuments, DriverController.driverDocuments);
+        apiRouter.route("/driver/documentUpload").post(verify, documentUpload, DriverController.documentUpload);
        
         // apiRouter.route("/driver/driver_profile").get(verify, DriverController.getDriverProfile);
         apiRouter.route("/driver/driver_profile").delete(verify, DriverController.deleteDriverProfile);

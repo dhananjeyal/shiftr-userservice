@@ -1,4 +1,5 @@
 import BaseController from '../baseController';
+import LocationController from '../masterdetails/location.controller';
 import { raw } from 'objection'
 import Users from "../user/model/user.model";
 import { decrypt, encrypt } from "../../utils/cipher";
@@ -8,7 +9,8 @@ import {
     DocumentStatus,
     DocumentType,
     SignUpStatus,
-    phonenumbertype
+    phonenumbertype,
+    CountryType
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
@@ -26,6 +28,10 @@ import ExperienceList from './model/experienceList.model';
 import Language from "./model/language.model";
 import Radious from "./model/radious.model";
 import ContactInfo from "./model/contactInfo.model";
+import Province from '../masterdetails/model/province.model'
+import { provinceColumns } from '../masterdetails/model/location.columns';
+
+
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -514,11 +520,67 @@ class DriverController extends BaseController {
             if (driver) {
                 this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
             }
-            
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
     }
+
+
+
+    /**
+     * @DESC : Upload driver Documents - Mobile APP
+     * @return array/json
+     * @param req
+     * @param res
+     * @param userId
+     */
+    documentUpload = async (req, res) => {
+        try {
+            let documents = [];
+            const {
+                attachment,
+                DocName,
+                DocType
+            } = req.body;
+
+            const { userId } = req.user;
+
+            //Delete Existing documents
+            await UserDocument.query().delete().where({
+                SRU03_USER_MASTER_D: userId,
+            }).where('SRU01_TYPE_D',DocType);
+
+
+            //Insert Documents
+            await UserDocument.query().insert(
+                {
+                    SRU03_USER_MASTER_D: userId,
+                    SRU05_NAME: DocName,
+                    SRU01_TYPE_D: DocType,
+                    SRU02_STATUS_D: DocumentStatus.PENDING,
+                    SRU05_DOCUMENT_I: attachment,
+                    SRU05_CREATED_D: userId,
+                }
+            );
+
+            //Update signup status
+            await UserDetails.query()
+                .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.FINANCIAL_DETAILS })
+                .where('SRU03_USER_MASTER_D', userId);
+
+            //get All users List (Driver)
+            const driver = await this._getDriverDetails(req, res, userId);
+            if (driver) {
+                this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+            }
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+
 
     /**
      * @DESC : Get driver details reused method
@@ -571,10 +633,14 @@ class DriverController extends BaseController {
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
+            let provinceList = await Province.query().select(provinceColumns)
+                .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST);
+
             const result = {
                 experienceList,
                 licenseType,
-                speciality
+                speciality,
+                provinceList
             }
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (e) {
