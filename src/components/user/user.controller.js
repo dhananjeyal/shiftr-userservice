@@ -1034,7 +1034,8 @@ class UserController extends BaseController {
             userQuery = await userQuery.select(userListColumns).page(page - 1, chunk);
 
             let specialityQuery = SpecialityDetails.query()
-                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D');
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
+                .orderBy("SRU09_DRIVEREXP.SRU03_USER_MASTER_D", "desc");
 
             specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
 
