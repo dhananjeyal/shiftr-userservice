@@ -1040,7 +1040,7 @@ class UserController extends BaseController {
             // specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
             specialityQuery = await specialityQuery.select(driverExperienceColumns);
 
-console.log(userQuery)
+console.log(userQuery.Users)
 console.log(specialityQuery);
 
 
