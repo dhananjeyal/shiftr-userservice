@@ -82,7 +82,7 @@ const schemas = {
     if (bodydata.attachment) {
         rule = {
             attachment: Joi.string(),
-            accountNumber: Joi.string().required()
+            // accountNumber: Joi.string().required()
         };
     } else {
          rule = {

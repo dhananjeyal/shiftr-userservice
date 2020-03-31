@@ -391,11 +391,11 @@ class DriverController extends BaseController {
                     SRU05_CREATED_D: req.user.userId
                 });
 
-                await FinancialDetails.query().insert({
-                    SRU03_USER_MASTER_D: req.user.userId,
-                    SRU08_ACCOUNT_N: accountNumber,
-                    SRU08_CREATED_D: req.user.userId
-                });
+                // await FinancialDetails.query().insert({
+                //     SRU03_USER_MASTER_D: req.user.userId,
+                //     SRU08_ACCOUNT_N: accountNumber,
+                //     SRU08_CREATED_D: req.user.userId
+                // });
 
             } else {
                 await FinancialDetails.query().delete().where({
@@ -640,14 +640,18 @@ class DriverController extends BaseController {
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
-            let provinceList = await Province.query().select(provinceColumns)
+            let canadaprovinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST);
+
+            let USProvinceList = await Province.query().select(provinceColumns)
+                .where('SRU15_COUNTRY_D', CountryType.USA_LIST);
 
             const result = {
                 experienceList,
                 licenseType,
                 speciality,
-                provinceList
+                canadaprovinceList,
+                USProvinceList
             }
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (e) {
