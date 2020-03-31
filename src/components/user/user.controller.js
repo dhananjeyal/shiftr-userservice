@@ -1040,28 +1040,28 @@ class UserController extends BaseController {
                 .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
                 .whereIn("SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D", userids)
                 .where({
-                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
-                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada || driverdetails.trainingus,
-                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada || driverdetails.experienceus,
-                    "SRU09_CURRENT_N": driverdetails.province || driverdetails.state
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype ? driverdetails.licencetype : "",
+                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada ? driverdetails.trainingcanada: "" || driverdetails.trainingus ? driverdetails.trainingus: "",
+                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada ? driverdetails.experiencecanada: "" || driverdetails.experienceus ? driverdetails.experienceus: "",
+                    "SRU09_CURRENT_N": driverdetails.province ? driverdetails.province: "" || driverdetails.state ? driverdetails.state: ""
                 })
                 .orWhere({
-                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
-                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada || driverdetails.trainingus
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype ? driverdetails.licencetype: "",
+                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada ? driverdetails.trainingcanada: "" || driverdetails.trainingus ? driverdetails.trainingus: ""
                 })
                 .orWhere({
-                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada || driverdetails.experienceus,
-                    "SRU09_CURRENT_N": driverdetails.province || driverdetails.state
+                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada ? driverdetails.experiencecanada: "" || driverdetails.experienceus ? driverdetails.experienceus: "",
+                    "SRU09_CURRENT_N": driverdetails.province ? driverdetails.province: "" || driverdetails.state ? driverdetails.state: ""
                 })
                 .orWhere({
-                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
-                    "SRU12_SPECIALITY_N": driverdetails.specialityName
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype ? driverdetails.licencetype: "",
+                    "SRU12_SPECIALITY_N": driverdetails.specialityName ? driverdetails.specialityName: ""
                 })
                 .orWhere({
-                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype ? driverdetails.licencetype: "",
                 });
 
-                specialityQuery = await specialityQuery.select(driverExperienceColumns);
+            specialityQuery = await specialityQuery.select(driverExperienceColumns);
             // specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
 
             const result = {
