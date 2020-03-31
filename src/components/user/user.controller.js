@@ -1073,7 +1073,7 @@ class UserController extends BaseController {
      * @param res
      */
     getAllCustomers = async (req, res) => {
-        this._getAllUsersList(req, res, UserRole.CUSTOMER_R);
+        this._getAllUsers(req, res, UserRole.CUSTOMER_R);
     };
 
     /**
