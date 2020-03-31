@@ -23,7 +23,7 @@ function registerRoutes() {
         
         // apiRouter.route("/user/driver/list").get(verifyCustomer, UserController.getAllCustomers);
 
-        apiRouter.route("/user/driver/list").get(verifyCustomer, UserController.getAllDriverList);
+        apiRouter.route("/user/driver/list").post(verifyCustomer, UserController.getAllDriverList);
 
         
         apiRouter.route("/user/get_user/:userId").get(verify, UserController.getUser);
