@@ -1029,19 +1029,22 @@ class UserController extends BaseController {
             let userQuery = Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
-            ).orderBy("SRU03_USER_MASTER.SRU03_USER_MASTER_D", "desc");
+            );
 
-            userQuery = await userQuery.select(userListColumns).page(page - 1, chunk);
+            userQuery = await userQuery.select(userListColumns);
+            // userQuery = await userQuery.select(userListColumns).page(page - 1, chunk);
 
             let specialityQuery = SpecialityDetails.query()
                 .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D');
 
-            specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
+            // specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
+            specialityQuery = await specialityQuery.select(driverExperienceColumns);
 
-            // const result = {
-            //     userQuery,
-            //     specialityQuery
-            // };
+console.log(userQuery.results);
+console.log(specialityQuery.results);
+
+
+
             let Output = []
             for (const user of userQuery.results) {
                 for (const data of specialityQuery.results) {
