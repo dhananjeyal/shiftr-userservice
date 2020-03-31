@@ -1009,8 +1009,7 @@ class UserController extends BaseController {
      */
     _getAllUsersList = async (req, res, userType) => {
         try {
-            const page = parseInt(req.query.page || 1);
-            const chunk = parseInt(req.query.chunk || 10);
+            const { driverdetails } = req.body
             const status = req.query.status;
             // const search = req.query.search;
             const signUpStatus = req.query.signUpStatus;
@@ -1034,31 +1033,54 @@ class UserController extends BaseController {
             userQuery = await userQuery.select(userListColumns);
             // userQuery = await userQuery.select(userListColumns).page(page - 1, chunk);
 
+            let userids = userQuery.map((value) => {
+                return value.userId
+            })
             let specialityQuery = SpecialityDetails.query()
                 .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
-                .orderBy("SRU09_DRIVEREXP.SRU03_USER_MASTER_D", "desc");
+                .whereIn("SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D", userids)
+                .where({
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada || driverdetails.trainingus,
+                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada || driverdetails.experienceus,
+                    "SRU09_CURRENT_N": driverdetails.province || driverdetails.state
+                })
+                .orWhere({
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada || driverdetails.trainingus
+                })
+                .orWhere({
+                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada || driverdetails.experienceus,
+                    "SRU09_CURRENT_N": driverdetails.province || driverdetails.state
+                })
+                .orWhere({
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                    "SRU12_SPECIALITY_N": driverdetails.specialityName
+                })
+                .orWhere({
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                });
 
+                specialityQuery = await specialityQuery.select(driverExperienceColumns);
             // specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
-            specialityQuery = await specialityQuery.select(driverExperienceColumns);
 
-console.log(userQuery.Users)
-console.log(specialityQuery);
+            const result = {
+                userQuery,
+                specialityQuery
+            };
+            // let Output = []
+            // for (const user of userQuery.results) {
+            //     for (const data of specialityQuery.results) {
+            //         if (user.userId === data.userId) {
+            //             Output.push({
+            //                 "DriverInfo": { ...user },
+            //                 "DriverExp": { ...data }
+            //             });
+            //         }
+            //     }
+            // }
 
-
-
-            let Output = []
-            for (const user of userQuery.results) {
-                for (const data of specialityQuery.results) {
-                    if (user.userId === data.userId) {
-                        Output.push({
-                            "DriverInfo": { ...user },
-                            "DriverExp": { ...data }
-                        });
-                    }
-                }
-            }
-
-            return this.success(req, res, this.status.HTTP_OK, Output, this.messageTypes.successMessages.getAll);
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
