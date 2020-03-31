@@ -1009,7 +1009,7 @@ class UserController extends BaseController {
      */
     _getAllUsersList = async (req, res) => {
         try {
-            const { driverdetails } = req.body;
+            // const { driverdetails } = req.body;
 
             const driverdetails = {
                 trainingcanada: "",
@@ -1020,48 +1020,42 @@ class UserController extends BaseController {
                 usaprovince: "",
             };
 
-
             //Filter By Driver Details
 
             let specialityQuery = SpecialityDetails.query()
-                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')            
+                .where({                    
+                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": driverdetails.trainingcanada
+                })
+                .orwhere({                    
+                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": driverdetails.trainingusa
+                })
                 .where({
-                    "SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada,
-                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada,
-                    "SRU09_CURRENT_N": driverdetails.canadaprovince
+                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,                    
+                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experiencecanada,
+                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.canadaprovince
                 })
                 .orwhere({
-                    "SRU09_TYPE_N": CountryType.USA,
-                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada,
-                    "SRU09_TOTALEXP_N": driverdetails.experienceusa,
-                    "SRU09_CURRENT_N": driverdetails.usaprovince
+                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
+                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experienceusa,
+                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.usaprovince
                 })
                 .orwhere({
-                    "SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada
+                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
+                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experiencecanada
                 })
                 .orwhere({
-                    "SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada
+                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
+                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.canadaprovince
                 })
                 .orwhere({
-                    "SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_CURRENT_N": driverdetails.canadaprovince
+                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
+                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experienceusa
                 })
                 .orwhere({
-                    "SRU09_TYPE_N": CountryType.USA,
-                    "SRU12_SPECIALITY_N": driverdetails.trainingusa
+                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
+                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.usaprovince
                 })
-                .orwhere({
-                    "SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_TOTALEXP_N": driverdetails.experienceusa
-                })
-                .orwhere({
-                    "SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_CURRENT_N": driverdetails.usaprovince
-                })
-
                 .select(driverExperienceColumns);
 
             let userids = specialityQuery.map((value) => {
