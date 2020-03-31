@@ -1007,52 +1007,60 @@ class UserController extends BaseController {
      * @param res
      * @param userType
      */
-    _getAllUsersList = async (req, res, userType) => {
+    _getAllUsersList = async (req, res) => {
         try {
-            const page = parseInt(req.query.page || 1);
-            const chunk = parseInt(req.query.chunk || 10);
-            const status = req.query.status;
-            // const search = req.query.search;
-            const signUpStatus = req.query.signUpStatus;
+            const { driverdetails } = req.body;
+
+            //Filter By Driver Details
+
+            let specialityQuery = SpecialityDetails.query()
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
+                .where({
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada,
+                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada,
+                    "SRU09_CURRENT_N": driverdetails.province
+                })
+                .orWhere({
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada
+                })
+                .orWhere({
+                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada,
+                    "SRU09_CURRENT_N": driverdetails.province
+                })
+                .orWhere({
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                    "SRU12_SPECIALITY_N": driverdetails.specialityName
+                })
+                .orWhere({
+                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype
+                })
+                .select(driverExperienceColumns);
+
+            let userids = specialityQuery.map((value) => {
+                return value.userId
+            })
+
+
             let where = {
-                "SRU03_USER_MASTER.SRU03_TYPE_D": userType
+                "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
 
-            if (status) {
-                where.SRU03_STATUS_D = parseInt(req.query.status)
-            }
-
-            if (signUpStatus) {
-                where.SRU04_SIGNUP_STATUS_D = parseInt(req.query.signUpStatus)
-            }
 
             let userQuery = Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
-            );
+            )
+                .whereIn('SRU03_USER_MASTER_D', userids)
+                .select(userListColumns);
 
-            userQuery = await userQuery.select(userListColumns);
-            // userQuery = await userQuery.select(userListColumns).page(page - 1, chunk);
-
-            let specialityQuery = SpecialityDetails.query()
-                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D');
-
-            // specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
-            specialityQuery = await specialityQuery.select(driverExperienceColumns);
-
-            // let Output = []
-            // for (const user of userQuery.results) {
-            //     for (const data of specialityQuery.results) {
-            //         if (user.userId === data.userId) {
-            //             Output.push({
-            //                 "DriverInfo": { ...user },
-            //                 "DriverExp": { ...data }
-            //             });
-            //         }
-            //     }
-            // }
-
-            return this.success(req, res, this.status.HTTP_OK, userQuery, this.messageTypes.successMessages.getAll);
+            const result = {
+                userQuery,
+                specialityQuery
+            };
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
+        
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
