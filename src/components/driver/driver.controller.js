@@ -320,6 +320,13 @@ class DriverController extends BaseController {
         }
     };
 
+    
+    /**
+     * @DESC : Delete driver Profile
+     * @return array/json
+     * @param req
+     * @param res
+     */
     deleteDriverProfile = async (req, res) => {
         try {
             let ActiveUser = req.user;
@@ -342,7 +349,7 @@ class DriverController extends BaseController {
                 .where('SRU03_USER_MASTER_D', ActiveUser.userId);
 
             // await VehicleDetails.query().delete().where('SRU03_USER_MASTER_D', ActiveUser.userId);
-            await ExperienceDetails.query().delete().where('SRU03_USER_MASTER_D', ActiveUser.userId)
+            // await ExperienceDetails.query().delete().where('SRU03_USER_MASTER_D', ActiveUser.userId)
             await AddressDetails.query().delete().where('SRU03_USER_MASTER_D', ActiveUser.userId);
 
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.deleted);

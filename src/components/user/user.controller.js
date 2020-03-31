@@ -1040,24 +1040,19 @@ class UserController extends BaseController {
             // specialityQuery = await specialityQuery.select(driverExperienceColumns).page(page - 1, chunk);
             specialityQuery = await specialityQuery.select(driverExperienceColumns);
 
-console.log(userQuery.Users)
-console.log(specialityQuery);
+            // let Output = []
+            // for (const user of userQuery.results) {
+            //     for (const data of specialityQuery.results) {
+            //         if (user.userId === data.userId) {
+            //             Output.push({
+            //                 "DriverInfo": { ...user },
+            //                 "DriverExp": { ...data }
+            //             });
+            //         }
+            //     }
+            // }
 
-
-
-            let Output = []
-            for (const user of userQuery.results) {
-                for (const data of specialityQuery.results) {
-                    if (user.userId === data.userId) {
-                        Output.push({
-                            "DriverInfo": { ...user },
-                            "DriverExp": { ...data }
-                        });
-                    }
-                }
-            }
-
-            return this.success(req, res, this.status.HTTP_OK, Output, this.messageTypes.successMessages.getAll);
+            return this.success(req, res, this.status.HTTP_OK, userQuery, this.messageTypes.successMessages.getAll);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
