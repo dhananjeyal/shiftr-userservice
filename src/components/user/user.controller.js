@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -1011,31 +1011,57 @@ class UserController extends BaseController {
         try {
             const { driverdetails } = req.body;
 
+            const driverdetails = {
+                trainingcanada: "",
+                trainingusa: "",
+                experiencecanada: "",
+                experienceusa: "",
+                canadaprovince: "",
+                usaprovince: "",
+            };
+
+
             //Filter By Driver Details
 
             let specialityQuery = SpecialityDetails.query()
                 .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
                 .where({
-                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                    "SRU09_TYPE_N": CountryType.CANADA,
                     "SRU12_SPECIALITY_N": driverdetails.trainingcanada,
                     "SRU09_TOTALEXP_N": driverdetails.experiencecanada,
-                    "SRU09_CURRENT_N": driverdetails.province
+                    "SRU09_CURRENT_N": driverdetails.canadaprovince
                 })
-                .orWhere({
-                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
+                .orwhere({
+                    "SRU09_TYPE_N": CountryType.USA,
+                    "SRU12_SPECIALITY_N": driverdetails.trainingcanada,
+                    "SRU09_TOTALEXP_N": driverdetails.experienceusa,
+                    "SRU09_CURRENT_N": driverdetails.usaprovince
+                })
+                .orwhere({
+                    "SRU09_TYPE_N": CountryType.CANADA,
                     "SRU12_SPECIALITY_N": driverdetails.trainingcanada
                 })
-                .orWhere({
-                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada,
-                    "SRU09_CURRENT_N": driverdetails.province
+                .orwhere({
+                    "SRU09_TYPE_N": CountryType.CANADA,
+                    "SRU09_TOTALEXP_N": driverdetails.experiencecanada
                 })
-                .orWhere({
-                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype,
-                    "SRU12_SPECIALITY_N": driverdetails.specialityName
+                .orwhere({
+                    "SRU09_TYPE_N": CountryType.CANADA,
+                    "SRU09_CURRENT_N": driverdetails.canadaprovince
                 })
-                .orWhere({
-                    "SRU09_LICENSE_TYPE_N": driverdetails.licencetype
+                .orwhere({
+                    "SRU09_TYPE_N": CountryType.USA,
+                    "SRU12_SPECIALITY_N": driverdetails.trainingusa
                 })
+                .orwhere({
+                    "SRU09_TYPE_N": CountryType.USA,
+                    "SRU09_TOTALEXP_N": driverdetails.experienceusa
+                })
+                .orwhere({
+                    "SRU09_TYPE_N": CountryType.USA,
+                    "SRU09_CURRENT_N": driverdetails.usaprovince
+                })
+
                 .select(driverExperienceColumns);
 
             let userids = specialityQuery.map((value) => {
@@ -1060,7 +1086,7 @@ class UserController extends BaseController {
                 specialityQuery
             };
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
-        
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
