@@ -90,21 +90,7 @@ class DriverController extends BaseController {
                     .delete()
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             }
-
-
-            console.log("================Direct Access==");
-            console.log(req.body.phones);
-            console.log("================Object Direct Access==");
-            console.log(phones);
-            console.log("================Types==");
-            console.log(typeof req.body.phones);
-            console.log(typeof phones);
-            console.log("================END=====");
-
-
-
-
-
+            
             //Format data
             phones.map((data, index) => {
                 phoneNumbers.push({
