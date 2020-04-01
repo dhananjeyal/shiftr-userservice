@@ -5,7 +5,7 @@ import UserDocument from "./userDocument.model";
 import FinancialDetails from "../../driver/model/financial.model";
 import ExperienceDetails from '../../driver/model/experience.model';
 import ContactInfo from '../../driver/model/contactInfo.model';
-import SpecialityTraining from '../../driver/model/speciality.model';
+import SpecialityDetails from '../../driver/model/driverspeciality.model';
 
 class Users extends BaseModel {
 
@@ -45,9 +45,9 @@ class Users extends BaseModel {
             },            
             DriverspecialityDetails: {
                 relation: BaseModel.HasManyRelation,
-                modelClass: SpecialityTraining,
+                modelClass: SpecialityDetails,
                 join: {
-                    from: 'SRU11_SPECIALITY_TRAINING.SRU03_USER_MASTER_D',
+                    from: 'SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             },            
