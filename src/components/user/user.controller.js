@@ -811,8 +811,7 @@ class UserController extends BaseController {
      * @param res
      */
     verifyToken = async (req, res) => {
-        console.log("service call======");
-
+        
         delete req.user.password;
         if (req.user.status === UserStatus.FIRST_TIME) {
             req.user.changedPassword = false
@@ -958,10 +957,7 @@ class UserController extends BaseController {
             }
 
             userQuery = await userQuery.select(columnList).page(page - 1, chunk);
-
-            // console.log("==TEst====");
-            // return ;
-
+            
             const pageMetaData = {
                 chunk: chunk,
                 total: userQuery.total,
@@ -1030,7 +1026,7 @@ class UserController extends BaseController {
                 .orwhere({                    
                     "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": driverdetails.trainingusa
                 })
-                .where({
+                .orwhere({
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,                    
                     "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experiencecanada,
                     "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.canadaprovince
