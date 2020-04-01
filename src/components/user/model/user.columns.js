@@ -19,7 +19,9 @@ export let userDetailsColumns = [
     'SRU04_DETAIL_D as detailsId',
     'SRU04_EMAIL_STATUS_D as emailStatus',
     'SRU04_SIGNUP_STATUS_D as signUpStatus',
-    'SRU04_PHONE_N as phoneNo'
+    'SRU04_PHONE_N as phoneNo',
+    'SRU04_COMPANY_NAME_N as companyName',
+    'SRU04_NUMBER_OF_BUSES_R as NumberofBus'
 ];
 
 export let userAddressColumns = [
