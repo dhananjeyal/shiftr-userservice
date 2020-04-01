@@ -4,7 +4,6 @@ import AddressDetails from "./address.model";
 import UserDocument from "./userDocument.model";
 import FinancialDetails from "../../driver/model/financial.model";
 import ExperienceDetails from '../../driver/model/experience.model';
-import ExperienceDetails from '../../driver/model/experience.model';
 import ContactInfo from '../../driver/model/contactInfo.model';
 
 class Users extends BaseModel {
