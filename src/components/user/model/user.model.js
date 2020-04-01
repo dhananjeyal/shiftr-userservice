@@ -59,7 +59,7 @@ class Users extends BaseModel {
                 }
             },
             contactInfo: {
-                relation: BaseModel.HasManyRelation,
+                relation: BaseModel.HasOneRelation,
                 modelClass: ContactInfo,
                 join: {
                     from: 'SRU09_CONTACT_INFO.SRU03_USER_MASTER_D',
