@@ -59,3 +59,11 @@ export let contactInfoColumns = [
     'SRU09_CONTACT_PERSON_N as contcatPersonName',
     'SRU09_PHONE_R as contactpersonPhoneNumber'
 ]
+
+export let driverSpecialityDetailsColumns = [
+    'SRU12_DRIVER_SPECIALITY_D as specialityId',
+    'SRU12_SPECIALITY_N as specialityName'
+]
+
+
+

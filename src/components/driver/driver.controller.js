@@ -635,7 +635,7 @@ class DriverController extends BaseController {
                 }).modifyEager('documents', (builder) => {
                     builder.select(userDocumentColumns)
                 }).modifyEager('DriverspecialityDetails', (builder) => {
-                    builder.select(driverSpecialityColumns)
+                    builder.select(driverSpecialityDetailsColumns)
                 }).select(columns);
 
             if (driver) {
