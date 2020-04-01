@@ -18,7 +18,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns,driverLanguageColumns, driverSpecialityDetailsColumns,experienceListColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
@@ -90,6 +90,20 @@ class DriverController extends BaseController {
                     .delete()
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             }
+
+
+            console.log("================Direct Access==");
+            console.log(req.body.phones);
+            console.log("================Object Direct Access==");
+            console.log(phones);
+            console.log("================Types==");
+            console.log(typeof req.body.phones);
+            console.log(typeof phones);
+            console.log("================END=====");
+
+
+
+
 
             //Format data
             phones.map((data, index) => {
@@ -427,7 +441,7 @@ class DriverController extends BaseController {
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED })
                 .where('SRU03_USER_MASTER_D', req.user.userId);
-                
+
             const driver = await this._getDriverDetails(req, res, req.user.userId);
 
             if (driver) {
