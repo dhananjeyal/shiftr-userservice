@@ -70,7 +70,7 @@ class UserController extends BaseController {
             await UserDetails.query().insert({
                 SRU03_USER_MASTER_D: insertResult.userId,
                 SRU04_PHONE_N: req.body.phoneNo,
-                SRU04_EMAIL_STATUS_D: EmailStatus.VERIFIED,
+                SRU04_EMAIL_STATUS_D: EmailStatus.PENDING,
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
             });
 

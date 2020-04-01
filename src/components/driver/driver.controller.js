@@ -320,7 +320,7 @@ class DriverController extends BaseController {
         }
     };
 
-    
+
     /**
      * @DESC : Delete driver Profile
      * @return array/json
@@ -427,12 +427,35 @@ class DriverController extends BaseController {
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED })
                 .where('SRU03_USER_MASTER_D', req.user.userId);
-
-
+                
             const driver = await this._getDriverDetails(req, res, req.user.userId);
+
             if (driver) {
-                return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+
+                let emailToken = encrypt(JSON.stringify({
+                    emailId: req.user.emailId,
+                    userId: req.user.userId
+                }));
+
+                const token = encrypt(JSON.stringify({
+                    emailId: req.user.emailId,
+                    userId: req.user.userId,
+                    for: "BEAMS"
+                }));
+
+                let host = req.protocol + '://' + req.get('host');
+                driver.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
+                driver.beamstoken = token
+
+                this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
             }
+
+            //TODO: Send the mail
+            return await mailer.signUp(
+                req.user.firstName,
+                req.user.emailId,
+                req.user.verifyEmailLink
+            );
 
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -556,7 +579,7 @@ class DriverController extends BaseController {
             //Delete Existing documents
             await UserDocument.query().delete().where({
                 SRU03_USER_MASTER_D: userId,
-            }).where('SRU01_TYPE_D',DocType);
+            }).where('SRU01_TYPE_D', DocType);
 
 
             //Insert Documents
