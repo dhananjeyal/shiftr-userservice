@@ -1082,7 +1082,7 @@ class UserController extends BaseController {
                     if (userValue.userId === specialityValue.userId) {
                         userValue.SpecialityDetails = specialityValue;
                     }
-                })
+                });
                 return userValue;
             });
 
