@@ -18,7 +18,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverSpecialityDetailsColumns,experienceListColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns,driverLanguageColumns, driverSpecialityDetailsColumns,experienceListColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
@@ -622,7 +622,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,financialDetails, documents]')
+                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails, documents]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -636,6 +636,8 @@ class DriverController extends BaseController {
                     builder.select(userDocumentColumns)
                 }).modifyEager('DriverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
+                }).modifyEager('DriverLanguage', (builder) => {
+                    builder.select(driverLanguageColumns)
                 }).select(columns);
 
             if (driver) {

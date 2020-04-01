@@ -65,5 +65,8 @@ export let driverSpecialityDetailsColumns = [
     'SRU12_SPECIALITY_N as specialityName'
 ]
 
-
+export let driverLanguageColumns = [
+    'SRU11_LANGUAGE_D as languageId',
+    'SRU11_LANGUAGE_N as languageName'
+]
 

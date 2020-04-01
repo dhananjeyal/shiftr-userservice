@@ -6,6 +6,7 @@ import FinancialDetails from "../../driver/model/financial.model";
 import ExperienceDetails from '../../driver/model/experience.model';
 import ContactInfo from '../../driver/model/contactInfo.model';
 import SpecialityDetails from '../../driver/model/driverspeciality.model';
+import Language from '../../driver/model/language.model';
 
 class Users extends BaseModel {
 
@@ -50,7 +51,15 @@ class Users extends BaseModel {
                     from: 'SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
-            },            
+            }, 
+            DriverLanguage: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: SpecialityDetails,
+                join: {
+                    from: 'SRU11_LANGUAGE.SRU03_USER_MASTER_D',
+                    to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
+                }
+            },           
             financialDetails: {
                 relation: BaseModel.HasOneRelation,
                 modelClass: FinancialDetails,
