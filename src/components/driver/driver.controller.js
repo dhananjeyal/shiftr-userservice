@@ -72,6 +72,9 @@ class DriverController extends BaseController {
                 userprofile
             } = req.body;
 
+            console.log("======================");
+            console.log(phones);
+
             let ActiveUser = req.user;
 
             //Row Exists
