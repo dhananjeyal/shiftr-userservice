@@ -53,3 +53,9 @@ export let experienceListColumns = [
     'SRU13_EXPERIENCE_D as ExperienceListId',
     'SRU13_EXPERIENCE_R as Experience'
 ]
+
+export let contactInfoColumns = [
+    'SRU09_PHONE_D as contactinfoId',
+    'SRU09_CONTACT_PERSON_N as contcatPersonName',
+    'SRU09_PHONE_R as contactpersonPhoneNumber'
+]

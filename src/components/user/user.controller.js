@@ -16,7 +16,7 @@ import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/experience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
-import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns } from "../driver/model/driver.columns";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns,contactInfoColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model"
 
@@ -766,12 +766,15 @@ class UserController extends BaseController {
             let result = await Users.query().findOne({
                 SRU03_USER_MASTER_D: req.params.userId,
                 SRU03_TYPE_D: typeId
-            }).eager('[userDetails, addressDetails]').modifyEager('userDetails', builder => {
+            }).eager('[userDetails, addressDetails,ContactInfo]')
+            .modifyEager('userDetails', builder => {
                 builder.select(userDetailsColumns)
             }).modifyEager('addressDetails', (builder) => {
                 builder.select(userAddressColumns)
+            }).modifyEager('ContactInfo', (builder) => {
+                builder.select(contactInfoColumns)
             }).select(columns);
-
+            
             if (result) {
                 delete result.password;
                 return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.successful);
