@@ -54,7 +54,7 @@ class Users extends BaseModel {
             }, 
             DriverLanguage: {
                 relation: BaseModel.HasManyRelation,
-                modelClass: SpecialityDetails,
+                modelClass: Language,
                 join: {
                     from: 'SRU11_LANGUAGE.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
