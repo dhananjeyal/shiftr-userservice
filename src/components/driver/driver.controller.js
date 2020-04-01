@@ -18,7 +18,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, experienceListColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverSpecialityDetailsColumns,experienceListColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
