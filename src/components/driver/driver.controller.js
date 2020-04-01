@@ -622,7 +622,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, financialDetails, documents]')
+                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,financialDetails, documents]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -634,6 +634,8 @@ class DriverController extends BaseController {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
                     builder.select(userDocumentColumns)
+                }).modifyEager('DriverspecialityDetails', (builder) => {
+                    builder.select(driverSpecialityColumns)
                 }).select(columns);
 
             if (driver) {
