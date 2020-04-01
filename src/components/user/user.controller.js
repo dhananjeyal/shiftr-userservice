@@ -1,5 +1,6 @@
 import { decrypt, encrypt } from "../../utils/cipher";
 import moment from "moment";
+import { raw } from 'objection';
 import BaseController from '../baseController';
 import DriverController from '../driver/driver.controller';
 import Users from './model/user.model'
@@ -18,7 +19,10 @@ import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
 import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns,contactInfoColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
-import ContactInfo from "../driver/model/contactInfo.model"
+import ContactInfo from "../driver/model/contactInfo.model";
+
+let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
+
 
 class UserController extends BaseController {
 
