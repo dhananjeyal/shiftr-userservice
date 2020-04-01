@@ -1,6 +1,5 @@
 import { decrypt, encrypt } from "../../utils/cipher";
 import moment from "moment";
-import { raw } from 'objection'
 import BaseController from '../baseController';
 import DriverController from '../driver/driver.controller';
 import Users from './model/user.model'
@@ -21,7 +20,6 @@ import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityCol
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model"
 
-let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 class UserController extends BaseController {
 
     constructor() {
@@ -768,12 +766,12 @@ class UserController extends BaseController {
             let result = await Users.query().findOne({
                 SRU03_USER_MASTER_D: req.params.userId,
                 SRU03_TYPE_D: typeId
-            }).eager('[userDetails, addressDetails,ContactInfo]')
+            }).eager('[userDetails, addressDetails,contactInfoDetails]')
             .modifyEager('userDetails', builder => {
                 builder.select(userDetailsColumns)
             }).modifyEager('addressDetails', (builder) => {
                 builder.select(userAddressColumns)
-            }).modifyEager('ContactInfo', (builder) => {
+            }).modifyEager('contactInfoDetails', (builder) => {
                 builder.select(contactInfoColumns)
             }).select(columns);
             
