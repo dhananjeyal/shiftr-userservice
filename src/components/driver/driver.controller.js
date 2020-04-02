@@ -617,7 +617,7 @@ class DriverController extends BaseController {
         try {
             await UserDetails.query()
                 .patch({
-                    SRU04_PROFILE_I: userprofile
+                    SRU04_PROFILE_I: req.body.userprofile
                 }).where({
                     SRU03_USER_MASTER_D: req.user.userId
                 });
