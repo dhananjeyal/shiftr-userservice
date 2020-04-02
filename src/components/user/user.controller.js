@@ -6,7 +6,7 @@ import DriverController from '../driver/driver.controller';
 import Users from './model/user.model'
 import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs'; 
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType } from "../../constants";
@@ -17,9 +17,10 @@ import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/experience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
-import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns,contactInfoColumns,driverSpecialityDetailsColumns } from "../driver/model/driver.columns";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns,contactInfoColumns,driverSpecialityDetailsColumns,driverLanguageColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
+import Language from "../driver/model/language.model";
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -945,12 +946,16 @@ class UserController extends BaseController {
 
             if (userType === UserRole.DRIVER_R) {
                 //To fetch drivers financial details
-                userQuery = userQuery.join(FinancialDetails.tableName,
-                    `${FinancialDetails.tableName}.SRU03_USER_MASTER_D`,
-                    `${Users.tableName}.SRU03_USER_MASTER_D`,
-                );
+                userQuery = userQuery.join(SpecialityDetails.tableName,`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
+                .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
+                
+                userQuery = userQuery.join(ExperienceDetails.tableName,`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
+                .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
+               
+                userQuery = userQuery.join(Language.tableName,`${Language.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
+                .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
 
-                columnList = [...columnList, ...driverFinancialColumns];
+                columnList = [...columnList, ...driverExperienceColumns,...driverSpecialityDetailsColumns,...driverLanguageColumns];               
             }
 
             if (search) {
@@ -965,9 +970,6 @@ class UserController extends BaseController {
 
             userQuery = await userQuery.select(columnList).page(page - 1, chunk);
 
-            // console.log("==TEst====");
-            // return ;
-
             const pageMetaData = {
                 chunk: chunk,
                 total: userQuery.total,
@@ -979,25 +981,6 @@ class UserController extends BaseController {
                 list: userQuery.results,
                 pageMetaData
             };
-
-            if (userType === UserRole.DRIVER_R) {
-                // To fetch drivers experience details
-                for (let currUser of result.list) {
-                    const driverExperience = await ExperienceDetails.query().select(driverExperienceColumns).where({
-                        SRU03_USER_MASTER_D: currUser.userId
-                    });
-
-                    if (driverExperience) {
-                        for (let result of driverExperience) {
-                            const driverSpeciality = await SpecialityDetails.query().select(driverExpSpecialityColumns).where({
-                                SRU09_DRIVEREXP_D: result.specialityKey
-                            });
-                            result['speciality'] = [...driverSpeciality];
-                        }
-                    }
-                    currUser['experience'] = driverExperience;
-                }
-            }
 
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (e) {

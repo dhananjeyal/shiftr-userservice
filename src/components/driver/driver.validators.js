@@ -2,7 +2,7 @@ import BaseJoi from 'joi';
 import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { options } from "../user/user.validators";
-import { Gender, UserRole,booleanType } from "../../constants";
+import { Gender, UserRole, booleanType } from "../../constants";
 import { validateFile } from "../../utils";
 
 const Joi = BaseJoi.extend(joinDateExtension);
@@ -20,15 +20,15 @@ const CreateExperienceSchema = {
     countryType: Joi.number().required(),
 }
 
-const phone = {    
+const phone = {
     phones: Joi.object({
-        phoneNumber: Joi.number().required()        
+        phoneNumber: Joi.number().required()
     })
 }
 
-const lang = {    
+const lang = {
     languages: Joi.object({
-        language: Joi.number().required()        
+        language: Joi.number().required()
     })
 }
 
@@ -59,11 +59,11 @@ const schemas = {
         }
         return Joi.object().keys(rule)
     },
-    
-//Mobile APP -Profile upload
-profileUpload: Joi.object().keys({        
-    userprofile: Joi.string().required()
-}),
+
+    //Mobile APP -Profile upload
+    profileUpload: Joi.object().keys({
+        userprofile: Joi.string().required()
+    }),
 
 
 
@@ -71,62 +71,62 @@ profileUpload: Joi.object().keys({
         data: Joi.array().items(CreateExperienceSchema).min(1)
     }),
 
-    updateDriverProfile: Joi.object().keys({        
+    updateDriverProfile: Joi.object().keys({
         userAddress: Joi.string().max(200).required(),
         type: Joi.number().valid(1, 2, 3).required(),
         age: Joi.number().required(),
         gender: Joi.string().max(10).required(),
         phone: Joi.number().required(),
         experience: Joi.number().required(),
-        workingWithOthers: Joi.string().valid(booleanType.YES,booleanType.NO).required(),
-        latitude:Joi.string().required(),
-        longitude:Joi.string().required()
+        workingWithOthers: Joi.string().valid(booleanType.YES, booleanType.NO).required(),
+        latitude: Joi.string().required(),
+        longitude: Joi.string().required()
     }),
-    
- /**Mobile APP- Financial Details */
- financialDetails(bodydata) {
-    let rule = {};
-    if (bodydata.attachment) {
-        rule = {
-            attachment: Joi.string(),
-            // accountNumber: Joi.string().required()
-        };
-    } else {
-         rule = {
-            bankName: Joi.string().max(50),
-            accountNumber: Joi.string().required(),
-            institutionNumber: Joi.string().required(),
-            transitNumber: Joi.string().required(),
-            address: Joi.string().required(),
-            latitude: Joi.string().required(),
-            longitude: Joi.string().required()
-        }
-    }
 
-    return Joi.object().keys(rule);
-},
+    /**Mobile APP- Financial Details */
+    financialDetails(bodydata) {
+        let rule = {};
+        if (bodydata.attachment) {
+            rule = {
+                attachment: Joi.string(),
+                // accountNumber: Joi.string().required()
+            };
+        } else {
+            rule = {
+                bankName: Joi.string().max(50),
+                accountNumber: Joi.string().required(),
+                institutionNumber: Joi.string().required(),
+                transitNumber: Joi.string().required(),
+                address: Joi.string().required(),
+                latitude: Joi.string().required(),
+                longitude: Joi.string().required()
+            }
+        }
+
+        return Joi.object().keys(rule);
+    },
 
     /**Mobile App Driver Documents */
     driverDocuments: Joi.object().keys({
-        driverLicense: Joi.string().required(), 
+        driverLicense: Joi.string().required(),
         criminalRecord: Joi.string().required(),
-        abstract: Joi.string().required(), 
+        abstract: Joi.string().required(),
         cvor: Joi.string().required()
-    }), 
+    }),
 
     /**Mobile App Driver - Upload Document*/
     documentUpload: Joi.object().keys({
-        attachment: Joi.string().required(), 
+        attachment: Joi.string().required(),
         DocName: Joi.string().required(),
         DocType: Joi.number().required()
-    }), 
+    }),
 };
 
 export const CreateDriverProfile = (req, res, next) => {
 
     let option = options.basic;
     // Validate file
-    if (validateFile(req, res)) {        
+    if (validateFile(req, res)) {
         let schema = schemas.CreateDriverProfile();
         schema.validate({
             ...req.body,
@@ -137,7 +137,7 @@ export const CreateDriverProfile = (req, res, next) => {
         }).catch(err => {
             Response.joierrors(req, res, err);
         });
-    } else {        
+    } else {
         let schema = schemas.CreateDriverProfile(false);
         schema.validate({
             ...req.body,
@@ -227,7 +227,7 @@ export const driverDocuments = (req, res, next) => {
         }).catch(err => {
             Response.joierrors(req, res, err);
         });
-    } 
+    }
     // else {
     //     let schema = schemas.driverDocuments;
     //     let option = options.basic;
@@ -257,7 +257,7 @@ export const documentUpload = (req, res, next) => {
         }).catch(err => {
             Response.joierrors(req, res, err);
         });
-    } 
+    }
 };
 
 /**
@@ -275,5 +275,5 @@ export const profileUpload = (req, res, next) => {
         }).catch(err => {
             Response.joierrors(req, res, err);
         });
-    } 
+    }
 };
