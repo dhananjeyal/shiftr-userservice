@@ -90,7 +90,7 @@ class DriverController extends BaseController {
                     .delete()
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             }
-            
+
             //Format data
             phones.map((data, index) => {
                 phoneNumbers.push({
@@ -561,9 +561,7 @@ class DriverController extends BaseController {
     /**
      * @DESC : Upload driver Documents - Mobile APP
      * @return array/json
-     * @param req
-     * @param res
-     * @param userId
+     * @param string/Integer
      */
     documentUpload = async (req, res) => {
         try {
@@ -602,7 +600,7 @@ class DriverController extends BaseController {
             //get All users List (Driver)
             const driver = await this._getDriverDetails(req, res, userId);
             if (driver) {
-                this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+                return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
             }
 
         } catch (e) {
@@ -610,6 +608,28 @@ class DriverController extends BaseController {
         }
     }
 
+    /**
+     * @DESC : Upload Profile Pictures- Mobile APP
+     * @return array/json
+     * @param string/Integer
+     */
+    profileUpload = async (req, res) => {
+        try {
+            await UserDetails.query()
+                .patch({
+                    SRU04_PROFILE_I: userprofile
+                }).where({
+                    SRU03_USER_MASTER_D: req.user.userId
+                });
+            //get All users List (Driver)
+            const driver = await this._getDriverDetails(req, res, req.user.userId);
+            if (driver) {
+                return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+            }
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
 
 
     /**

@@ -60,6 +60,13 @@ const schemas = {
         return Joi.object().keys(rule)
     },
     
+//Mobile APP -Profile upload
+profileUpload: Joi.object().keys({        
+    userprofile: Joi.string().required()
+}),
+
+
+
     CreateExperienceDetails: Joi.object().keys({
         data: Joi.array().items(CreateExperienceSchema).min(1)
     }),
@@ -242,6 +249,24 @@ export const documentUpload = (req, res, next) => {
     // Validate file
     if (validateFile(req, res)) {
         let schema = schemas.documentUpload;
+        let option = options.basic;
+        schema.validate({
+            ...req.body,
+        }, option).then(() => {
+            next();
+        }).catch(err => {
+            Response.joierrors(req, res, err);
+        });
+    } 
+};
+
+/**
+ * Upload Profile Picture - MobileApp
+ */
+export const profileUpload = (req, res, next) => {
+    // Validate file
+    if (validateFile(req, res)) {
+        let schema = schemas.profileUpload;
         let option = options.basic;
         schema.validate({
             ...req.body,
