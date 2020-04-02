@@ -955,8 +955,18 @@ class UserController extends BaseController {
                 userQuery = userQuery.join(Language.tableName,`${Language.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
                 .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
 
-                columnList = [...columnList, ...driverExperienceColumns,...driverSpecialityDetailsColumns,...driverLanguageColumns];               
+                columnList = [...columnList,...driverExperienceColumns,...driverSpecialityDetailsColumns,...driverLanguageColumns];               
             }
+
+            if (userType === UserRole.CUSTOMER_R) {
+                  //To fetch drivers financial details
+                  userQuery = userQuery.join(ContactInfo.tableName,`${ContactInfo.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
+                  .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
+                  columnList = [...columnList,...userDetailsColumns,...contactInfoColumns];               
+            }
+
+
+
 
             if (search) {
                 userQuery = userQuery.where(builder => {
