@@ -6,7 +6,7 @@ import DriverController from '../driver/driver.controller';
 import Users from './model/user.model'
 import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs'; 
+import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType } from "../../constants";
@@ -17,7 +17,7 @@ import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/experience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
-import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns,contactInfoColumns,driverSpecialityDetailsColumns,driverLanguageColumns } from "../driver/model/driver.columns";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityDetailsColumns, driverLanguageColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
@@ -772,14 +772,14 @@ class UserController extends BaseController {
                 SRU03_USER_MASTER_D: req.params.userId,
                 SRU03_TYPE_D: typeId
             }).eager('[userDetails, addressDetails,contactInfoDetails]')
-            .modifyEager('userDetails', builder => {
-                builder.select(userDetailsColumns)
-            }).modifyEager('addressDetails', (builder) => {
-                builder.select(userAddressColumns)
-            }).modifyEager('contactInfoDetails', (builder) => {
-                builder.select(contactInfoColumns)
-            }).select(columns);
-            
+                .modifyEager('userDetails', builder => {
+                    builder.select(userDetailsColumns)
+                }).modifyEager('addressDetails', (builder) => {
+                    builder.select(userAddressColumns)
+                }).modifyEager('contactInfoDetails', (builder) => {
+                    builder.select(contactInfoColumns)
+                }).select(columns);
+
             if (result) {
                 delete result.password;
                 return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.successful);
@@ -819,7 +819,7 @@ class UserController extends BaseController {
      * @param res
      */
     verifyToken = async (req, res) => {
-        
+
         delete req.user.password;
         if (req.user.status === UserStatus.FIRST_TIME) {
             req.user.changedPassword = false
@@ -946,23 +946,23 @@ class UserController extends BaseController {
 
             if (userType === UserRole.DRIVER_R) {
                 //To fetch drivers financial details
-                userQuery = userQuery.join(SpecialityDetails.tableName,`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
-                .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
-                
-                userQuery = userQuery.join(ExperienceDetails.tableName,`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
-                .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
-               
-                userQuery = userQuery.join(Language.tableName,`${Language.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
-                .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
+                userQuery = userQuery.join(SpecialityDetails.tableName, `${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
 
-                columnList = [...columnList,...driverExperienceColumns,...driverSpecialityDetailsColumns,...driverLanguageColumns];               
+                userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
+
+                userQuery = userQuery.join(Language.tableName, `${Language.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
+
+                columnList = [...columnList, ...driverExperienceColumns, ...driverSpecialityDetailsColumns, ...driverLanguageColumns];
             }
 
             if (userType === UserRole.CUSTOMER_R) {
-                  //To fetch drivers financial details
-                  userQuery = userQuery.join(ContactInfo.tableName,`${ContactInfo.tableName}.SRU03_USER_MASTER_D`,`${Users.tableName}.SRU03_USER_MASTER_D`)
-                  .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
-                  columnList = [...columnList,...userDetailsColumns,...contactInfoColumns];               
+                //To fetch drivers financial details
+                userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
+                columnList = [...columnList, ...userDetailsColumns, ...contactInfoColumns];
             }
 
 
@@ -1008,60 +1008,61 @@ class UserController extends BaseController {
      */
     _getAllUsersList = async (req, res) => {
         try {
-            // const { driverdetails } = req.body;
+            const { experienceCanada, experienceUsa, canadaProvince,
+                usaProvince, trainingCanada, trainingUsa, languageCanada, licenceType, languageUsa } = req.body;
 
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
-            const driverdetails = {
-                trainingcanada: "Jeet Kune Do",
-                trainingusa: "Casino Coach",
-                experiencecanada: "1",
-                experienceusa: "3",
-                canadaprovince: "Alberta",
-                usaprovince: "Alabama",
-            };
+            // const driverDetails = {
+            //     trainingCanada: "Jeet Kune Do",
+            //     trainingUsa: "Casino Coach",
+            //     experienceCanada: "1",
+            //     experienceUsa: "3",
+            //     canadaProvince: "Alberta",
+            //     usaProvince: "Alabama",
+            // };
 
             //Filter By Driver Details
 
             let specialityQuery = await SpecialityDetails.query()
                 .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
                 .where({
-                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": driverdetails.trainingcanada
+                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": trainingCanada
                 })
                 .orWhere({
-                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": driverdetails.trainingusa
+                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": trainingUsa
                 })
                 .where({
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experiencecanada,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.canadaprovince
+                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceCanada,
+                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": canadaProvince
                 })
                 .orWhere({
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experienceusa,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.usaprovince
+                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceUsa,
+                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
                 })
                 .orWhere({
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experiencecanada
+                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceCanada
                 })
                 .orWhere({
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.canadaprovince
+                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": canadaProvince
                 })
                 .orWhere({
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": driverdetails.experienceusa
+                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceUsa
                 })
                 .orWhere({
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": driverdetails.usaprovince
+                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
                 }).select(columnList);
 
             let userids = specialityQuery.map((value) => {
                 return value.userId
             });
-
+            console.log("userids", userids);
             let where = {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
