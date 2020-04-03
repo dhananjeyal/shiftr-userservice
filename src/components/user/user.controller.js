@@ -1008,8 +1008,18 @@ class UserController extends BaseController {
      */
     _getAllUsersList = async (req, res) => {
         try {
-            const { experienceCanada, experienceUsa, canadaProvince,
-                usaProvince, trainingCanada, trainingUsa, languageCanada, licenceType, languageUsa } = req.body;
+
+            const {
+                experienceCanada,
+                experienceUsa,
+                canadaProvince,
+                usaProvince,
+                trainingCanada,
+                trainingUsa,
+                languageCanada,
+                licenceType,
+                languageUsa
+            } = req.body
 
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
@@ -1058,8 +1068,8 @@ class UserController extends BaseController {
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
                     "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
                 }).select(columnList);
-                console.log("specialityQuery", specialityQuery);
-                console.log("specialityQuery lenght", specialityQuery.length);
+            console.log("specialityQuery", specialityQuery);
+            console.log("specialityQuery lenght", specialityQuery.length);
             let userids = specialityQuery.map((value) => {
                 return value.userId
             });
