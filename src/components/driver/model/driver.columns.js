@@ -4,6 +4,7 @@ export let driverUserDetailsColumns = [
     'SRU04_DETAIL_D as detailsId',
     'SRU03_USER_MASTER_D as userId',
     'SRU04_EMAIL_STATUS_D as emailStatus',
+    'SRU04_SIGNUP_STATUS_D as signUpStatus',
     // 'SRU04_PHONE_N as phoneNo',
     'SRU04_PHONE_N as phone',
     'SRU04_AGE_D as age',
