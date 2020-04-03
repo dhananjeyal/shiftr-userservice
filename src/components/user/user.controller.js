@@ -1059,15 +1059,17 @@ class UserController extends BaseController {
                     "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
                 }).select(columnList);
 
+            //TODO : Testing added will remove after testing
             if (specialityQuery.length <= 0) {
-                 specialityQuery = await SpecialityDetails.query()
+                specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
-
+                    .select(columnList);
             }
 
             let userids = specialityQuery.map((value) => {
                 return value.userId
             });
+
 
             let where = {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
