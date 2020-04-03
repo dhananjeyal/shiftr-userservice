@@ -1020,7 +1020,7 @@ class UserController extends BaseController {
                 languageUsa
             } = req.body
 
-            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns ];
+            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
 
@@ -1032,7 +1032,7 @@ class UserController extends BaseController {
                 .orWhere({
                     "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": trainingUsa
                 })
-                .where({
+                .orWhere({
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
                     "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceCanada,
                     "SRU09_DRIVEREXP.SRU09_CURRENT_N": canadaProvince
@@ -1058,6 +1058,12 @@ class UserController extends BaseController {
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
                     "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
                 }).select(columnList);
+
+            if (specialityQuery.length <= 0) {
+                 specialityQuery = await SpecialityDetails.query()
+                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
+
+            }
 
             let userids = specialityQuery.map((value) => {
                 return value.userId
