@@ -79,20 +79,20 @@ class UserController extends BaseController {
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
             });
 
-            let emailToken = encrypt(JSON.stringify({
-                emailId: insertResult.emailId,
-                userId: insertResult.userId
-            }));
+            // let emailToken = encrypt(JSON.stringify({
+            //     emailId: insertResult.emailId,
+            //     userId: insertResult.userId
+            // }));
 
-            const token = encrypt(JSON.stringify({
-                emailId: insertResult.emailId,
-                userId: insertResult.userId,
-                for: "BEAMS"
-            }));
+            // const token = encrypt(JSON.stringify({
+            //     emailId: insertResult.emailId,
+            //     userId: insertResult.userId,
+            //     for: "BEAMS"
+            // }));
 
-            let host = req.protocol + '://' + req.get('host');
-            insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
-            insertResult.beamstoken = token
+            // let host = req.protocol + '://' + req.get('host');
+            // insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
+            // insertResult.beamstoken = token
 
 
             // Generate JWT token
@@ -108,11 +108,11 @@ class UserController extends BaseController {
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             //TODO: Send the mail
-            return await mailer.signUp(
-                insertResult.firstName,
-                insertResult.emailId,
-                insertResult.verifyEmailLink
-            );
+            // return await mailer.signUp(
+            //     insertResult.firstName,
+            //     insertResult.emailId,
+            //     insertResult.verifyEmailLink
+            // );
 
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -1008,10 +1008,19 @@ class UserController extends BaseController {
      */
     _getAllUsersList = async (req, res) => {
         try {
-            const { experienceCanada, experienceUsa, canadaProvince,
-                usaProvince, trainingCanada, trainingUsa, languageCanada, licenceType, languageUsa } = req.body;
+            const {
+                experienceCanada,
+                experienceUsa,
+                canadaProvince,
+                usaProvince,
+                trainingCanada,
+                trainingUsa,
+                languageCanada,
+                licenceType,
+                languageUsa
+            } = req.body;
 
-            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
+            const columnList = [...driverExperienceColumns, ... ];
 
             // const driverDetails = {
             //     trainingCanada: "Jeet Kune Do",
