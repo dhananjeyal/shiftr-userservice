@@ -1020,16 +1020,7 @@ class UserController extends BaseController {
                 languageUsa
             } = req.body
 
-            const columnList = [...driverExperienceColumns, ... ];
-
-            // const driverDetails = {
-            //     trainingCanada: "Jeet Kune Do",
-            //     trainingUsa: "Casino Coach",
-            //     experienceCanada: "1",
-            //     experienceUsa: "3",
-            //     canadaProvince: "Alberta",
-            //     usaProvince: "Alabama",
-            // };
+            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns ];
 
             //Filter By Driver Details
 
@@ -1067,12 +1058,11 @@ class UserController extends BaseController {
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
                     "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
                 }).select(columnList);
-            console.log("specialityQuery", specialityQuery);
-            console.log("specialityQuery lenght", specialityQuery.length);
+
             let userids = specialityQuery.map((value) => {
                 return value.userId
             });
-            console.log("userids", userids);
+
             let where = {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
