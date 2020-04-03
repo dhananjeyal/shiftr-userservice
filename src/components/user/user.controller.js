@@ -998,6 +998,17 @@ class UserController extends BaseController {
         }
     };
 
+    /**
+     * @DESC : Trip -  Driver Details List
+     * @return array/json
+     * @param req
+     * @param res
+     * @param userType
+     */
+    getDriverDetailsList = async (req, res) => {
+        this._getDriverDetailsList(req, res);
+    };
+
 
     /**
      * @DESC : Get all the users by type
@@ -1098,6 +1109,62 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     };
+
+    /**
+     * @DESC : Get Driver Details list
+     * @return array/json
+     * @param req
+     * @param res
+     * @param userType
+     */
+    _getDriverDetailsList = async (req, res) => {
+        try {
+            const {
+                userIds
+            } = req.body
+
+            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
+
+            //Filter By Driver Details
+
+            let specialityQuery = await SpecialityDetails.query()
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
+                .whereIn('SRU03_USER_MASTER_D', userIds)
+                .select(columnList);
+
+            let userids = specialityQuery.map((value) => {
+                return value.userId
+            });
+
+            let where = {
+                "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
+            };
+
+            let userQuery = await Users.query().where(where).join(UserDetails.tableName,
+                `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
+                `${Users.tableName}.SRU03_USER_MASTER_D`,
+            )
+                .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
+                .select(raw(`CONCAT("${profilePath}", SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
+                .select(userListColumns);
+
+            const results = await userQuery.map((userValue) => {
+                specialityQuery.find((specialityValue) => {
+                    if (userValue.userId === specialityValue.userId) {
+                        userValue.SpecialityDetails = specialityValue;
+                    }
+                });
+                return userValue;
+            });
+
+            return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+
     /**
      * @DESC : Get all the customers
      * @return array/json

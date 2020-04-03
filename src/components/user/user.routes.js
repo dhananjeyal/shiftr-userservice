@@ -25,6 +25,7 @@ function registerRoutes() {
         openRouter.route("/api/user/create_super_user").post(UserController.createSuperUser);
         apiRouter.route("/user/get_users").post(UserController.getUserList);
         apiRouter.route("/user/get_user").post(UserController.getuserById);
+        apiRouter.route("/user/trip/driver/list").post(UserController.getDriverDetailsList);
 
         // Required jwt authentication
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);
