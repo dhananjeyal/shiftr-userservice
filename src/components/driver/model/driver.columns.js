@@ -24,7 +24,7 @@ export let driverFinancialColumns = [
     'SRU08_TRANSIT_N as transitNo',
 ];
 
-export let driverExperienceColumns = [    
+export let driverExperienceColumns = [   
     'SRU09_SPECIALITY_KEY_D as specialityKey',
     'SRU09_TYPE_N as experienceType',//Experience Type = CANADA | USA
     'SRU09_LICENSE_TYPE_N as licenseType',//Experience Type = CANADA | USA
@@ -34,6 +34,7 @@ export let driverExperienceColumns = [
 
 export let driverExpSpecialityColumns = [
     'SRU12_DRIVER_SPECIALITY_D as driverSpecialityId',
+    "SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D as userId",
     'SRU12_SPECIALITY_N as specialityType',
     'SRU12_VALIDYEAR_N as validYear',
 ];

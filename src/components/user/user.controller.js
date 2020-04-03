@@ -1018,7 +1018,7 @@ class UserController extends BaseController {
                 languageCanada,
                 licenceType,
                 languageUsa
-            } = req.body;
+            } = req.body
 
             const columnList = [...driverExperienceColumns, ... ];
 
@@ -1067,7 +1067,8 @@ class UserController extends BaseController {
                     "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
                     "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
                 }).select(columnList);
-
+            console.log("specialityQuery", specialityQuery);
+            console.log("specialityQuery lenght", specialityQuery.length);
             let userids = specialityQuery.map((value) => {
                 return value.userId
             });
