@@ -1122,14 +1122,15 @@ class UserController extends BaseController {
             const {
                 userIds
             } = req.body
-
+console.log(userIds);
+console.log(req.body);
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
 
             let specialityQuery = await SpecialityDetails.query()
                 .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
-                .whereIn('SRU03_USER_MASTER_D', userIds)
+                .whereIn('SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D', userIds)
                 .select(columnList);
 
             let userids = specialityQuery.map((value) => {
