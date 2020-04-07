@@ -600,7 +600,7 @@ class DriverController extends BaseController {
             //get All users List (Driver)
             const driver = await this._getDriverDetails(req, res, userId);
             if (driver) {
-                return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+                return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.updated);
             }
 
         } catch (e) {

@@ -1121,9 +1121,8 @@ class UserController extends BaseController {
         try {
             const {
                 userIds
-            } = req.body
-console.log(userIds);
-console.log(req.body);
+            } = req.body;
+            
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
