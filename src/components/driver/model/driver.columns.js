@@ -71,3 +71,8 @@ export let driverLanguageColumns = [
     'SRU11_LANGUAGE_N as languageName'
 ]
 
+export let validyearColumns = [
+    'SRU18_VALID_YEAR_D as validYearId',
+    'SRU18_VALID_YEAR_S as validYear'
+]
+

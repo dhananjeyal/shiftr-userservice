@@ -18,7 +18,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
@@ -28,10 +28,9 @@ import ExperienceList from './model/experienceList.model';
 import Language from "./model/language.model";
 import Radious from "./model/radious.model";
 import ContactInfo from "./model/contactInfo.model";
+import Validyear from "./model/validyear.model";
 import Province from '../masterdetails/model/province.model'
 import { provinceColumns } from '../masterdetails/model/location.columns';
-
-
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -687,9 +686,13 @@ class DriverController extends BaseController {
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
+            const Validyear = await Validyear.query().select(validyearColumns);
+             
+            //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST);
 
+            //state list USA
             let USProvinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.USA_LIST);
 
@@ -697,6 +700,7 @@ class DriverController extends BaseController {
                 experienceList,
                 licenseType,
                 speciality,
+                Validyear,
                 canadaprovinceList,
                 USProvinceList
             }
