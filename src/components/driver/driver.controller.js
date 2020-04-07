@@ -686,7 +686,7 @@ class DriverController extends BaseController {
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
-            const Validyear = await Validyear.query().select(validyearColumns);
+            const validYear = await Validyear.query().select(validyearColumns);
              
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
@@ -700,7 +700,7 @@ class DriverController extends BaseController {
                 experienceList,
                 licenseType,
                 speciality,
-                Validyear,
+                validYear,
                 canadaprovinceList,
                 USProvinceList
             }
