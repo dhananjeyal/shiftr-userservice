@@ -29,7 +29,9 @@ export const sendMail = async (to, subject, html) => {
 
 export const signUp = (firstName, email, link) => {
     let html = `<b>Hello ${firstName}</b>
-                <p>Thank you for signing up on our platform please click on the below link to verify your account</p>
+                <p>Thank you for submitting the documents for verification.</p>
+                <p><b>Current status :</b>document submitted for verification.</p>
+                <p>Once your documents are verified you will be notified.</p>
                 <a href="${link}">Verify your account</a>
                 <p>Best regards</p>`;
     return sendMail(email, "Verification Email", html)
