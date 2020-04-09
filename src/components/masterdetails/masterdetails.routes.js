@@ -14,10 +14,8 @@ function registerRoutes() {
     return (openRouter, apiRouter) => {
 
         /// Driver verification
-        let verify = AuthController.verifyDriver;
+        // let verify = AuthController.verifyDriver;
 
-        // Get Driver Master
-        apiRouter.route("/driver/fetch_master").get(DriverController.getMasterData);
         apiRouter.route("/getCity/:provinceId").get(LocationController.getCity);
     };
 }

@@ -689,7 +689,7 @@ class DriverController extends BaseController {
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
             const languageList = await AllLanguages.query().select(allLanguageColumns);
-             console.log(languageList);
+             
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST);
