@@ -4,11 +4,11 @@ import Users from "../../user/model/user.model";
 class Language extends BaseModel {
 
     static get tableName() {
-        return 'SRU11_LANGUAGE'
+        return 'SRU11_DRIVER_LANGUAGE'
     }
 
     static get idColumn() {
-        return 'SRU11_LANGUAGE_D'
+        return 'SRU11_DRIVER_LANGUAGE_D'
     }
 
     static get relationMappings() {
@@ -17,7 +17,7 @@ class Language extends BaseModel {
                 relation: BaseModel.HasOneRelation,
                 modelClass: Users,
                 join: {
-                    from: 'SRU11_LANGUAGE.SRU03_USER_MASTER_D',
+                    from: 'SRU11_DRIVER_LANGUAGE.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D',
                 }
             }
