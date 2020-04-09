@@ -76,3 +76,9 @@ export let validyearColumns = [
     'SRU18_VALID_YEAR_S as validYear'
 ]
 
+export let allLanguageColumns = [
+    'SRU14_LANGUAGE_D as languageId',
+    'SRU14_LANGUAGE_SHORT_CODE_N as shortCode',
+    'SRU14_LANGUAGE_N as languageName'
+]
+

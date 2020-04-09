@@ -18,7 +18,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns,allLanguageColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
@@ -26,6 +26,7 @@ import SpecialityTraining from './model/speciality.model';
 import SpecialityDetails from './model/driverspeciality.model';
 import ExperienceList from './model/experienceList.model';
 import Language from "./model/language.model";
+import AllLanguages from "./model/alllanguages.model";
 import Radious from "./model/radious.model";
 import ContactInfo from "./model/contactInfo.model";
 import Validyear from "./model/validyear.model";
@@ -687,6 +688,7 @@ class DriverController extends BaseController {
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
+            const languageList = await AllLanguages.query().select(allLanguageColumns);
              
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
@@ -700,6 +702,7 @@ class DriverController extends BaseController {
                 experienceList,
                 licenseType,
                 speciality,
+                languageList,
                 validYear,
                 canadaprovinceList,
                 USProvinceList
