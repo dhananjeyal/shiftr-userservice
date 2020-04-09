@@ -16,7 +16,7 @@ function registerRoutes() {
         /// Driver verification
         // let verify = AuthController.verifyDriver;
 
-        apiRouter.route("/getCity/:provinceId").get(LocationController.getCity);
+        apiRouter.route("/location/:provinceId/city").get(LocationController.getCity);
     };
 }
 
