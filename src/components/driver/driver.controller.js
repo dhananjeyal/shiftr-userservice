@@ -684,9 +684,6 @@ class DriverController extends BaseController {
      */
     getMasterData = async (req, res) => {
         try {
-
-console.log("master === calls");
-
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
@@ -700,7 +697,7 @@ console.log("master === calls");
             //state list USA
             let USProvinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.USA_LIST);
-
+                
             const result = {
                 experienceList,
                 licenseType,
