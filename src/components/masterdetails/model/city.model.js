@@ -4,7 +4,7 @@ import BaseModel from '../../../config/db';
 class City extends BaseModel {
 
     static get tableName() {
-        return 'SRU7_CITY'
+        return 'SRU17_CITY'
     }
 
     static get idColumn() {

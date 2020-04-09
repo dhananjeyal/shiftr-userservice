@@ -1,6 +1,7 @@
 import AuthController from "../user/auth.controller";
 import UserController from "../user/user.controller";
 import DriverController from "../driver/driver.controller";
+import LocationController from "./location.controller";
 import {
     CreateDriverProfile,    
     updateDriverProfile,
@@ -17,6 +18,7 @@ function registerRoutes() {
 
         // Get Driver Master
         apiRouter.route("/driver/fetch_master").get(DriverController.getMasterData);
+        apiRouter.route("/getCity/:provinceId").get(LocationController.getCity);
     };
 }
 

@@ -1,7 +1,7 @@
 import BaseController from '../baseController';
 import City from './model/city.model';
 import Province from './model/province.model';
-import { provinceColumns, countryColumns } from './model/location.columns';
+import { provinceColumns, countryColumns, cityColumns } from './model/location.columns';
 import { CountryType} from "../../constants";
 
 
@@ -21,8 +21,8 @@ class LocationController extends BaseController {
         try {
             let provinceId = req.params.provinceId;
 
-            let responseData = await City.query().select(provinceColumns)
-            .where('SRU16_PROVINCE_D', provinceId);
+            let responseData = await City.query().select(cityColumns)
+            .where('SRU17_PROVINCE_D', provinceId);
             return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
        
         } catch (e) {

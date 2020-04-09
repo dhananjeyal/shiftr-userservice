@@ -1,4 +1,9 @@
 
+export let cityColumns = [
+    "SRU17_CITY_D as cityId",
+    "SRU17_CITY_N as cityName"
+]
+
 export let provinceColumns = [
     "SRU16_PROVINCE_D as provinceId",
     "SRU16_PROVINCE_N as provinceName"
