@@ -684,6 +684,9 @@ class DriverController extends BaseController {
      */
     getMasterData = async (req, res) => {
         try {
+
+console.log("master === calls");
+
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
