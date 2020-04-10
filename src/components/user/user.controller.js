@@ -1271,6 +1271,11 @@ class UserController extends BaseController {
             let address = { ...driver.addressDetails }
             delete driver.addressDetails
             driver.userDetails = { ...driver.userDetails, ...address }
+
+            let radius = { ...driver.radiusDetails }
+            delete driver.radiusDetails
+            driver.userDetails = { ...driver.userDetails, ...radius}
+
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
         } else {
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);

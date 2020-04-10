@@ -12,9 +12,9 @@ export let driverUserDetailsColumns = [
     'SRU04_EXPERIENCE_D as experience',
     'SRU04_PROFILE_I as profilePicture',
     'SRU04_PROFILE_I as userprofile',
-    'SRU04_WORKING_WITH_OTHERS as workingWithOthers',
+    // 'SRU04_WORKING_WITH_OTHERS as workingWithOthers',
     // 'SRU04_WORKING_WITH_OTHERS as previcesexperience',
-    'SRU04_OTHER_SERVICE_INFO as otherServiceInfo',
+    // 'SRU04_OTHER_SERVICE_INFO as otherServiceInfo',
     'SRU04_OTHER_SERVICE_INFO as description',
 ];
 
@@ -80,5 +80,13 @@ export let allLanguageColumns = [
     'SRU14_LANGUAGE_D as languageId',
     'SRU14_LANGUAGE_SHORT_CODE_N as shortCode',
     'SRU14_LANGUAGE_N as languageName'
+],
+export let radiusColumns = [
+    'SRU10_RADIOUS_D as radiusId',
+    'SRU10_KILOMETER_F as kilometer',
+    'SRU10_MILES_F as miles',
+    'SRU10_DISTANCE_RANGE_N as distance',
+    'SRU10_OPEN_DISTANCE_F as opendistance',
+    'SRU10_ALCOHOL_TEST_F as alcoholTest',
 ]
 

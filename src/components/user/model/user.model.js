@@ -7,6 +7,7 @@ import ExperienceDetails from '../../driver/model/experience.model';
 import ContactInfo from '../../driver/model/contactInfo.model';
 import SpecialityDetails from '../../driver/model/driverspeciality.model';
 import Language from '../../driver/model/language.model';
+import Radious from '../../driver/model/radious.model';
 
 class Users extends BaseModel {
 
@@ -81,6 +82,14 @@ class Users extends BaseModel {
                 modelClass: ContactInfo,
                 join: {
                     from: 'SRU09_CONTACT_INFO.SRU03_USER_MASTER_D',
+                    to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
+                }
+            },
+            radiusDetails: {
+                relation: BaseModel.HasOneRelation,
+                modelClass: Radious,
+                join: {
+                    from: 'SRU10_RADIOUS.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             }

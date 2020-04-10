@@ -18,7 +18,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns,allLanguageColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, allLanguageColumns, radiusColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
@@ -150,11 +150,11 @@ class DriverController extends BaseController {
 
                 await Radious.query()
                     .patch({
-                        SRU10_KM: km,
-                        SRU10_MAILS: miles,
-                        SRU10_DISTANCE_RANGE: radious,
-                        SRU10_OPEN_DISTANCE: openDistance,
-                        SRU10_ALCOHOL_TEST: alcoholTest
+                        SRU10_KILOMETER_F: km,
+                        SRU10_MILES_F: miles,
+                        SRU10_DISTANCE_RANGE_N: radious,
+                        SRU10_OPEN_DISTANCE_F: openDistance,
+                        SRU10_ALCOHOL_TEST_F: alcoholTest
                     }).where({
                         SRU03_USER_MASTER_D: ActiveUser.userId
                     });
@@ -175,11 +175,11 @@ class DriverController extends BaseController {
                     });
 
                 await Radious.query().insert({
-                    SRU10_KM: km,
-                    SRU10_MAILS: miles,
-                    SRU10_DISTANCE_RANGE: radious,
-                    SRU10_OPEN_DISTANCE: openDistance,
-                    SRU10_ALCOHOL_TEST: alcoholTest
+                    SRU10_KILOMETER_F: km,
+                    SRU10_MILES_F: miles,
+                    SRU10_DISTANCE_RANGE_N: radious,
+                    SRU10_OPEN_DISTANCE_F: openDistance,
+                    SRU10_ALCOHOL_TEST_F: alcoholTest
                 })
             }
 
@@ -642,7 +642,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails, documents]')
+                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -658,6 +658,8 @@ class DriverController extends BaseController {
                     builder.select(driverSpecialityDetailsColumns)
                 }).modifyEager('DriverLanguage', (builder) => {
                     builder.select(driverLanguageColumns)
+                }).modifyEager('radiusDetails', (builder) => {
+                    builder.select(radiusColumns)
                 }).select(columns);
 
             if (driver) {
@@ -689,7 +691,7 @@ class DriverController extends BaseController {
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
             const languageList = await AllLanguages.query().pluck('SRU14_LANGUAGE_N');
-            
+
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST);
@@ -697,7 +699,7 @@ class DriverController extends BaseController {
             //state list USA
             let USProvinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.USA_LIST);
-                
+
             const result = {
                 experienceList,
                 licenseType,
