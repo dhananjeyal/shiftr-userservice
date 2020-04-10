@@ -1269,12 +1269,10 @@ class UserController extends BaseController {
             const userId = req.user.userId;
             const driver = await DriverController._getDriverDetails(req, res, userId);
             let address = { ...driver.addressDetails }
-            delete driver.addressDetails
-            driver.userDetails = { ...driver.userDetails, ...address }
-
             let radius = { ...driver.radiusDetails }
+            delete driver.addressDetails
             delete driver.radiusDetails
-            driver.userDetails = { ...driver.userDetails, ...radius}
+            driver.userDetails = { ...driver.userDetails, ...address,...radius }
 
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
         } else {

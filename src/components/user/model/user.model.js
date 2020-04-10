@@ -38,7 +38,7 @@ class Users extends BaseModel {
                 },
             },            
             experienceDetails: {
-                relation: BaseModel.HasOneRelation,
+                relation: BaseModel.HasManyRelation,
                 modelClass: ExperienceDetails,
                 join: {
                     from: 'SRU09_DRIVEREXP.SRU03_USER_MASTER_D',

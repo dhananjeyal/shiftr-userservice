@@ -126,6 +126,28 @@ class DriverController extends BaseController {
             await Language.query()
                 .insertGraph(languagesKnown);
 
+
+            //Row exists
+            let radiusRowExists = await Radious.query()
+                .select('SRU03_USER_MASTER_D')
+                .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+
+            if (radiusRowExists) {
+                await Radious.query()
+                    .delete()
+                    .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+            };
+            await Radious.query().insert({
+                SRU03_USER_MASTER_D:ActiveUser.userId,
+                SRU10_KILOMETER_F: km,
+                SRU10_MILES_F: miles,
+                SRU10_DISTANCE_RANGE_N: radious,
+                SRU10_OPEN_DISTANCE_F: openDistance,
+                SRU10_ALCOHOL_TEST_F: alcoholTest,
+                SRU03_CREATED_D: ActiveUser.userId
+            });
+
+
             if (UserDetailsResponse) {
                 await UserDetails.query()
                     .patch({
@@ -148,17 +170,6 @@ class DriverController extends BaseController {
                         SRU03_USER_MASTER_D: ActiveUser.userId
                     });
 
-                await Radious.query()
-                    .patch({
-                        SRU10_KILOMETER_F: km,
-                        SRU10_MILES_F: miles,
-                        SRU10_DISTANCE_RANGE_N: radious,
-                        SRU10_OPEN_DISTANCE_F: openDistance,
-                        SRU10_ALCOHOL_TEST_F: alcoholTest
-                    }).where({
-                        SRU03_USER_MASTER_D: ActiveUser.userId
-                    });
-
             } else {
                 await AddressDetails.query()
                     .insert({
@@ -173,14 +184,6 @@ class DriverController extends BaseController {
                         SRU06_LOCATION_LONGITUDE_N: longitude,
                         SRU06_CREATED_D: ActiveUser.userId
                     });
-
-                await Radious.query().insert({
-                    SRU10_KILOMETER_F: km,
-                    SRU10_MILES_F: miles,
-                    SRU10_DISTANCE_RANGE_N: radious,
-                    SRU10_OPEN_DISTANCE_F: openDistance,
-                    SRU10_ALCOHOL_TEST_F: alcoholTest
-                })
             }
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
