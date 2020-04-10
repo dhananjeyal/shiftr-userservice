@@ -1308,7 +1308,8 @@ class UserController extends BaseController {
                 });
             });
 
-
+            delete driver.experienceDetails;//Remove Existing object
+            delete driver.DriverspecialityDetails; // Remove Existing Object
 
             driver.DriverDetails = DriverDetails;
 
