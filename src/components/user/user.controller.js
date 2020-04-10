@@ -1281,38 +1281,40 @@ class UserController extends BaseController {
 
             let DriverDetails = []; // New array decalration 
             //Driver - Experienced  structure change
-            driver.experienceDetails.forEach((value) => {
-                DriverDetails.push({
-                    driverExp: {
-                        experience: {
-                            driverExperienceId: value.driverExperienceId,
-                            totalexperience: value.totalExp
-                        },
-                        expInProvince: {
-                            driverExperienceId: value.driverExperienceId,
-                            provinceName: value.currentExp
-                        }
-                    },
-                    countryType: value.experienceType
-                });
-            });
+            driver.experienceDetails.forEach((expvalue) => {
 
             //Driver - Speciality structure change
-            driver.DriverspecialityDetails.forEach((value) => {
-                DriverDetails.push({
-                    driverSpeciality: {
-                        specialityTraining: {
-                            specialityId: value.specialityId,
-                            specialityName: value.specialityName
+            driver.DriverspecialityDetails.forEach((spcvalue) => {
+                if(expvalue.specialityReferenceNumber == spcvalue.specialityReferenceNumber){
+                    DriverDetails.push({
+                        driverExp: {
+                            experience: {
+                                driverExperienceId: expvalue.driverExperienceId,
+                                totalexperience: expvalue.totalExp
+                            },
+                            expInProvince: {
+                                driverExperienceId: expvalue.driverExperienceId,
+                                provinceName: expvalue.currentExp
+                            },
+                            driverSpeciality: {
+                                specialityTraining: {
+                                    specialityId: spcvalue.specialityId,
+                                    specialityName: spcvalue.specialityName
+                                },
+                                year: {
+                                    specialityId: spcvalue.specialityId,
+                                    validYear: spcvalue.validYear
+                                }
+                            }
                         },
-                        year: {
-                            specialityId: value.specialityId,
-                            validYear: value.validYear
-                        }
-                    }
-                });
+                        countryType: expvalue.experienceType
+                    });
+                }
+
             });
 
+            });
+            
             delete driver.experienceDetails;//Remove Existing object
             delete driver.DriverspecialityDetails; // Remove Existing Object
 
