@@ -80,7 +80,7 @@ export let allLanguageColumns = [
     'SRU14_LANGUAGE_D as languageId',
     'SRU14_LANGUAGE_SHORT_CODE_N as shortCode',
     'SRU14_LANGUAGE_N as languageName'
-],
+]
 
 export let radiusColumns = [
     'SRU10_RADIOUS_D as radiusId',
