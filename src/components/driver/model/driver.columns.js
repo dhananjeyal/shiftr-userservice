@@ -26,7 +26,7 @@ export let driverFinancialColumns = [
 ];
 
 export let driverExperienceColumns = [   
-    'SRU09_SPECIALITY_KEY_D as specialityKey',
+    'SRU09_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
     'SRU09_TYPE_N as experienceType',//Experience Type = CANADA | USA
     'SRU09_LICENSE_TYPE_N as licenseType',//Experience Type = CANADA | USA
     'SRU09_TOTALEXP_N as totalExp',
@@ -63,6 +63,7 @@ export let contactInfoColumns = [
 
 export let driverSpecialityDetailsColumns = [
     'SRU12_DRIVER_SPECIALITY_D as specialityId',
+    'SRU09_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
     'SRU12_SPECIALITY_N as specialityName'
 ]
 

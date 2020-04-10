@@ -26,7 +26,7 @@ class ExperienceDetails extends BaseModel {
                 relation: BaseModel.HasOneRelation,
                 modelClass: Speciality,
                 join: {
-                    from: 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D',
+                    from: 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N',
                     to: 'sru12_driver_speciality.SRU09_DRIVEREXP_D'
                 }
             }

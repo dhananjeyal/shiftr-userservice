@@ -28,7 +28,7 @@ class SpecialityDetails extends BaseModel {
             //     modelClass: ExperienceDetails,
             //     join: {
             //         from: 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D',
-            //         to: 'SRU09_DRIVEREXP.SRU09_SPECIALITY_KEY_D'
+            //         to: 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N'
             //     }
             // }
         }

@@ -218,7 +218,7 @@ class DriverController extends BaseController {
                     SRU09_CURRENT_N: driverExp.expInProvince,
                     SRU09_CREATED_D: user.userId,
                     SRU09_UPDATED_D: user.userId,
-                    SRU09_SPECIALITY_KEY_D: `${user.userId}SRDS${index}`
+                    SRU09_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`
                 });
 
                 if (driverExp.driverSpeciality && driverExp.driverSpeciality.length > 0) {
