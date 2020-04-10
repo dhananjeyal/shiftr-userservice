@@ -283,12 +283,16 @@ class UserController extends BaseController {
                 let verifyType = true;
 
                 // Verify the user type for Driver and Customer
-                if (resultType === UserRole.CUSTOMER_R
-                    || resultType === UserRole.DRIVER_R) {
+                // if (resultType === UserRole.CUSTOMER_R || resultType === UserRole.DRIVER_R) {
+                //     verifyType = parseInt(req.headers['user-type']) === resultType;
+                // }
+
+                if (resultType === UserRole.DRIVER_R) {
                     verifyType = parseInt(req.headers['user-type']) === resultType;
                 }
-
+               
                 if (verifyType) {
+                    
                     // Password check
                     let compareResult = await bcrypt.compare(req.body.password, result.password);
                     if (compareResult) {
@@ -569,6 +573,7 @@ class UserController extends BaseController {
                     }
 
                     if (emailStatus === EmailStatus.VERIFIED) {
+                       
                         return new Promise((resolve) => {
                             resolve(result);
                         });
