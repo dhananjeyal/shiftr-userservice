@@ -225,7 +225,7 @@ class DriverController extends BaseController {
                     driverExp.driverSpeciality.map(currSpeciality => {
                         specialityData.push({
                             SRU03_USER_MASTER_D: user.userId,
-                            SRU09_DRIVEREXP_D: `${user.userId}SRDS${index}`,
+                            SRU09_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`,
                             SRU12_SPECIALITY_N: currSpeciality.specialityTraining,
                             SRU12_VALIDYEAR_N: currSpeciality.year,
                         })
