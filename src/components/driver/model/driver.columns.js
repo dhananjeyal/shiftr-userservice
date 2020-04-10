@@ -88,6 +88,6 @@ export let radiusColumns = [
     'SRU10_MILES_F as miles',
     'SRU10_DISTANCE_RANGE_N as distance',
     'SRU10_OPEN_DISTANCE_F as opendistance',
-    'SRU10_ALCOHOL_TEST_F as alcoholTest',
+    'SRU10_ALCOHOL_TEST_F as alcoholTest'
 ]
 
