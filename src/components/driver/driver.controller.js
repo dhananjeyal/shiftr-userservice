@@ -688,7 +688,7 @@ class DriverController extends BaseController {
             const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
-            const languageList = await AllLanguages.query().select(allLanguageColumns);
+            const languageList = await AllLanguages.query().select('SRU14_LANGUAGE_N as languageName').pluck('SRU14_LANGUAGE_N');
              
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
