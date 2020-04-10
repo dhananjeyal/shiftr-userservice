@@ -453,11 +453,12 @@ class DriverController extends BaseController {
                 this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
             }
 
+
             //TODO: Send the mail
             return await mailer.signUp(
                 req.user.firstName,
                 req.user.emailId,
-                req.user.verifyEmailLink
+                driver.verifyEmailLink
             );
 
         } catch (e) {
