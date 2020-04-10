@@ -1122,7 +1122,7 @@ class UserController extends BaseController {
             const {
                 userIds
             } = req.body;
-            
+
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
@@ -1272,7 +1272,45 @@ class UserController extends BaseController {
             let radius = { ...driver.radiusDetails }
             delete driver.addressDetails
             delete driver.radiusDetails
-            driver.userDetails = { ...driver.userDetails, ...address,...radius }
+            driver.userDetails = { ...driver.userDetails, ...address, ...radius }
+
+            let DriverDetails = []; // New array decalration 
+            //Driver - Experienced  structure change
+            driver.experienceDetails.forEach((value) => {
+                DriverDetails.push({
+                    driverExp: {
+                        experience: {
+                            driverExperienceId: value.driverExperienceId,
+                            totalexperience: value.totalExp
+                        },
+                        expInProvince: {
+                            driverExperienceId: value.driverExperienceId,
+                            provinceName: value.currentExp
+                        }
+                    },
+                    countryType: value.experienceType
+                });
+            });
+
+            //Driver - Speciality structure change
+            driver.DriverspecialityDetails.forEach((value) => {
+                DriverDetails.push({
+                    driverSpeciality: {
+                        specialityTraining: {
+                            specialityId: value.specialityId,
+                            specialityName: value.specialityName
+                        },
+                        year: {
+                            specialityId: value.specialityId,
+                            validYear: value.validYear
+                        }
+                    }
+                });
+            });
+
+
+
+            driver.DriverDetails = DriverDetails;
 
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
         } else {
