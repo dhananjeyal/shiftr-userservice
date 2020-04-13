@@ -35,10 +35,9 @@ export let driverExperienceColumns = [
 ];
 
 export let driverExpSpecialityColumns = [
-    'SRU12_DRIVER_SPECIALITY_D as driverSpecialityId',
-    "SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D as userId",
-    'SRU12_SPECIALITY_N as specialityType',
-    'SRU12_VALIDYEAR_N as validYear',
+    'SRU12_DRIVER_SPECIALITY_D as specialityId',
+    'SRU12_SPECIALITY_N as specialityName',
+    'SRU12_VALIDYEAR_N as validYear'
 ];
 
 export let driverLicenseTypeColumns = [

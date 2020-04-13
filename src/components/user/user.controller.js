@@ -960,7 +960,7 @@ class UserController extends BaseController {
                 userQuery = userQuery.join(Language.tableName, `${Language.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
 
-                columnList = [...columnList, ...driverExperienceColumns, ...driverSpecialityDetailsColumns, ...driverLanguageColumns];
+                columnList = [...columnList, ...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverLanguageColumns];
             }
 
             if (userType === UserRole.CUSTOMER_R) {
