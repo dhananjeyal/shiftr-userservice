@@ -502,8 +502,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                    expiresIn: 3600 // Will expire in next 1 hour
-                                })
+                                        expiresIn: 3600 // Will expire in next 1 hour
+                                    })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -1110,8 +1110,8 @@ class UserController extends BaseController {
             //Update Travel -user -Login details
             await UserDetails.query()
                 .where('SRU03_USER_MASTER_D', req.user.userId)
-                .update('SRU04_TRAVEL_LOGIN_STATUS_F', booleanType.YES);
-                
+                .update({ 'SRU04_TRAVEL_LOGIN_STATUS_F': booleanType.YES });
+
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
 
         } catch (e) {
