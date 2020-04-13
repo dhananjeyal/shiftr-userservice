@@ -1286,7 +1286,7 @@ class UserController extends BaseController {
             //Driver - Speciality structure change
             driver.DriverspecialityDetails.forEach((spcvalue) => {
                 if(expvalue.specialityReferenceNumber == spcvalue.specialityReferenceNumber){
-                    DriverDetails.push({
+                    DriverDetails.push ({
                         driverExp: {
                             experience: {
                                 driverExperienceId: expvalue.driverExperienceId,
@@ -1310,13 +1310,12 @@ class UserController extends BaseController {
                         countryType: expvalue.experienceType
                     });
                 }
-
             });
 
             });
-            
-            delete driver.experienceDetails;//Remove Existing object
-            delete driver.DriverspecialityDetails; // Remove Existing Object
+
+            // delete driver.experienceDetails;//Remove Existing object
+            // delete driver.DriverspecialityDetails; // Remove Existing Object
 
             driver.DriverDetails = DriverDetails;
 
