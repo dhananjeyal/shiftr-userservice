@@ -64,7 +64,7 @@ export let contactInfoColumns = [
 
 export let driverSpecialityDetailsColumns = [
     'SRU12_DRIVER_SPECIALITY_D as specialityId',
-    'SRU09_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
+    'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
     'SRU12_SPECIALITY_N as specialityName',
     'SRU12_VALIDYEAR_N as validYear',
 ]
