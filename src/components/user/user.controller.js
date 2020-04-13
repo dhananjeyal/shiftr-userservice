@@ -1040,7 +1040,7 @@ class UserController extends BaseController {
 
             //Filter By Driver Details
             let specialityQuery = await SpecialityDetails.query()
-                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                 .where({
                     "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": trainingCanada
                 })
@@ -1077,7 +1077,7 @@ class UserController extends BaseController {
             //TODO : Testing added will remove after testing
             if (specialityQuery.length <= 0) {
                 specialityQuery = await SpecialityDetails.query()
-                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
+                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                     .select(columnList);
             }
 
@@ -1137,7 +1137,7 @@ class UserController extends BaseController {
             //Filter By Driver Details
 
             let specialityQuery = await SpecialityDetails.query()
-                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                 .whereIn('SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D', userIds)
                 .select(columnList);
 
