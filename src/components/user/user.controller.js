@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -290,9 +290,9 @@ class UserController extends BaseController {
                 if (resultType === UserRole.DRIVER_R) {
                     verifyType = parseInt(req.headers['user-type']) === resultType;
                 }
-               
+
                 if (verifyType) {
-                    
+
                     // Password check
                     let compareResult = await bcrypt.compare(req.body.password, result.password);
                     if (compareResult) {
@@ -573,7 +573,7 @@ class UserController extends BaseController {
                     }
 
                     if (emailStatus === EmailStatus.VERIFIED) {
-                       
+
                         return new Promise((resolve) => {
                             resolve(result);
                         });
@@ -1108,6 +1108,11 @@ class UserController extends BaseController {
                 return userValue;
             });
 
+            //Update Travel -user -Login details
+            await UserDetails.query()
+                .where('SRU03_USER_MASTER_D', req.user.userId)
+                .update('SRU04_TRAVEL_LOGIN_STATUS_F', booleanType.YES);
+                
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
 
         } catch (e) {
@@ -1283,34 +1288,34 @@ class UserController extends BaseController {
             //Driver - Experienced  structure change
             driver.experienceDetails.forEach((expvalue) => {
 
-            //Driver - Speciality structure change
-            driver.DriverspecialityDetails.forEach((spcvalue) => {
-                if(expvalue.specialityReferenceNumber == spcvalue.specialityReferenceNumber){
-                    DriverDetails.push ({
-                        driverExp: {
-                            experience: {
-                                driverExperienceId: expvalue.driverExperienceId,
-                                totalexperience: expvalue.totalExp
-                            },
-                            expInProvince: {
-                                driverExperienceId: expvalue.driverExperienceId,
-                                provinceName: expvalue.currentExp
-                            },
-                            driverSpeciality: {
-                                specialityTraining: {
-                                    specialityId: spcvalue.specialityId,
-                                    specialityName: spcvalue.specialityName
+                //Driver - Speciality structure change
+                driver.DriverspecialityDetails.forEach((spcvalue) => {
+                    if (expvalue.specialityReferenceNumber == spcvalue.specialityReferenceNumber) {
+                        DriverDetails.push({
+                            driverExp: {
+                                experience: {
+                                    driverExperienceId: expvalue.driverExperienceId,
+                                    totalexperience: expvalue.totalExp
                                 },
-                                year: {
-                                    specialityId: spcvalue.specialityId,
-                                    validYear: spcvalue.validYear
+                                expInProvince: {
+                                    driverExperienceId: expvalue.driverExperienceId,
+                                    provinceName: expvalue.currentExp
+                                },
+                                driverSpeciality: {
+                                    specialityTraining: {
+                                        specialityId: spcvalue.specialityId,
+                                        specialityName: spcvalue.specialityName
+                                    },
+                                    year: {
+                                        specialityId: spcvalue.specialityId,
+                                        validYear: spcvalue.validYear
+                                    }
                                 }
-                            }
-                        },
-                        countryType: expvalue.experienceType
-                    });
-                }
-            });
+                            },
+                            countryType: expvalue.experienceType
+                        });
+                    }
+                });
 
             });
 
