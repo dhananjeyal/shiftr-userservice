@@ -155,7 +155,7 @@ class UserController extends BaseController {
                 SRU04_COMPANY_NAME_N: req.body.compnayName,
                 SRU04_NUMBER_OF_BUSES_R: req.body.numberofBuses,
                 SRU04_PHONE_N: req.body.phoneNo,
-                SRU04_EMAIL_STATUS_D: EmailStatus.VERIFIED,
+                SRU04_EMAIL_STATUS_D: EmailStatus.PENDING,
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
             });
 
@@ -545,13 +545,13 @@ class UserController extends BaseController {
                 .modifyEager('userDetails', builder => {
                     builder.select(userDetailsColumns)
                 }).select(columns).limit(1);
-
+                
             if (result.length) {
                 result = result[0];
 
 
                 // User status check
-                if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
+                if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {                    
                     let emailStatus = result.userDetails.emailStatus;
                     if (result.status === UserStatus.FIRST_TIME) {
                         result.changedPassword = false
@@ -584,7 +584,7 @@ class UserController extends BaseController {
                             }));
                         }
                     }
-                } else {
+                } else {                   
                     if (sendResponse) {
                         this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
                             message: this.messageTypes.authMessages.userSuspended
