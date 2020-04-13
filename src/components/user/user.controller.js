@@ -1039,7 +1039,6 @@ class UserController extends BaseController {
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
-
             let specialityQuery = await SpecialityDetails.query()
                 .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_DRIVEREXP_D')
                 .where({
