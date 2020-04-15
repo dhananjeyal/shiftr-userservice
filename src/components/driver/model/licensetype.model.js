@@ -1,5 +1,5 @@
 import BaseModel from '../../../config/db';
-import DriverExperience from '../model/experience.model';
+import DriverExperience from '../model/driverExperience.model';
 
 class LicenseType extends BaseModel {
 

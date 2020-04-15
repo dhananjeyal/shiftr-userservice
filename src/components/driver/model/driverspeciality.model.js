@@ -1,6 +1,6 @@
 import BaseModel from '../../../config/db'
 import Users from "../../user/model/user.model";
-import ExperienceDetails from '../model/experience.model';
+import ExperienceDetails from '../model/driverExperience.model';
 
 class SpecialityDetails extends BaseModel {
 

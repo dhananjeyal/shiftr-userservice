@@ -20,7 +20,7 @@ import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, allLanguageColumns, radiusColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
-import ExperienceDetails from './model/experience.model';
+import ExperienceDetails from './model/driverExperience.model';
 import LicenseType from './model/licensetype.model';
 import SpecialityTraining from './model/speciality.model';
 import SpecialityDetails from './model/driverspeciality.model';
@@ -209,15 +209,13 @@ class DriverController extends BaseController {
 
             //Experience Details
             data.map((currExpDetails, index) => {
-                const { licenseType, driverExp, countryType } = currExpDetails;
+                const { driverExp, countryId } = currExpDetails;
                 experienceData.push({
                     SRU03_USER_MASTER_D: user.userId,
-                    SRU09_TYPE_N: countryType,
-                    SRU09_LICENSE_TYPE_N: licenseType,
-                    SRU09_TOTALEXP_N: driverExp.experience,
-                    SRU09_CURRENT_N: driverExp.expInProvince,
-                    SRU09_CREATED_D: user.userId,
-                    SRU09_UPDATED_D: user.userId,
+                    SRU15_COUNTRY_D: countryId,                    
+                    SRU13_EXPERIENCE_D: driverExp.experienceId,
+                    SRU16_PROVINCE_D: driverExp.expInProvinceId,
+                    SRU09_CREATED_D: user.userId, 
                     SRU09_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`
                 });
 
@@ -233,9 +231,10 @@ class DriverController extends BaseController {
                 }
             });
 
-            const experienceResponse = await ExperienceDetails.query().insertGraph(experienceData);
+            const experienceResponse = await ExperienceDetails.query().insertGraphAndFetch(experienceData);
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
 
+            
             const userDetailsResponse = await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS })
                 .where('SRU03_USER_MASTER_D', user.userId);
@@ -243,11 +242,6 @@ class DriverController extends BaseController {
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.added);
 
         } catch (e) {
-            console.log(e);
-            if (e.code === 'ER_DUP_ENTRY') {
-                e.message = this.messageTypes.passMessages.userExists;
-                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, e));
-            }
             return this.internalServerError(req, res, e);
         }
     }

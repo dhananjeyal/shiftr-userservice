@@ -8,16 +8,15 @@ import { validateFile } from "../../utils";
 const Joi = BaseJoi.extend(joinDateExtension);
 
 const CreateExperienceSchema = {
-    licenseType: Joi.string(),
     driverExp: Joi.object({
-        experience: Joi.string().required(),
-        expInProvince: Joi.string().required(),
+        experienceId: Joi.number().required(),
+        expInProvinceId: Joi.number().required(),
         driverSpeciality: Joi.array().items({
             specialityTraining: Joi.string().required(),
             year: Joi.string().required()
         })
     }).required(),
-    countryType: Joi.number().required(),
+    countryId: Joi.number().required(),
 }
 
 const phone = {
@@ -64,8 +63,6 @@ const schemas = {
     profileUpload: Joi.object().keys({
         userprofile: Joi.string().required()
     }),
-
-
 
     CreateExperienceDetails: Joi.object().keys({
         data: Joi.array().items(CreateExperienceSchema).min(1)
