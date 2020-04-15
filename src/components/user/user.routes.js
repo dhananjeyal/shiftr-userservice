@@ -1,6 +1,6 @@
 import AuthController from "../user/auth.controller";
 import UserController from './user.controller'
-import { forgetPassword, loginUser, resetPassword, signUpUser, existingEmail,travelsSignup } from './user.validators'
+import { forgetPassword, loginUser, resetPassword, signUpUser, existingEmail, travelsSignup } from './user.validators'
 import { mailer } from "../../utils";
 
 function registerRoutes() {
@@ -16,7 +16,7 @@ function registerRoutes() {
 
         // Email verification
         openRouter.route("/api/user/verify_email").get(UserController.verifyUser);
-        
+
         let verifySuperAdminOrAdmin = AuthController.verifySuperAdminOrAdmin;
         //Existing Email verification
         apiRouter.route("/user/existing_email/:emailId").get(verifySuperAdminOrAdmin, existingEmail, UserController.existingEmail);
@@ -26,6 +26,10 @@ function registerRoutes() {
         apiRouter.route("/user/get_users").post(UserController.getUserList);
         apiRouter.route("/user/get_user").post(UserController.getuserById);
         apiRouter.route("/user/trip/driver/list").post(UserController.getDriverDetailsList);
+
+        //Travels Update - Super Admin / Admin
+        apiRouter.route("/user/travels").put(verifySuperAdminOrAdmin,UserController.travelsUpdate);
+
 
         // Required jwt authentication
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);

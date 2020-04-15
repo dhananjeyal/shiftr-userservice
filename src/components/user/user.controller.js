@@ -165,8 +165,8 @@ class UserController extends BaseController {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: insertResult.userId,
                     SRU01_TYPE_D: data.phonuemberType,
-                    SRU09_CONTACT_PERSON_N: data.contactPerson,
-                    SRU09_PHONE_R: data.phoneNumber
+                    SRU19_CONTACT_PERSON_N: data.contactPerson,
+                    SRU19_PHONE_R: data.phoneNumber
                 });
             });
 
@@ -214,6 +214,66 @@ class UserController extends BaseController {
         }
     };
 
+    /**
+     * @DESC : Busowner /Travels signup
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    travelsUpdate = async (req, res) => {
+        try {
+            const {
+                userId,
+                compnayName,
+                numberofBuses,
+                contactinfoId,
+                contactPerson,
+                phoneNumber,
+                addressId,
+                address1,
+                postalCode,
+                latitude,
+                longitude
+            } = req.body;
+
+            // Insert user details
+            await UserDetails.query()
+                .where('SRU03_USER_MASTER_D', userId)
+                .update({
+                    SRU04_COMPANY_NAME_N: compnayName,
+                    SRU04_NUMBER_OF_BUSES_R: numberofBuses,
+                    SRU04_UPDATED_D: req.user.userId
+                });
+
+            //Update contact Info
+            await ContactInfo.query()
+                .where({
+                    SRU19_CONTACT_INFO_D: contactinfoId,
+                    SRU03_USER_MASTER_D: userId
+                })
+                .update({
+                    SRU19_CONTACT_PERSON_N: contactPerson,
+                    SRU19_PHONE_R: phoneNumber
+                });
+
+            await AddressDetails.query()
+                .where({
+                    SRU06_ADDRESS_D: addressId,
+                    SRU03_USER_MASTER_D: userId
+                })
+                .update({
+                    SRU06_LINE_1_N: address1,
+                    SRU06_POSTAL_CODE_N: postalCode,
+                    SRU06_LOCATION_LATITUDE_N: latitude,
+                    SRU06_LOCATION_LONGITUDE_N: longitude,
+                    SRU06_UPDATED_D:req.user.userId
+                });
+
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.updated);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
 
     /**
      * @DESC : For other services
@@ -502,8 +562,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                        expiresIn: 3600 // Will expire in next 1 hour
-                                    })
+                                    expiresIn: 3600 // Will expire in next 1 hour
+                                })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,

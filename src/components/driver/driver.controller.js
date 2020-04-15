@@ -96,7 +96,7 @@ class DriverController extends BaseController {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
                     SRU01_TYPE_D: phonenumbertype.HOME,
-                    SRU09_PHONE_R: phones[index]
+                    SRU19_PHONE_R: phones[index]
                 });
             });
 

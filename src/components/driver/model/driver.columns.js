@@ -57,9 +57,9 @@ export let experienceListColumns = [
 ]
 
 export let contactInfoColumns = [
-    'SRU09_PHONE_D as contactinfoId',
-    'SRU09_CONTACT_PERSON_N as contcatPersonName',
-    'SRU09_PHONE_R as contactpersonPhoneNumber'
+    'SRU19_CONTACT_INFO_D as contactinfoId',
+    'SRU19_CONTACT_PERSON_N as contcatPersonName',
+    'SRU19_PHONE_R as contactpersonPhoneNumber'
 ]
 
 export let driverSpecialityDetailsColumns = [
