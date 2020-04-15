@@ -1,6 +1,6 @@
 import AuthController from "../user/auth.controller";
 import UserController from './user.controller'
-import { forgetPassword, loginUser, resetPassword, signUpUser, existingEmail, travelsSignup } from './user.validators'
+import { forgetPassword, loginUser, resetPassword, signUpUser, existingEmail, travelsSignup,travelsUpdate } from './user.validators'
 import { mailer } from "../../utils";
 
 function registerRoutes() {
@@ -28,7 +28,7 @@ function registerRoutes() {
         apiRouter.route("/user/trip/driver/list").post(UserController.getDriverDetailsList);
 
         //Travels Update - Super Admin / Admin
-        apiRouter.route("/user/travels").put(verifySuperAdminOrAdmin,UserController.travelsUpdate);
+        apiRouter.route("/user/:userId/travels").put(verifySuperAdminOrAdmin,travelsUpdate,UserController.travelsUpdate);
 
 
         // Required jwt authentication

@@ -41,6 +41,19 @@ const schemas = {
         // longitude:Joi.string().required()
     }),
 
+    travelsUpdate: Joi.object().keys({        
+        compnayName:Joi.string().required(),
+        numberofBuses:Joi.number().required(),
+        contactinfoId:Joi.number().required(),
+        contactPerson:Joi.string().required(),
+        phoneNumber:Joi.number().required(),
+        addressId:Joi.number().required(),
+        address1:Joi.string().required(),
+        postalCode:Joi.number().required(),
+        latitude:Joi.string().required(),
+        longitude:Joi.string().required()
+    }),
+
 
     createUpdateUser: Joi.object().keys({
         firstName: Joi.string().regex(/[a-zA-Z][a-zA-Z\s]*$/).max(50).required(),
@@ -233,6 +246,19 @@ export const existingEmail = (req, res, next) => {
     let option = options.basic;
     schema.validate({
         ...req.params
+    }, option).then(() => {
+        next();
+    }).catch(err => {
+        Response.joierrors(req, res, err);
+    });
+};
+
+
+export const travelsUpdate = (req, res, next) => {
+    let schema = schemas.travelsUpdate;
+    let option = options.basic;
+    schema.validate({
+        ...req.body
     }, option).then(() => {
         next();
     }).catch(err => {
