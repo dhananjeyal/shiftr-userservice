@@ -72,13 +72,14 @@ const schemas = {
     }),
 
     updateDriverProfile: Joi.object().keys({
-        userAddress: Joi.string().max(200).required(),
-        type: Joi.number().valid(1, 2, 3).required(),
-        age: Joi.number().required(),
-        gender: Joi.string().max(10).required(),
+        userId: Joi.number().required(),
+        firstName: Joi.string().required(),
+        lastName: Joi.string().required(),
         phone: Joi.number().required(),
-        experience: Joi.number().required(),
-        workingWithOthers: Joi.string().valid(booleanType.YES, booleanType.NO).required(),
+        addressId: Joi.number().required(),
+        unit: Joi.string().required(),
+        address1: Joi.string().required(),
+        postalCode: Joi.number().required(),
         latitude: Joi.string().required(),
         longitude: Joi.string().required()
     }),

@@ -273,7 +273,7 @@ class DriverController extends BaseController {
                 latitude,
                 longitude,
                 experienceDetails,
-                DriverspecialityDetails
+                specialityDetails
             } = req.body;
 
             //user - Update
@@ -308,14 +308,30 @@ class DriverController extends BaseController {
                     SRU06_UPDATED_D: req.user.userId
                 });
 
+            //Update Experience Details
             const driverExperienceDetails = []
             experienceDetails.forEach(expvalue => {
                 driverExperienceDetails.push({
-                    SRU09_DRIVEREXP_D:expvalue.driverExperienceId,
-                    SRU09_TYPE_N:expvalue.experienceType,
-                    SRU09_TOTALEXP_N:expvalue.totalExp
+                    SRU09_DRIVEREXP_D: expvalue.driverExperienceId,
+                    SRU09_TYPE_N: expvalue.experienceType,
+                    SRU09_TOTALEXP_N: expvalue.totalExp
                 });
             });
+
+            await ExperienceDetails.query()
+                .upsertGraph(driverExperienceDetails);
+
+            //Update speciality details
+            const DriverspecialityDetails = []
+            specialityDetails.forEach(specvalue => {
+                DriverspecialityDetails.push({
+                    SRU12_DRIVER_SPECIALITY_D: specvalue.specialityId,
+                    SRU12_SPECIALITY_N: specvalue.specialityName
+                });
+            });
+
+            await SpecialityDetails.query()
+                .upsertGraph(DriverspecialityDetails);
 
 
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.updated);
