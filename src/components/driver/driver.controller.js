@@ -81,7 +81,7 @@ class DriverController extends BaseController {
 
             //Row exists
             let rowExists = await ContactInfo.query()
-                .select('SRU09_PHONE_D')
+                .select('SRU19_CONTACT_INFO_D')
                 .where('SRU03_USER_MASTER_D', ActiveUser.userId);
 
 
@@ -138,7 +138,7 @@ class DriverController extends BaseController {
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             };
             await Radious.query().insert({
-                SRU03_USER_MASTER_D:ActiveUser.userId,
+                SRU03_USER_MASTER_D: ActiveUser.userId,
                 SRU10_KILOMETER_F: km,
                 SRU10_MILES_F: miles,
                 SRU10_DISTANCE_RANGE_N: radious,
@@ -261,42 +261,62 @@ class DriverController extends BaseController {
     updateDriverProfile = async (req, res) => {
         try {
 
-            let userId = req.user.userId;
-            let rowExists = await AddressDetails.query()
-                .select('SRU06_ADDRESS_D')
-                .where('SRU03_USER_MASTER_D', userId);
+            const {
+                userId,
+                firstName,
+                lastName,
+                phone,
+                addressId,
+                unit,
+                address1,
+                postalCode,
+                latitude,
+                longitude,
+                experienceDetails,
+                DriverspecialityDetails
+            } = req.body;
 
-            if (rowExists.length > 0) {
-                await AddressDetails.query()
-                    .findById(userId)
-                    .patch({
-                        SRU03_USER_MASTER_D: userId,
-                        SRU06_LINE_1_N: req.body.userAddress,
-                        SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
-                        SRU06_LOCATION_LATITUDE_N: req.body.latitude,
-                        SRU06_LOCATION_LATITUDE_N: req.body.longitude,
-                        SRU06_UPDATED_D: userId
-                    });
-            } else {
-                // User Address
-                await AddressDetails.query().insert({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU06_LINE_1_N: req.body.userAddress,
-                    SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
-                    SRU06_LOCATION_LATITUDE_N: req.body.latitude,
-                    SRU06_LOCATION_LONGITUDE_N: req.body.longitude,
-                    SRU06_CREATED_D: userId
-                });
-            }
-
-            await UserDetails.query().where('SRU03_USER_MASTER_D', userId)
+            //user - Update
+            await Users.query()
+                .where('SRU03_USER_MASTER_D', userId)
                 .patch({
-                    SRU04_GENDER_D: req.body.gender,
-                    SRU04_PHONE_N: req.body.phone,
-                    SRU04_EXPERIENCE_D: req.body.experience,
-                    SRU04_WORKING_WITH_OTHERS: req.body.workingWithOthers,
-                    SRU04_OTHER_SERVICE_INFO: req.body.otherServiceInfo
+                    SRU03_FIRST_N: firstName,
+                    SRU03_LAST_N: lastName,
+                    SRU03_UPDATED_D: req.user.userId
                 });
+
+            //user-Details Update
+            await UserDetails.query()
+                .where('SRU03_USER_MASTER_D', userId)
+                .patch({
+                    SRU04_PHONE_N: phone,
+                    SRU04_UNIT: unit,
+                    SRU04_UPDATED_D: req.user.userId
+                });
+
+            //Update Address Details
+            await AddressDetails.query()
+                .where({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU06_ADDRESS_D: addressId
+                })
+                .patch({
+                    SRU06_LINE_1_N: address1,
+                    SRU06_POSTAL_CODE_N: postalCode,
+                    SRU06_LOCATION_LATITUDE_N: latitude,
+                    SRU06_LOCATION_LONGITUDE_N: longitude,
+                    SRU06_UPDATED_D: req.user.userId
+                });
+
+            const driverExperienceDetails = []
+            experienceDetails.forEach(expvalue => {
+                driverExperienceDetails.push({
+                    SRU09_DRIVEREXP_D:expvalue.driverExperienceId,
+                    SRU09_TYPE_N:expvalue.experienceType,
+                    SRU09_TOTALEXP_N:expvalue.totalExp
+                });
+            });
+
 
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.updated);
 
