@@ -28,7 +28,7 @@ function registerRoutes() {
         apiRouter.route("/user/trip/driver/list").post(UserController.getDriverDetailsList);
 
         //Travels Update - Super Admin / Admin
-        apiRouter.route("/user/:userId/travels").put(verifySuperAdminOrAdmin,travelsUpdate,UserController.travelsUpdate);
+        apiRouter.route("/user/travels").put(verifySuperAdminOrAdmin,travelsUpdate,UserController.travelsUpdate);
 
 
         // Required jwt authentication

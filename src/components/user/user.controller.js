@@ -222,10 +222,8 @@ class UserController extends BaseController {
      */
     travelsUpdate = async (req, res) => {
         try {
-
-            const {userId} =req.params;
             const {
-                
+                userId,
                 compnayName,
                 numberofBuses,
                 contactinfoId,
