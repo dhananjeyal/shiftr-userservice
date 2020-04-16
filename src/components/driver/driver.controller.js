@@ -469,33 +469,7 @@ class DriverController extends BaseController {
 
             const driver = await this._getDriverDetails(req, res, req.user.userId);
 
-            if (driver) {
-
-                let emailToken = encrypt(JSON.stringify({
-                    emailId: req.user.emailId,
-                    userId: req.user.userId
-                }));
-
-                const token = encrypt(JSON.stringify({
-                    emailId: req.user.emailId,
-                    userId: req.user.userId,
-                    for: "BEAMS"
-                }));
-
-                let host = req.protocol + '://' + req.get('host');
-                driver.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
-                driver.beamstoken = token
-
-                this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
-            }
-
-
-            //TODO: Send the mail
-            return await mailer.signUp(
-                req.user.firstName,
-                req.user.emailId,
-                driver.verifyEmailLink
-            );
+            return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated); return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
 
         } catch (e) {
             return this.internalServerError(req, res, e);

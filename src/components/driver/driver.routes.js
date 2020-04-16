@@ -27,7 +27,7 @@ function registerRoutes() {
         apiRouter.route("/driver/driver_profile").post(verify, CreateDriverProfile, DriverController.CreateDriverProfile);        
        //Driver Update -[SuperAdmin ]
         let verifySuperAdminOrAdmin = AuthController.verifySuperAdminOrAdmin;
-        apiRouter.route("/driver/driver_profile").put(verifySuperAdminOrAdmin, updateDriverProfile, DriverController.updateDriverProfile);        
+        apiRouter.route("/driver/driver_profile").put(verifySuperAdminOrAdmin , updateDriverProfile, DriverController.updateDriverProfile);        
         apiRouter.route("/driver/experience_details").post(verify, CreateExperienceDetails, DriverController.CreateExperienceDetails);
         apiRouter.route("/driver/financial_details").post(verify, financialDetails, DriverController.financialDetails);
         apiRouter.route("/driver/driver_documents").post(verify, driverDocuments, DriverController.driverDocuments);
