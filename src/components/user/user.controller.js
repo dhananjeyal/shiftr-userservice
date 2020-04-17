@@ -425,8 +425,10 @@ class UserController extends BaseController {
             const token = req.query.token;
 
             if (token) {
+                console.log("=====",token);
                 let decrypted = decrypt(token);
                 if (decrypted) {
+                    console.log("=====",decrypted);
                     let payload = JSON.parse(decrypted);
 
                     let result = await Users.query().where({
@@ -450,6 +452,7 @@ class UserController extends BaseController {
                                 }).where({
                                     SRU03_USER_MASTER_D: payload.userId
                                 });
+                                
                                 let notifyData = {
                                     title: this.messageTypes.passMessages.title,
                                     message: this.messageTypes.passMessages.emailVerified,
@@ -464,7 +467,7 @@ class UserController extends BaseController {
 
                                 req.headers['authorization'] = `Bearer ${token}`;
 
-                                await NotifyService.sendNotication(req, res, notifyData)
+                                // await NotifyService.sendNotication(req, res, notifyData)
                                 await mailer.emailVerified(result);
                             }
 
