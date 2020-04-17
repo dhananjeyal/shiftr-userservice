@@ -553,8 +553,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                        expiresIn: 3600 // Will expire in next 1 hour
-                                    })
+                                    expiresIn: 3600 // Will expire in next 1 hour
+                                })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -1077,14 +1077,13 @@ class UserController extends BaseController {
         try {
             const {
                 driverDetails
-            } = req.body
+            } = req.body;
 
-            // console.log("driverDetails", req.body.driverDetails[0].licenceType);
             let _where = {};
             let _orWhere = {};
 
             driverDetails.forEach((data, index) => {
-                if (index === 1) {
+                if (index === 0) {
                     _where["SRU09_DRIVEREXP.SRU09_TYPE_N"] = data.countryType,
                         _where["SRU09_DRIVEREXP.SRU09_TOTALEXP_N"] = data.experience,
                         _where["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
@@ -1145,7 +1144,7 @@ class UserController extends BaseController {
 
             const results = await userQuery.map((userValue) => {
                 specialityQuery.find((specialityValue) => {
-                    if (userValue.userId === specialityValue.userId) {
+                    if (userValue.userId === specialityValue.driveruserId) {
                         userValue.SpecialityDetails = specialityValue;
                     }
                 });
