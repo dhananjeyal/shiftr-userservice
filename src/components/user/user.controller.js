@@ -553,8 +553,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                    expiresIn: 3600 // Will expire in next 1 hour
-                                })
+                                        expiresIn: 3600 // Will expire in next 1 hour
+                                    })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -1076,54 +1076,48 @@ class UserController extends BaseController {
     _getAllUsersList = async (req, res) => {
         try {
             const {
-                experienceCanada,
-                experienceUsa,
-                canadaProvince,
-                usaProvince,
-                trainingCanada,
-                trainingUsa,
-                languageCanada,
-                licenceType,
-                languageUsa
+                driverDetails
             } = req.body
 
+            // console.log("driverDetails", req.body.driverDetails[0].licenceType);
+            let _where = {};
+            let _orWhere = {};
+
+            driverDetails.forEach((data, index) => {
+                if (index === 1) {
+                    _where["SRU09_DRIVEREXP.SRU09_TYPE_N"] = data.countryType,
+                        _where["SRU09_DRIVEREXP.SRU09_TOTALEXP_N"] = data.experience,
+                        _where["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
+                } else {
+                    _orWhere["SRU09_DRIVEREXP.SRU09_TYPE_N"] = data.countryType,
+                        _orWhere["SRU09_DRIVEREXP.SRU09_TOTALEXP_N"] = data.experience,
+                        _orWhere["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
+                }
+            });
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
+            const _whereSize = Object.keys(_where).length;
+            const _orWhereSize = Object.keys(_orWhere).length;
+            let specialityQuery;
 
             //Filter By Driver Details
-            let specialityQuery = await SpecialityDetails.query()
-                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                .where({
-                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": trainingCanada
-                })
-                .orWhere({
-                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": trainingUsa
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceCanada,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": canadaProvince
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceUsa,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceCanada
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": canadaProvince
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceUsa
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
-                }).select(columnList);
+
+            if (_whereSize > 0 && _orWhereSize > 0) {
+                specialityQuery = await SpecialityDetails.query()
+                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .where(_where)
+                    .orWhere(_orWhere)
+                    .select(columnList);
+            } else if (_whereSize > 0) {
+                specialityQuery = await SpecialityDetails.query()
+                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .where(_where)
+                    .select(columnList);
+            } else if (_orWhereSize > 0) {
+                specialityQuery = await SpecialityDetails.query()
+                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .where(_orWhere)
+                    .select(columnList);
+            };
 
             //TODO : Testing added will remove after testing
             if (specialityQuery.length <= 0) {
@@ -1133,7 +1127,7 @@ class UserController extends BaseController {
             }
 
             let userids = specialityQuery.map((value) => {
-                return value.userId
+                return value.driveruserId
             });
 
 
@@ -1193,7 +1187,7 @@ class UserController extends BaseController {
                 .select(columnList);
 
             let userids = specialityQuery.map((value) => {
-                return value.userId
+                return value.driveruserId
             });
 
             let where = {
@@ -1210,7 +1204,7 @@ class UserController extends BaseController {
 
             const results = await userQuery.map((userValue) => {
                 specialityQuery.find((specialityValue) => {
-                    if (userValue.userId === specialityValue.userId) {
+                    if (userValue.userId === specialityValue.driveruserId) {
                         userValue.SpecialityDetails = specialityValue;
                     }
                 });
