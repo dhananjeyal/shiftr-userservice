@@ -31,8 +31,8 @@ export let driverExperienceColumns = [
     'SRU09_TYPE_N as experienceType',//Experience Type = CANADA | USA
     'SRU09_LICENSE_TYPE_N as licenseType',//Experience Type = CANADA | USA
     'SRU09_TOTALEXP_N as totalExp',
-    'SRU09_CURRENT_N as currentExp'
-    // "SRU09_DRIVEREXP.SRU03_USER_MASTER_D as userId"
+    'SRU09_CURRENT_N as currentExp',
+    "SRU09_DRIVEREXP.SRU03_USER_MASTER_D as driveruserId"
 ];
 
 export let driverExpSpecialityColumns = [

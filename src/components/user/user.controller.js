@@ -206,20 +206,18 @@ class UserController extends BaseController {
     };
 
     /**
-     * @DESC : Busowner /Travels signup
+     * @DESC : Busowner /Travels Update
      * @return array/json
      * @param req
      * @param res
      */
     travelsUpdate = async (req, res) => {
         try {
+            const userId = req.user.userId;
             const {
-                userId,
                 compnayName,
                 numberofBuses,
-                contactinfoId,
-                contactPerson,
-                phoneNumber,
+                contactInfo,
                 addressId,
                 address1,
                 postalCode,
@@ -237,15 +235,17 @@ class UserController extends BaseController {
                 });
 
             //Update contact Info
-            await ContactInfo.query()
-                .where({
-                    SRU19_CONTACT_INFO_D: contactinfoId,
-                    SRU03_USER_MASTER_D: userId
-                })
-                .update({
-                    SRU19_CONTACT_PERSON_N: contactPerson,
-                    SRU19_PHONE_R: phoneNumber
+            const contactInfodetails = [];
+            contactInfo.forEach(contactvalue => {
+                contactInfodetails.push({
+                    SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
+                    SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
+                    SRU19_PHONE_R: contactvalue.phoneNumber
                 });
+            });
+
+            await ContactInfo.query()
+                .upsertGraph(contactInfodetails);
 
             await AddressDetails.query()
                 .where({
@@ -257,7 +257,7 @@ class UserController extends BaseController {
                     SRU06_POSTAL_CODE_N: postalCode,
                     SRU06_LOCATION_LATITUDE_N: latitude,
                     SRU06_LOCATION_LONGITUDE_N: longitude,
-                    SRU06_UPDATED_D:req.user.userId
+                    SRU06_UPDATED_D: req.user.userId
                 });
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.updated);
