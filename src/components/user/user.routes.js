@@ -27,8 +27,9 @@ function registerRoutes() {
         apiRouter.route("/user/get_user").post(UserController.getuserById);
         apiRouter.route("/user/trip/driver/list").post(UserController.getDriverDetailsList);
 
-        //Travels Update - Super Admin / Admin
-        apiRouter.route("/user/travels").put(verifySuperAdminOrAdmin,travelsUpdate,UserController.travelsUpdate);
+        //Travels Update - Customer / Busowner
+        let verifyCustomer = AuthController.verifyCustomer;
+        apiRouter.route("/user/travels").put(verifyCustomer,travelsUpdate,UserController.travelsUpdate);
 
 
         // Required jwt authentication

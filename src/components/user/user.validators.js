@@ -43,10 +43,7 @@ const schemas = {
 
     travelsUpdate: Joi.object().keys({        
         compnayName:Joi.string().required(),
-        numberofBuses:Joi.number().required(),
-        contactinfoId:Joi.number().required(),
-        contactPerson:Joi.string().required(),
-        phoneNumber:Joi.number().required(),
+        numberofBuses:Joi.number().required(),        
         addressId:Joi.number().required(),
         address1:Joi.string().required(),
         postalCode:Joi.number().required(),
