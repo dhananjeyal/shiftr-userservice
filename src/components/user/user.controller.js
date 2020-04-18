@@ -438,7 +438,7 @@ class UserController extends BaseController {
                         builder.select(userDetailsColumns)
                     }).select(columns).limit(1);
 
-                    if (result.length) {
+                     if (result.length) {
                         result = result[0];
                         // Active status check
                         if (result.status === UserStatus.ACTIVE) {
