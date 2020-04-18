@@ -95,3 +95,9 @@ export class phonenumbertype {
     static OFFICE = 19;    
     static HOME = 20;    
 }
+
+export class WebscreenType {
+    static PROFILE = 1;    
+    static COMPANY = 2;
+    static SETTINGS = 3;     
+}

@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -213,52 +213,111 @@ class UserController extends BaseController {
      */
     travelsUpdate = async (req, res) => {
         try {
+
             const userId = req.user.userId;
+
             const {
+                screenType,
+                firstName,
+                lastName,
                 compnayName,
                 numberofBuses,
                 contactInfo,
+                contactDetails,
                 addressId,
                 address1,
                 postalCode,
                 latitude,
-                longitude
+                longitude,
+                userprofile,
+                notificationflag
             } = req.body;
 
-            // Insert user details
-            await UserDetails.query()
-                .where('SRU03_USER_MASTER_D', userId)
-                .update({
-                    SRU04_COMPANY_NAME_N: compnayName,
-                    SRU04_NUMBER_OF_BUSES_R: numberofBuses,
-                    SRU04_UPDATED_D: req.user.userId
+            if (screenType == WebscreenType.PROFILE) {
+
+                // update user
+                await Users.query()
+                    .where("SRU03_USER_MASTER_D", userId)
+                    .update({
+                        SRU03_FIRST_N: firstName,
+                        SRU03_LAST_N: lastName
+                    });
+
+                if (userprofile) {
+                    // Update UserDetails
+                    await UserDetails.query()
+                        .where('SRU03_USER_MASTER_D', userId)
+                        .update({
+                            SRU04_PROFILE_I: userprofile,
+                            SRU04_UPDATED_D: req.user.userId
+                        });
+                }
+
+            }
+
+            if (screenType == WebscreenType.COMPANY) {
+                // Insert user details
+                await UserDetails.query()
+                    .where('SRU03_USER_MASTER_D', userId)
+                    .update({
+                        SRU04_COMPANY_NAME_N: compnayName,
+                        SRU04_NUMBER_OF_BUSES_R: numberofBuses,
+                        SRU04_UPDATED_D: userId
+                    });
+
+                //Address Update
+                await AddressDetails.query()
+                    .where({
+                        SRU06_ADDRESS_D: addressId,
+                        SRU03_USER_MASTER_D: userId
+                    })
+                    .update({
+                        SRU06_LINE_1_N: address1,
+                        SRU06_POSTAL_CODE_N: postalCode,
+                        SRU06_LOCATION_LATITUDE_N: latitude,
+                        SRU06_LOCATION_LONGITUDE_N: longitude,
+                        SRU06_UPDATED_D: userId
+                    });
+
+                //Update contact Info
+                const contactInfoData = [];
+                contactInfo.forEach(contactvalue => {
+                    contactInfoData.push({
+                        SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
+                        SRU03_USER_MASTER_D: userId,
+                        SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
+                        SRU19_PHONE_R: contactvalue.phoneNumber,
+                        SRU01_TYPE_D: contactvalue.phoneNumberType
+                    });
                 });
 
-            //Update contact Info
-            const contactInfodetails = [];
-            contactInfo.forEach(contactvalue => {
-                contactInfodetails.push({
-                    SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
-                    SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
-                    SRU19_PHONE_R: contactvalue.phoneNumber
-                });
-            });
+                await ContactInfo.query()
+                    .upsertGraph(contactInfoData);
 
-            await ContactInfo.query()
-                .upsertGraph(contactInfodetails);
+                if (contactDetails.length > 0) {
+                    //Insert contact Info
+                    const contactInfodetailsData = [];
+                    contactDetails.forEach(contactvalue => {
+                        contactInfodetailsData.push({
+                            SRU03_USER_MASTER_D: userId,
+                            SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
+                            SRU19_PHONE_R: contactvalue.phoneNumber,
+                            SRU01_TYPE_D: contactvalue.phoneNumberType
+                        });
+                    });
+                    await ContactInfo.query()
+                        .insertGraph(contactInfodetailsData);
+                }
+            }
 
-            await AddressDetails.query()
-                .where({
-                    SRU06_ADDRESS_D: addressId,
-                    SRU03_USER_MASTER_D: userId
-                })
-                .update({
-                    SRU06_LINE_1_N: address1,
-                    SRU06_POSTAL_CODE_N: postalCode,
-                    SRU06_LOCATION_LATITUDE_N: latitude,
-                    SRU06_LOCATION_LONGITUDE_N: longitude,
-                    SRU06_UPDATED_D: req.user.userId
-                });
+            if (screenType == WebscreenType.SETTINGS) {
+                // Update UserDetails
+                await UserDetails.query()
+                    .where('SRU03_USER_MASTER_D', userId)
+                    .update({
+                        SRU04_NOTIFICATION_SETTINGS_F: notificationflag
+                    });
+            }
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.updated);
         } catch (e) {
@@ -425,10 +484,10 @@ class UserController extends BaseController {
             const token = req.query.token;
 
             if (token) {
-                console.log("=====",token);
+                console.log("=====", token);
                 let decrypted = decrypt(token);
                 if (decrypted) {
-                    console.log("=====",decrypted);
+                    console.log("=====", decrypted);
                     let payload = JSON.parse(decrypted);
 
                     let result = await Users.query().where({
@@ -438,7 +497,7 @@ class UserController extends BaseController {
                         builder.select(userDetailsColumns)
                     }).select(columns).limit(1);
 
-                     if (result.length) {
+                    if (result.length) {
                         result = result[0];
                         // Active status check
                         if (result.status === UserStatus.ACTIVE) {
@@ -452,7 +511,7 @@ class UserController extends BaseController {
                                 }).where({
                                     SRU03_USER_MASTER_D: payload.userId
                                 });
-                                
+
                                 let notifyData = {
                                     title: this.messageTypes.passMessages.title,
                                     message: this.messageTypes.passMessages.emailVerified,

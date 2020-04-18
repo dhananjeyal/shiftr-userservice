@@ -1,9 +1,20 @@
 import BaseJoi from 'joi';
 import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
-import {DocumentStatus, SignUpStatus, UserRole} from "../../constants";
+import { DocumentStatus, SignUpStatus, UserRole, WebscreenType, booleanType } from "../../constants";
+import { validateFile } from "../../utils";
 
 const Joi = BaseJoi.extend(joinDateExtension);
+
+
+const contactInfoSchema = {
+    contactInfo: Joi.object({
+        contactinfoId: Joi.number().required(),
+        contactPerson: Joi.string().required(),
+        phoneNumber: Joi.number().required()
+    })
+}
+
 
 // add joi schema
 const schemas = {
@@ -31,26 +42,84 @@ const schemas = {
             UserRole.CUSTOMER_R
         ).required(),
         phoneNo: Joi.number().min(10).max(15).required(),
-        compnayName:Joi.string().required(),
-        numberofBuses:Joi.number().required(),
-        address1:Joi.string().required(),
-        address2:Joi.string().required(),
-        postalCode:Joi.string().required(),
-        latitude:Joi.string().required(),
-        longitude:Joi.string().required()
+        compnayName: Joi.string().required(),
+        numberofBuses: Joi.number().required(),
+        address1: Joi.string().required(),
+        address2: Joi.string().required(),
+        postalCode: Joi.string().required(),
+        latitude: Joi.string().required(),
+        longitude: Joi.string().required()
         // longitude:Joi.string().required()
     }),
 
-    travelsUpdate: Joi.object().keys({        
-        compnayName:Joi.string().required(),
-        numberofBuses:Joi.number().required(),        
-        addressId:Joi.number().required(),
-        address1:Joi.string().required(),
-        postalCode:Joi.number().required(),
-        latitude:Joi.string().required(),
-        longitude:Joi.string().required()
-    }),
+    //Busowner -Update
+    travelsUpdate(bodydata) {
+        let rule = {};
+        if (bodydata.attachment) {
+            rule = {
+                userprofile: Joi.string().required,
+            };
+        }
 
+        rule = {
+            screenType: Joi.number().valid(
+                WebscreenType.PROFILE,
+                WebscreenType.COMPANY,
+                WebscreenType.SETTINGS).required(),
+
+            firstName: Joi.when('screenType', {
+                is: WebscreenType.PROFILE,
+                then: Joi.string().required()
+            }),
+            lastName: Joi.when('screenType', {
+                is: WebscreenType.PROFILE,
+                then: Joi.string().required()
+            }),
+            phone: Joi.when('screenType', {
+                is: WebscreenType.PROFILE,
+                then: Joi.number().required()
+            }),
+            // contactInfo: Joi.when('screenType', {
+            //     is: 1,
+            //     then: Joi.array().items(contactInfoSchema).min(1).required()
+            // }),
+            compnayName: Joi.when('screenType', {
+                is: WebscreenType.COMPANY,
+                then: Joi.string().required()
+            }),
+            numberofBuses: Joi.when('screenType', {
+                is: WebscreenType.COMPANY,
+                then: Joi.number().required()
+            }),
+
+            addressId: Joi.when('screenType', {
+                is: WebscreenType.COMPANY,
+                then: Joi.number().required()
+            }),
+            address1: Joi.when('screenType', {
+                is: WebscreenType.COMPANY,
+                then: Joi.string().required()
+            }),
+            postalCode: Joi.when('screenType', {
+                is: WebscreenType.COMPANY,
+                then: Joi.string().required()
+            }),
+            latitude: Joi.when('screenType', {
+                is: WebscreenType.COMPANY,
+                then: Joi.string().required()
+            }),
+            longitude: Joi.when('screenType', {
+                is: WebscreenType.COMPANY,
+                then: Joi.string().required()
+            }),
+            notificationflag: Joi.when('screenType', {
+                is: WebscreenType.SETTINGS,
+                then: Joi.number().valid(booleanType.YES, booleanType.NO).required()
+            })
+        }
+
+        return Joi.object().keys(rule);
+    },
 
     createUpdateUser: Joi.object().keys({
         firstName: Joi.string().regex(/[a-zA-Z][a-zA-Z\s]*$/).max(50).required(),
@@ -251,14 +320,30 @@ export const existingEmail = (req, res, next) => {
 };
 
 
+/**
+ * Busowner-Travels-Update
+ */
 export const travelsUpdate = (req, res, next) => {
-    let schema = schemas.travelsUpdate;
-    let option = options.basic;
-    schema.validate({
-        ...req.body
-    }, option).then(() => {
-        next();
-    }).catch(err => {
-        Response.joierrors(req, res, err);
-    });
+    // Validate file
+    if (validateFile(req, res)) {
+        let schema = schemas.travelsUpdate(req.body);
+        let option = options.basic;
+        schema.validate({
+            ...req.body,
+        }, option).then(() => {
+            next();
+        }).catch(err => {
+            Response.joierrors(req, res, err);
+        });
+    } else {
+        let schema = schemas.travelsUpdate(req.body);
+        let option = options.basic;
+        schema.validate({
+            ...req.body,
+        }, option).then(() => {
+            next();
+        }).catch(err => {
+            Response.joierrors(req, res, err);
+        });
+    }
 };

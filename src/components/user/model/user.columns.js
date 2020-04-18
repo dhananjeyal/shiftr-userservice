@@ -22,7 +22,8 @@ export let userDetailsColumns = [
     'SRU04_PHONE_N as phoneNumber',
     'SRU04_COMPANY_NAME_N as companyName',
     'SRU04_NUMBER_OF_BUSES_R as NumberofBus',
-    'SRU04_TRAVEL_LOGIN_STATUS_F as firsttimeLoginstatus'
+    'SRU04_TRAVEL_LOGIN_STATUS_F as firsttimeLoginstatus',
+    'SRU04_NOTIFICATION_SETTINGS_F as notificationSettings'
 ];
 
 export let userAddressColumns = [
