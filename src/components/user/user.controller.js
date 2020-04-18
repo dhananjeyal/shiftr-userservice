@@ -1185,7 +1185,7 @@ class UserController extends BaseController {
 
             let specialityQuery = await SpecialityDetails.query()
                 .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                .whereIn('SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D', driveruserId)
+                .whereIn('SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D', userIds)
                 .select(columnList);
 
             let userids = specialityQuery.map((value) => {
