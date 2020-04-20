@@ -130,8 +130,7 @@ class UserController extends BaseController {
                 SRU03_TYPE_D: userType,
                 SRU03_STATUS_D: UserStatus.ACTIVE,
             });
-console.log("====User");
-console.log(result);
+
             let insertResult = {
                 userId: result.SRU03_USER_MASTER_D,
                 firstName: result.SRU03_FIRST_N,
@@ -150,8 +149,6 @@ console.log(result);
                 SRU04_EMAIL_STATUS_D: EmailStatus.VERIFIED,
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
             });
-
-            console.log("====User Details===");
 
             const phoneNumbers = [];
             //Format data
@@ -179,7 +176,6 @@ console.log(result);
                     SRU06_LOCATION_LONGITUDE_N: req.body.longitude
                 });
 
-                console.log("====address details===");
             let emailToken = encrypt(JSON.stringify({
                 emailId: insertResult.emailId,
                 userId: insertResult.userId
@@ -205,8 +201,6 @@ console.log(result);
             );
 
         } catch (e) {
-            console.log("====Error===");
-            console.log(e);
             return this.internalServerError(req, res, e);
         }
     };
