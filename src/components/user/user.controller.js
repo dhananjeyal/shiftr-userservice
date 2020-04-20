@@ -944,6 +944,12 @@ class UserController extends BaseController {
         } else {
             req.user.changedPassword = true
         }
+
+        const contactinfo = [];
+        contactinfo.push(req.user.contactInfoDetails);
+        req.user.contactinfo = contactinfo;
+        delete req.user.contactInfoDetails;//Delete Existing Contact object
+
         this.success(req, res, this.status.HTTP_OK, req.user, this.messageTypes.authMessages.userValidToken);
     };
 
