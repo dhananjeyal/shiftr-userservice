@@ -28,13 +28,13 @@ class AuthController extends BaseController {
                             try {
                                 let user = await Users.query().findOne({
                                     SRU03_USER_MASTER_D: userId,
-                                }).eager('[userDetails, addressDetails,contactInfoDetails]')
-                                .modifyEager('userDetails', builder => {
+                                }).eager('[userDetails, addressDetails,contactInfoDetails]').modifyEager('userDetails', builder => {
                                     builder.select(userDetailsColumns)
                                 }).modifyEager('addressDetails', (builder) => {
                                     builder.select(userAddressColumns)
                                 }).modifyEager('contactInfoDetails', (builder) => {
-                                    builder.select(contactInfoColumns).select(columns);
+                                    builder.select(contactInfoColumns)
+                                }).select(columns);
 
                                 if (user) {
                                     req.user = user;
