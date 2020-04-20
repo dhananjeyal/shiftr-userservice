@@ -91,3 +91,9 @@ export let screeningCanadastatus = [
     'SRU09_SC_USER_N as screeningcanadaUserId',
     'SRU09_SC_STATUS_N as ScreeningCanadastatus'
 ];
+
+export let contactInfoDetailsColumns = [
+    'SRU19_CONTACT_INFO_D as contactinfoId',
+    'SRU19_CONTACT_PERSON_N as contcatPersonName',
+    'SRU19_PHONE_R as contactpersonPhoneNumber'
+]
