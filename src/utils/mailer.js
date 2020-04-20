@@ -29,13 +29,23 @@ export const sendMail = async (to, subject, html) => {
 
 export const signUp = (firstName, email, link) => {
     let html = `<b>Hello ${firstName}</b>
-                <p>Thank you for submitting the documents for verification.</p>
-                <p><b>Current status :</b>document submitted for verification.</p>
-                <p>Once your documents are verified you will be notified.</p>
+                <p>Congratulations.! you have successfully signed up for your account.</p>
+                <p>Let's add some more details to verify your account.</p>
                 <a href="${link}">Verify your account</a>
                 <p>Best regards</p>`;
     return sendMail(email, "Verification Email", html)
 };
+
+export const DriversignUpCompleted = (firstName, email) => {
+    let html = `<b>Hello ${firstName}</b>
+                <p>Thank you for submitting the documents for verification.</p>
+                <p><b>Current status :</b>document submitted for verification.</p>
+                <p>Once your documents are verified you will be notified.</p>
+                <p>Best regards</p>`;
+    return sendMail(email, "Signup Confirmation Email", html)
+};
+
+
 
 export const emailVerified = (user) => {
     let html = `<b>Hello ${user.firstName}</b>

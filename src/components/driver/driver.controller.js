@@ -407,6 +407,14 @@ class DriverController extends BaseController {
     */
     financialDetails = async (req, res) => {
         try {
+
+            //User Details
+            const {
+                firstName,
+                emailId,
+                userId
+            } = req.user;
+
             // Insert financial details
             const {
                 bankName,
@@ -422,12 +430,12 @@ class DriverController extends BaseController {
             // Insert financial attachment if available
             if (attachment) {
                 await UserDocument.query().insert({
-                    SRU03_USER_MASTER_D: req.user.userId,
+                    SRU03_USER_MASTER_D: userId,
                     SRU05_NAME: DocumentName.FINANCIAL,
                     SRU01_TYPE_D: DocumentType.FINANCIAL,
                     SRU02_STATUS_D: DocumentStatus.VERIFIED,
                     SRU05_DOCUMENT_I: attachment,
-                    SRU05_CREATED_D: req.user.userId
+                    SRU05_CREATED_D: userId
                 });
 
                 // await FinancialDetails.query().insert({
@@ -438,38 +446,45 @@ class DriverController extends BaseController {
 
             } else {
                 await FinancialDetails.query().delete().where({
-                    SRU03_USER_MASTER_D: req.user.userId
+                    SRU03_USER_MASTER_D: userId
                 })
                 await AddressDetails.query().delete().where({
-                    SRU03_USER_MASTER_D: req.user.userId
+                    SRU03_USER_MASTER_D: userId
                 })
 
                 await FinancialDetails.query().insert({
-                    SRU03_USER_MASTER_D: req.user.userId,
+                    SRU03_USER_MASTER_D: userId,
                     SRU08_BANK_N: bankName,
                     SRU08_ACCOUNT_N: accountNumber,
                     SRU08_INSTITUTION_N: institutionNumber,
                     SRU08_TRANSIT_N: transitNumber,
-                    SRU08_CREATED_D: req.user.userId,
+                    SRU08_CREATED_D: userId,
                 });
 
                 await AddressDetails.query().insert({
-                    SRU03_USER_MASTER_D: req.user.userId,
+                    SRU03_USER_MASTER_D: userId,
                     SRU06_LINE_1_N: address,
                     SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL,
                     SRU06_LOCATION_LATITUDE_N: latitude,
                     SRU06_LOCATION_LONGITUDE_N: longitude,
-                    SRU06_CREATED_D: req.user.userId,
+                    SRU06_CREATED_D: userId,
                 });
             }
 
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED })
-                .where('SRU03_USER_MASTER_D', req.user.userId);
+                .where('SRU03_USER_MASTER_D', userId);
 
-            const driver = await this._getDriverDetails(req, res, req.user.userId);
+            const driver = await this._getDriverDetails(req, res, userId);
 
-            return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated); return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated); return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+
+            // TODO: Send the mail
+            return await mailer.signUp(
+                firstName,
+                emailId
+            );
+
 
         } catch (e) {
             return this.internalServerError(req, res, e);
