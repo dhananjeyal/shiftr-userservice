@@ -326,6 +326,35 @@ class UserController extends BaseController {
     };
 
     /**
+     * @DESC : Delete Contact Info
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    deleteContactInfo = async (req, res) => {
+        try {
+
+            const userId = req.user.userId;
+
+            const { contactId } = req.params;
+
+            await ContactInfo.query()
+                .where({
+                    SRU19_CONTACT_INFO_D: contactId,
+                    SRU03_USER_MASTER_D: userId
+                })
+                .update({
+                    SRU19_DELETED_F: booleanType.YES
+                });
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.deleted);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+
+
+    /**
      * @DESC : For other services
      * @return array/json
      * @param req

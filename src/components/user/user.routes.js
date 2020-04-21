@@ -30,6 +30,7 @@ function registerRoutes() {
         //Travels Update - Customer / Busowner
         let verifyCustomer = AuthController.verifyCustomer;
         apiRouter.route("/user/travels").put(verifyCustomer,travelsUpdate,UserController.travelsUpdate);
+        apiRouter.route("/user/:contactId/contacts").put(verifyCustomer,UserController.deleteContactInfo);
 
 
         // Required jwt authentication
