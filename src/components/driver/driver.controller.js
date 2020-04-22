@@ -95,6 +95,7 @@ class DriverController extends BaseController {
             phones.map((data, index) => {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
+                    SRU19_CONTACT_PERSON_N:ActiveUser.firstName, 
                     SRU01_TYPE_D: phonenumbertype.HOME,
                     SRU19_PHONE_R: phones[index]
                 });
