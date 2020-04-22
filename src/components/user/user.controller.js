@@ -416,7 +416,7 @@ class UserController extends BaseController {
     loginUser = async (req, res) => {
         try {
             let result = await this._getVerificationStatus(req, res, false);
-
+            
             if (result) {
                 let resultType = result.typeId;
                 let verifyType = true;
@@ -673,6 +673,7 @@ class UserController extends BaseController {
      */
     _getVerificationStatus = async (req, res, sendResponse = true) => {
         try {
+           
             const { emailId, userId } = req.body;
             let where = {
                 SRU03_EMAIL_N: emailId,
@@ -681,7 +682,7 @@ class UserController extends BaseController {
             if (userId) {
                 where.SRU03_USER_MASTER_D = userId;
             }
-
+                        
             let result = await Users.query().where(where)
                 .eager('userDetails')
                 .modifyEager('userDetails', builder => {
@@ -690,8 +691,6 @@ class UserController extends BaseController {
 
             if (result.length) {
                 result = result[0];
-
-
                 // User status check
                 if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
                     let emailStatus = result.userDetails.emailStatus;
@@ -726,8 +725,8 @@ class UserController extends BaseController {
                             }));
                         }
                     }
-                } else {
-                    if (sendResponse) {
+                } else {                    
+                    if (sendResponse || result.status == UserStatus.INACTIVE) {
                         this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
                             message: this.messageTypes.authMessages.userSuspended
                         }));

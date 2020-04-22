@@ -188,7 +188,7 @@ class DriverController extends BaseController {
             }
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
-        } catch (e) {
+        } catch (e) {            
             return this.internalServerError(req, res, e);
         }
     }
