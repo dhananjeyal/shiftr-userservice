@@ -455,9 +455,13 @@ class UserController extends BaseController {
                         }));
                     }
                 }
+            }else{
+                return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
+                    message: this.messageTypes.authMessages.userSuspended
+                }));
             }
 
-            this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+            return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
                 message: this.messageTypes.authMessages.userNotFound
             }));
 
@@ -727,9 +731,7 @@ class UserController extends BaseController {
                     }
                 } else {                    
                     if (sendResponse || result.status == UserStatus.INACTIVE) {
-                        this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
-                            message: this.messageTypes.authMessages.userSuspended
-                        }));
+                       return false;
                     }
                 }
             } else {
