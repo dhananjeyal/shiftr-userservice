@@ -488,12 +488,15 @@ class UserController extends BaseController {
                     userId: result.userId
                 });
 
+                let resetLink;
                 if (result.typeId == UserRole.CUSTOMER_R) {
-                    let resetLink = `${process.env.END_USER_RESET_PASSWORD_LINK}?token=${resetToken}`;
+
+                    resetLink = `${process.env.END_USER_RESET_PASSWORD_LINK}?token=${resetToken}`;
                 } else {
-                    let resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
+
+                    resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
                 }
-                
+
                 // let resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
 
                 delete result.userDetails;
@@ -1119,14 +1122,15 @@ class UserController extends BaseController {
             }
 
             if (userType === UserRole.CUSTOMER_R) {
-                //To fetch drivers financial details
+                //To fetch contactInfo details
                 userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
-                columnList = [...columnList, ...userDetailsColumns, ...contactInfoColumns];
+
+                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_`, `${Users.tableName}.SRU03_USER_MASTER_D`);
+
+                // columnList = [...columnList, ...userDetailsColumns, ...contactInfoColumns];
+                columnList = [...columnList, ...userDetailsColumns, ...userAddressColumns, ...contactInfoColumns];
             }
-
-
-
 
             if (search) {
                 userQuery = userQuery.where(builder => {
