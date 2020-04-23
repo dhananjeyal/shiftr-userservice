@@ -1126,7 +1126,7 @@ class UserController extends BaseController {
                 userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
 
-                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_`, `${Users.tableName}.SRU03_USER_MASTER_D`);
+                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`);
 
                 // columnList = [...columnList, ...userDetailsColumns, ...contactInfoColumns];
                 columnList = [...columnList, ...userDetailsColumns, ...userAddressColumns, ...contactInfoColumns];
