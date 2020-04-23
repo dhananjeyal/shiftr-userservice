@@ -33,11 +33,7 @@ export let userAddressColumns = [
     'SRU06_LINE_2_N as addressLine2',
     'SRU06_POSTAL_CODE_N as postalCode',
     'SRU06_LOCATION_LATITUDE_N as latitude',
-    'SRU06_LOCATION_LONGITUDE_N as longitude',
-    "SRU06_CREATED_AT as createdAt",
-    "SRU06_UPDATED_AT as updatedAt",
-    "SRU06_CREATED_D as createdBy",
-    "SRU06_UPDATED_D as updatedBy",
+    'SRU06_LOCATION_LONGITUDE_N as longitude'
 ];
 
 export let userFinancialColumns = [
