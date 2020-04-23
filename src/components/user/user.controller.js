@@ -1237,7 +1237,7 @@ class UserController extends BaseController {
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
             )
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
-                .select(raw(`CONCAT("${profilePath}", SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
+                .select(raw(`SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile`))
                 .select(userListColumns);
 
             const results = await userQuery.map((userValue) => {
@@ -1296,7 +1296,7 @@ class UserController extends BaseController {
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
             )
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
-                .select(raw(`(SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
+                .select(raw(`(CONCAT("${profilePath}", SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
                 .select(userListColumns);
 
             const results = await userQuery.map((userValue) => {
