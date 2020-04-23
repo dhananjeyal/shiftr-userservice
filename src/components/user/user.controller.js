@@ -416,7 +416,7 @@ class UserController extends BaseController {
     loginUser = async (req, res) => {
         try {
             let result = await this._getVerificationStatus(req, res, false);
-            
+
             if (result) {
                 let resultType = result.typeId;
                 let verifyType = true;
@@ -455,7 +455,7 @@ class UserController extends BaseController {
                         }));
                     }
                 }
-            }else{
+            } else {
                 return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
                     message: this.messageTypes.authMessages.userSuspended
                 }));
@@ -488,7 +488,13 @@ class UserController extends BaseController {
                     userId: result.userId
                 });
 
-                let resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
+                if (result.typeId == UserRole.CUSTOMER_R) {
+                    let resetLink = `${process.env.END_USER_RESET_PASSWORD_LINK}?token=${resetToken}`;
+                } else {
+                    let resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
+                }
+                
+                // let resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
 
                 delete result.userDetails;
                 delete result.password;
@@ -677,7 +683,7 @@ class UserController extends BaseController {
      */
     _getVerificationStatus = async (req, res, sendResponse = true) => {
         try {
-           
+
             const { emailId, userId } = req.body;
             let where = {
                 SRU03_EMAIL_N: emailId,
@@ -686,7 +692,7 @@ class UserController extends BaseController {
             if (userId) {
                 where.SRU03_USER_MASTER_D = userId;
             }
-                        
+
             let result = await Users.query().where(where)
                 .eager('userDetails')
                 .modifyEager('userDetails', builder => {
@@ -729,9 +735,9 @@ class UserController extends BaseController {
                             }));
                         }
                     }
-                } else {                    
+                } else {
                     if (sendResponse || result.status == UserStatus.INACTIVE) {
-                       return false;
+                        return false;
                     }
                 }
             } else {
