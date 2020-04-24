@@ -253,32 +253,7 @@ class UserController extends BaseController {
                         });
                 }
 
-            }
-
-            if (screenType == WebscreenType.COMPANY) {
-                // Insert user details
-                await UserDetails.query()
-                    .where('SRU03_USER_MASTER_D', userId)
-                    .update({
-                        SRU04_COMPANY_NAME_N: compnayName,
-                        SRU04_NUMBER_OF_BUSES_R: numberofBuses,
-                        SRU04_UPDATED_D: userId
-                    });
-
-                //Address Update
-                await AddressDetails.query()
-                    .where({
-                        SRU06_ADDRESS_D: addressId,
-                        SRU03_USER_MASTER_D: userId
-                    })
-                    .update({
-                        SRU06_LINE_1_N: address1,
-                        SRU06_POSTAL_CODE_N: postalCode,
-                        SRU06_LOCATION_LATITUDE_N: latitude,
-                        SRU06_LOCATION_LONGITUDE_N: longitude,
-                        SRU06_UPDATED_D: userId
-                    });
-
+                
                 //Update contact Info
                 const contactInfoData = [];
                 contactInfo.forEach(contactvalue => {
@@ -308,6 +283,32 @@ class UserController extends BaseController {
                     await ContactInfo.query()
                         .insertGraph(contactInfodetailsData);
                 }
+
+            }
+
+            if (screenType == WebscreenType.COMPANY) {
+                // Insert user details
+                await UserDetails.query()
+                    .where('SRU03_USER_MASTER_D', userId)
+                    .update({
+                        SRU04_COMPANY_NAME_N: compnayName,
+                        SRU04_NUMBER_OF_BUSES_R: numberofBuses,
+                        SRU04_UPDATED_D: userId
+                    });
+
+                //Address Update
+                await AddressDetails.query()
+                    .where({
+                        SRU06_ADDRESS_D: addressId,
+                        SRU03_USER_MASTER_D: userId
+                    })
+                    .update({
+                        SRU06_LINE_1_N: address1,
+                        SRU06_POSTAL_CODE_N: postalCode,
+                        SRU06_LOCATION_LATITUDE_N: latitude,
+                        SRU06_LOCATION_LONGITUDE_N: longitude,
+                        SRU06_UPDATED_D: userId
+                    });
             }
 
             if (screenType == WebscreenType.SETTINGS) {
