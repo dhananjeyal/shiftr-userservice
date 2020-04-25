@@ -1,12 +1,13 @@
 import AuthController from "../user/auth.controller";
 import UserController from './user.controller'
-import { forgetPassword, loginUser, resetPassword, signUpUser, existingEmail, travelsSignup,travelsUpdate } from './user.validators'
+import { forgetPassword, loginUser, resetPassword, signUpUser, existingEmail, travelsSignup,travelsUpdate,mobilenumberExist } from './user.validators'
 import { mailer } from "../../utils";
 
 function registerRoutes() {
     return (openRouter, apiRouter) => {
 
         // User {Driver, Customer, Admin}
+        openRouter.route("/api/user/mobilenumber/unique").post(mobilenumberExist, UserController.signUp);
         openRouter.route("/api/user/sign_up").post(signUpUser, UserController.signUp);
         openRouter.route("/api/user/travels_Signup").post(travelsSignup,UserController.travelsSignup);
 

@@ -1,6 +1,7 @@
 import BaseModel from '../../../config/db'
 import Users from "../../user/model/user.model";
 import ExperienceDetails from '../model/experience.model';
+import SpecialityTraining from '../model/speciality.model';
 
 class SpecialityDetails extends BaseModel {
 
@@ -23,6 +24,14 @@ class SpecialityDetails extends BaseModel {
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             },
+            SpecialityTrainingDetails: {
+                relation: BaseModel.HasOneRelation,
+                modelClass: SpecialityTraining,
+                join: {
+                    from: 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D',
+                    to: 'SRU09_DRIVEREXP.SRU11_SPECIALITY_TRAINING_D'
+                }
+            }
             // SpecialityDetails: {
             //     relation: BaseModel.HasManyRelation,
             //     modelClass: ExperienceDetails,
