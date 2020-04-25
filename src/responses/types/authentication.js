@@ -10,5 +10,6 @@ module.exports = {
     userIllegalAccess: "User does not have enough permission.",
     get: "Listed Successfully!!",
     invalidPassword: "Password incorrect",
-    existsEmail: "Email Already Exist"
+    existsEmail: "Email Already Exist",
+    existMobilenumber: "Mobilenumber Already Exist",
 };

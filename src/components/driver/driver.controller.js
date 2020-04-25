@@ -18,7 +18,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, allLanguageColumns, radiusColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, allLanguageColumns, radiusColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
@@ -228,6 +228,7 @@ class DriverController extends BaseController {
                             SRU03_USER_MASTER_D: user.userId,
                             SRU09_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`,
                             SRU12_SPECIALITY_N: currSpeciality.specialityTraining,
+                            SRU11_SPECIALITY_TRAINING_D: currSpeciality.specialityTrainingId,
                             SRU12_VALIDYEAR_N: currSpeciality.year,
                         })
                     })
@@ -717,7 +718,7 @@ class DriverController extends BaseController {
     getMasterData = async (req, res) => {
         try {
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
-            const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
+            const speciality = await SpecialityTraining.query().select(driverSpecialityTrainingColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
             const languageList = await AllLanguages.query().pluck('SRU14_LANGUAGE_N');

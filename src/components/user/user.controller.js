@@ -17,7 +17,7 @@ import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/experience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
-import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityDetailsColumns, driverLanguageColumns } from "../driver/model/driver.columns";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
@@ -1202,7 +1202,7 @@ class UserController extends BaseController {
                         _orWhere["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
                 }
             });
-            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
+            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns,...driverSpecialityTrainingColumns];
             const _whereSize = Object.keys(_where).length;
             const _orWhereSize = Object.keys(_orWhere).length;
             let specialityQuery;
@@ -1212,17 +1212,20 @@ class UserController extends BaseController {
             if (_whereSize > 0 && _orWhereSize > 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
                     .where(_where)
                     .orWhere(_orWhere)
                     .select(columnList);
             } else if (_whereSize > 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
                     .where(_where)
                     .select(columnList);
             } else if (_orWhereSize > 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
                     .where(_orWhere)
                     .select(columnList);
             };
@@ -1231,6 +1234,7 @@ class UserController extends BaseController {
             if (specialityQuery.length <= 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
                     .select(columnList);
             }
 
@@ -1665,6 +1669,39 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     };
+
+
+    /**
+     * @DESC : Mobile Number - Exists
+     * @return array/json
+     * @param req
+     * @param res
+     */
+
+    existingMobilenumber = async (req, res) => {
+        try {
+            const {mobileNumber}=req.body;
+
+            let result = await ContactInfo.query().where({
+                SRU19_PHONE_R: mobileNumber
+            }).count('SRU19_CONTACT_INFO_D as id');
+
+            let response = await UserDetails.query().where({ 
+                SRU04_PHONE_N: mobileNumber
+            }).count('SRU04_DETAIL_D as detailsId');
+
+            if (result[0].id || response[0].detailsId) {
+                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, {
+                    message: this.messageTypes.authMessages.existMobilenumber
+                }));
+            } else {
+                return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+            };
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
 }
 
 export default new UserController();

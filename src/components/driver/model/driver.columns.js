@@ -46,7 +46,7 @@ export let driverLicenseTypeColumns = [
     'SRU10_LICENSE_TYPE_N as licenseType'
 ]
 
-export let driverSpecialityColumns = [
+export let driverSpecialityTrainingColumns = [
     'SRU11_SPECIALITY_TRAINING_D as specialitytrainingId',
     'SRU11_SPECIALITY_TRAINING_N as specialityType'
 ]

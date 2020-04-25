@@ -173,7 +173,10 @@ const schemas = {
     }),
     existingEmail: Joi.object().keys({
         emailId: Joi.string().email().required()
-    })
+    }),
+    mobilenumberExist: Joi.object().keys({
+        mobileNumber: Joi.number().required()
+    }),
 };
 
 export const options = {
@@ -346,4 +349,19 @@ export const travelsUpdate = (req, res, next) => {
             Response.joierrors(req, res, err);
         });
     }
+};
+
+/**
+ * MobileNumber - Exist
+ */
+export const mobilenumberExist = (req, res, next) => {
+    let schema = schemas.mobilenumberExist;
+    let option = options.basic;
+    schema.validate({
+        ...req.params
+    }, option).then(() => {
+        next();
+    }).catch(err => {
+        Response.joierrors(req, res, err);
+    });
 };
