@@ -48,7 +48,8 @@ export let driverLicenseTypeColumns = [
 
 export let driverSpecialityTrainingColumns = [
     'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D as specialitytrainingId',
-    'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_N as specialityType'
+    'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_N as specialityType',
+    'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_IMAGE_I as specialityImage'
 ]
 
 export let experienceListColumns = [
