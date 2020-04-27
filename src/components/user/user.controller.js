@@ -253,7 +253,7 @@ class UserController extends BaseController {
                         });
                 }
 
-                
+
                 //Update contact Info
                 const contactInfoData = [];
                 contactInfo.forEach(contactvalue => {
@@ -526,9 +526,9 @@ class UserController extends BaseController {
         try {
             const token = req.query.token;
 
-            if (token) {                
+            if (token) {
                 let decrypted = decrypt(token);
-                if (decrypted) {                    
+                if (decrypted) {
                     let payload = JSON.parse(decrypted);
 
                     let result = await Users.query().where({
@@ -1200,7 +1200,7 @@ class UserController extends BaseController {
                         _orWhere["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
                 }
             });
-            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns,...driverSpecialityTrainingColumns];
+            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverSpecialityTrainingColumns];
             const _whereSize = Object.keys(_where).length;
             const _orWhereSize = Object.keys(_orWhere).length;
             let specialityQuery;
@@ -1232,7 +1232,7 @@ class UserController extends BaseController {
             if (specialityQuery.length <= 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                    
+
                     .select(columnList);
             }
 
@@ -1678,19 +1678,19 @@ class UserController extends BaseController {
 
     existingMobilenumber = async (req, res) => {
         try {
-            const {mobileNumber}=req.body;
+            const { mobileNumber } = req.body;
 
             let result = await ContactInfo.query().where({
                 SRU19_PHONE_R: mobileNumber
             }).count('SRU19_CONTACT_INFO_D as id');
 
-            let response = await UserDetails.query().where({ 
+            let response = await UserDetails.query().where({
                 SRU04_PHONE_N: mobileNumber
             }).count('SRU04_DETAIL_D as detailsId');
 
             if (result[0].id || response[0].detailsId) {
                 return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, {
-                    message: this.messageTypes.authMessages.existMobilenumber
+                    message: this.messageTypes.authMessages.existMobilenumber + "[" + mobileNumber + "]"
                 }));
             } else {
                 return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)

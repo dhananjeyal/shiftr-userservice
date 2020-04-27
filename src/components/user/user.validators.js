@@ -358,7 +358,7 @@ export const mobilenumberExist = (req, res, next) => {
     let schema = schemas.mobilenumberExist;
     let option = options.basic;
     schema.validate({
-        ...req.params
+        ...req.body
     }, option).then(() => {
         next();
     }).catch(err => {

@@ -2,13 +2,13 @@ import BaseJoi from 'joi';
 import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { options } from "../user/user.validators";
-import { Gender, UserRole, booleanType } from "../../constants";
+import { Gender, UserRole, booleanType,licenseType } from "../../constants";
 import { validateFile } from "../../utils";
 
 const Joi = BaseJoi.extend(joinDateExtension);
 
 const CreateExperienceSchema = {
-    licenseType: Joi.string(),
+    licenseType: Joi.number().valid(licenseType.CANADA, licenseType.USA,licenseType.BOTH).required(),
     driverExp: Joi.object({
         experience: Joi.string().required(),
         expInProvince: Joi.string().required(),

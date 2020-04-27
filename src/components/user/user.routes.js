@@ -7,7 +7,7 @@ function registerRoutes() {
     return (openRouter, apiRouter) => {
 
         // User {Driver, Customer, Admin}
-        openRouter.route("/api/user/mobilenumber/unique").post(mobilenumberExist, UserController.signUp);
+        openRouter.route("/api/user/mobilenumber/unique").post(mobilenumberExist, UserController.existingMobilenumber);
         openRouter.route("/api/user/sign_up").post(signUpUser, UserController.signUp);
         openRouter.route("/api/user/travels_Signup").post(travelsSignup,UserController.travelsSignup);
 

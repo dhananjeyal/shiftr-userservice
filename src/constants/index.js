@@ -102,3 +102,9 @@ export class WebscreenType {
     static COMPANY = 2;
     static SETTINGS = 3;     
 }
+
+export class licenseType {
+    static CANADA = 1;    
+    static USA = 2;
+    static BOTH = 3;     
+}
