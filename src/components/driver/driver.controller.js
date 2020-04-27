@@ -210,11 +210,10 @@ class DriverController extends BaseController {
 
             //Experience Details
             data.map((currExpDetails, index) => {
-                const { licenseType, driverExp, countryType } = currExpDetails;
+                const { driverExp, countryType } = currExpDetails;
                 experienceData.push({
                     SRU03_USER_MASTER_D: user.userId,
                     SRU09_TYPE_N: countryType,
-                    SRU09_LICENSE_TYPE_N: licenseType,
                     SRU09_TOTALEXP_N: driverExp.experience,
                     SRU09_CURRENT_N: driverExp.expInProvince,
                     SRU09_CREATED_D: user.userId,
