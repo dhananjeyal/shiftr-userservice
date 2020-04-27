@@ -7,8 +7,7 @@ import { validateFile } from "../../utils";
 
 const Joi = BaseJoi.extend(joinDateExtension);
 
-const CreateExperienceSchema = {
-    licenseType: Joi.number().valid(licenseType.CANADA, licenseType.USA,licenseType.BOTH).required(),
+const CreateExperienceSchema = {    
     driverExp: Joi.object({
         experience: Joi.string().required(),
         expInProvince: Joi.string().required(),
@@ -64,10 +63,9 @@ const schemas = {
     profileUpload: Joi.object().keys({
         userprofile: Joi.string().required()
     }),
-
-
-
+    
     CreateExperienceDetails: Joi.object().keys({
+        licenseType: Joi.number().valid(licenseType.CANADA, licenseType.USA,licenseType.BOTH).required(),
         data: Joi.array().items(CreateExperienceSchema).min(1)
     }),
 

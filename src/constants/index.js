@@ -108,3 +108,9 @@ export class licenseType {
     static USA = 2;
     static BOTH = 3;     
 }
+
+export class Typeofdistance {
+    static KM = 22;    
+    static MILES = 23;
+    static DEFAULTKM = 1.6;  // 1miles   = 1.6 KM 
+}
