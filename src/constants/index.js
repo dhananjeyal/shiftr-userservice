@@ -93,6 +93,7 @@ export class screeningcanadastatus {
 
 export class phonenumbertype {
     static OFFICE = 19;    
+    static PERSONAL = 20;    
     static HOME = 20;    
 }
 

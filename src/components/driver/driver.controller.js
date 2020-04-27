@@ -96,7 +96,7 @@ class DriverController extends BaseController {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
                     SRU19_CONTACT_PERSON_N:ActiveUser.firstName, 
-                    SRU01_TYPE_D: phonenumbertype.HOME,
+                    SRU01_TYPE_D: phonenumbertype.PERSONAL,
                     SRU19_PHONE_R: phones[index]
                 });
             });
@@ -206,7 +206,7 @@ class DriverController extends BaseController {
 
             let experienceData = [];
             let specialityData = [];
-            const { data } = req.body;
+            const { data,licenseType } = req.body;
 
             //Experience Details
             data.map((currExpDetails, index) => {
