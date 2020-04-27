@@ -526,11 +526,9 @@ class UserController extends BaseController {
         try {
             const token = req.query.token;
 
-            if (token) {
-                console.log("=====", token);
+            if (token) {                
                 let decrypted = decrypt(token);
-                if (decrypted) {
-                    console.log("=====", decrypted);
+                if (decrypted) {                    
                     let payload = JSON.parse(decrypted);
 
                     let result = await Users.query().where({
@@ -1234,7 +1232,7 @@ class UserController extends BaseController {
             if (specialityQuery.length <= 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                    
                     .select(columnList);
             }
 
@@ -1252,7 +1250,7 @@ class UserController extends BaseController {
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
             )
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
-                .select(raw(`SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile`))
+                .select(raw(`CONCAT("${profilePath}", SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
                 .select(userListColumns);
 
             const results = await userQuery.map((userValue) => {

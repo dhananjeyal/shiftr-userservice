@@ -239,7 +239,10 @@ class DriverController extends BaseController {
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
 
             const userDetailsResponse = await UserDetails.query()
-                .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS })
+                .update({ 
+                    SRU04_LICENSE_TYPE_R: licenseType,
+                    SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS
+                 })
                 .where('SRU03_USER_MASTER_D', user.userId);
 
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.added);

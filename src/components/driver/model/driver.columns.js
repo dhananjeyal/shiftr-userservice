@@ -10,6 +10,7 @@ export let driverUserDetailsColumns = [
     'SRU04_AGE_D as age',
     'SRU04_GENDER_D as gender',
     'SRU04_EXPERIENCE_D as experience',
+    'SRU04_LICENSE_TYPE_R as licenseType',
     'SRU04_PROFILE_I as profilePicture',
     'SRU04_PROFILE_I as userprofile',
     // 'SRU04_WORKING_WITH_OTHERS as workingWithOthers',
