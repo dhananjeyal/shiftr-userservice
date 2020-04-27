@@ -140,6 +140,7 @@ class DriverController extends BaseController {
             };
             await Radious.query().insert({
                 SRU03_USER_MASTER_D: ActiveUser.userId,
+                SRU01_TYPE_D: km,
                 SRU10_KILOMETER_F: km,
                 SRU10_MILES_F: miles,
                 SRU10_DISTANCE_RANGE_N: radious,
@@ -188,7 +189,8 @@ class DriverController extends BaseController {
             }
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
-        } catch (e) {            
+        } catch (e) {   
+            console.log(e);         
             return this.internalServerError(req, res, e);
         }
     }
