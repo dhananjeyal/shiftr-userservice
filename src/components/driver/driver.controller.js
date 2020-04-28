@@ -42,8 +42,7 @@ class DriverController extends BaseController {
         super();
     }
 
-
-    /**
+ /**
      * @DESC :Create Driver Profile
      * @param string/Integer/object
      * @return array/json
@@ -61,9 +60,8 @@ class DriverController extends BaseController {
                 province,
                 postalCode,
                 languages,
-                radious,
-                km,
-                miles,
+                distanceType,
+                radious,                
                 openDistance,
                 alcoholTest,
                 phones,
@@ -95,7 +93,7 @@ class DriverController extends BaseController {
             phones.map((data, index) => {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU19_CONTACT_PERSON_N:ActiveUser.firstName, 
+                    SRU19_CONTACT_PERSON_N: ActiveUser.firstName,
                     SRU01_TYPE_D: phonenumbertype.PERSONAL,
                     SRU19_PHONE_R: phones[index]
                 });
@@ -129,24 +127,30 @@ class DriverController extends BaseController {
 
 
             //Row exists
-            let radiusRowExists = await Radious.query()
-                .select('SRU03_USER_MASTER_D')
-                .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+            // let radiusRowExists = await Radious.query()
+            //     .select('SRU03_USER_MASTER_D')
+            //     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
 
-            if (radiusRowExists) {
-                await Radious.query()
-                    .delete()
-                    .where('SRU03_USER_MASTER_D', ActiveUser.userId);
-            };
-            await Radious.query().insert({
-                SRU03_USER_MASTER_D: ActiveUser.userId,
-                SRU10_KILOMETER_F: km,
-                SRU10_MILES_F: miles,
-                SRU10_DISTANCE_RANGE_N: radious,
-                SRU10_OPEN_DISTANCE_F: openDistance,
-                SRU10_ALCOHOL_TEST_F: alcoholTest,
-                SRU03_CREATED_D: ActiveUser.userId
-            });
+            // if (radiusRowExists) {
+            //     await Radious.query()
+            //         .delete()
+            //         .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+            // };
+            
+            // if (distanceType == Typeofdistance.MILES) {
+            //     var kilometers = openDistance * distanceType.DEFAULTKM;
+            // } else {
+            //     var kilometers = openDistance;
+            // }
+
+            // await Radious.query().insert({
+            //     SRU03_USER_MASTER_D: ActiveUser.userId,
+            //     SRU01_TYPE_D: distanceType,
+            //     SRU10_DISTANCE_RANGE_R: radious,
+            //     SRU10_OPEN_DISTANCE_R: kilometers,
+            //     SRU10_ALCOHOL_TEST_F: alcoholTest,
+            //     SRU03_CREATED_D: ActiveUser.userId
+            // });
 
 
             if (UserDetailsResponse) {
@@ -188,7 +192,7 @@ class DriverController extends BaseController {
             }
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
-        } catch (e) {            
+        } catch (e) {
             return this.internalServerError(req, res, e);
         }
     }
