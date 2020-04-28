@@ -10,5 +10,5 @@ module.exports = {
     emailVerified: "Your email has been verified successfully",
     activateUser: "You are an active user now",
     deactivateUser: "You account has been deactivated now!",
-    title: "PickupsOnDemand"
+    title: "ShiftR"
 };
