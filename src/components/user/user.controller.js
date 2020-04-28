@@ -556,7 +556,7 @@ class UserController extends BaseController {
                                 let notifyData = {
                                     title: this.messageTypes.passMessages.title,
                                     message: this.messageTypes.passMessages.emailVerified,
-                                    body: "PickupsOnDemand Welcomes You, Email verified Successfully",
+                                    body: "ShiftR Welcomes You, Email verified Successfully",
                                     type: NotifyType.VERIFY_EMAIL
                                 }
 
@@ -567,7 +567,7 @@ class UserController extends BaseController {
 
                                 req.headers['authorization'] = `Bearer ${token}`;
 
-                                // await NotifyService.sendNotication(req, res, notifyData)
+                                await NotifyService.sendNotication(req, res, notifyData)
                                 await mailer.emailVerified(result);
                             }
 
