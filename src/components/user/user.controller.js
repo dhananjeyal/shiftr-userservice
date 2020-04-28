@@ -1232,7 +1232,7 @@ class UserController extends BaseController {
             if (specialityQuery.length <= 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-
+                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
                     .select(columnList);
             }
 
