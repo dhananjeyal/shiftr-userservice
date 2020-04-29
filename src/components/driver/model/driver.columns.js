@@ -88,9 +88,8 @@ export let allLanguageColumns = [
 
 export let radiusColumns = [
     'SRU10_RADIOUS_D as radiusId',
-    'SRU10_KILOMETER_F as kilometer',
-    'SRU10_MILES_F as miles',
-    'SRU10_DISTANCE_RANGE_N as distance',
+    'SRU10_DISTANCE_KILOMETER_R as kilometer',
+    'SRU10_DISTANCE_RANGE_R as distance',
     'SRU10_OPEN_DISTANCE_F as opendistance',
     'SRU10_ALCOHOL_TEST_F as alcoholTest'
 ]
