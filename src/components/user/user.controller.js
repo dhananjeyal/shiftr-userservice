@@ -1183,8 +1183,15 @@ class UserController extends BaseController {
     _getAllUsersList = async (req, res) => {
         try {
             const {
-                driverDetails
+                driverDetails,
+                driverLicensetype,
+                driverIdlist
             } = req.body;
+
+            const userIdlist = await UserDetails.query()
+                .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
+                .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+                .pluck('SRU03_USER_MASTER_D');
 
             let _where = {};
             let _orWhere = {};
@@ -1200,6 +1207,7 @@ class UserController extends BaseController {
                         _orWhere["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
                 }
             });
+            
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverSpecialityTrainingColumns];
             const _whereSize = Object.keys(_where).length;
             const _orWhereSize = Object.keys(_orWhere).length;

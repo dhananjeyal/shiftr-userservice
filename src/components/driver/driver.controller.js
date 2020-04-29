@@ -10,7 +10,8 @@ import {
     DocumentType,
     SignUpStatus,
     phonenumbertype,
-    CountryType
+    CountryType,
+    Typeofdistance
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
@@ -32,6 +33,8 @@ import ContactInfo from "./model/contactInfo.model";
 import Validyear from "./model/validyear.model";
 import Province from '../masterdetails/model/province.model'
 import { provinceColumns } from '../masterdetails/model/location.columns';
+import NotifyService from "../../services/notifyServices";
+import BoardingService from "../../services/boardingServices";
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -42,11 +45,11 @@ class DriverController extends BaseController {
         super();
     }
 
- /**
-     * @DESC :Create Driver Profile
-     * @param string/Integer/object
-     * @return array/json
-     */
+    /**
+        * @DESC :Create Driver Profile
+        * @param string/Integer/object
+        * @return array/json
+        */
     CreateDriverProfile = async (req, res) => {
         try {
 
@@ -61,7 +64,7 @@ class DriverController extends BaseController {
                 postalCode,
                 languages,
                 distanceType,
-                radious,                
+                radious,
                 openDistance,
                 alcoholTest,
                 phones,
@@ -126,70 +129,68 @@ class DriverController extends BaseController {
                 .insertGraph(languagesKnown);
 
 
-            //Row exists
-            // let radiusRowExists = await Radious.query()
-            //     .select('SRU03_USER_MASTER_D')
-            //     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+            // Row exists
+            let radiusRowExists = await Radious.query()
+                .select('SRU03_USER_MASTER_D')
+                .where('SRU03_USER_MASTER_D', ActiveUser.userId);
 
-            // if (radiusRowExists) {
-            //     await Radious.query()
-            //         .delete()
-            //         .where('SRU03_USER_MASTER_D', ActiveUser.userId);
-            // };
-            
-            // if (distanceType == Typeofdistance.MILES) {
-            //     var kilometers = openDistance * distanceType.DEFAULTKM;
-            // } else {
-            //     var kilometers = openDistance;
-            // }
+            if (radiusRowExists) {
+                await Radious.query()
+                    .delete()
+                    .where('SRU03_USER_MASTER_D', ActiveUser.userId);
+            };
 
-            // await Radious.query().insert({
-            //     SRU03_USER_MASTER_D: ActiveUser.userId,
-            //     SRU01_TYPE_D: distanceType,
-            //     SRU10_DISTANCE_RANGE_R: radious,
-            //     SRU10_OPEN_DISTANCE_R: kilometers,
-            //     SRU10_ALCOHOL_TEST_F: alcoholTest,
-            //     SRU03_CREATED_D: ActiveUser.userId
-            // });
+            if (distanceType == Typeofdistance.MILES) {
+                var kilometers = radious * Typeofdistance.DEFAULTKM;
+            } else {
+                var kilometers = radious;
+            }
+
+            await Radious.query().insert({
+                SRU03_USER_MASTER_D: ActiveUser.userId,
+                SRU01_TYPE_D: distanceType,
+                SRU10_DISTANCE_RANGE_R: radious,
+                SRU10_DISTANCE_KILOMETER_R: kilometers,
+                SRU10_OPEN_DISTANCE_F: openDistance,
+                SRU10_ALCOHOL_TEST_F: alcoholTest,
+                SRU03_CREATED_D: ActiveUser.userId
+            });
 
 
             if (UserDetailsResponse) {
                 await UserDetails.query()
                     .patch({
                         SRU04_UNIT: unit || UserDetailsResponse.unit,
-                        SRU04_PROFILE_I: userprofile
+                        SRU04_PROFILE_I: userprofile || UserDetailsResponse.userprofile
                     }).where({
                         SRU03_USER_MASTER_D: ActiveUser.userId
-                    });
-
-                await AddressDetails.query()
-                    .patch({
-                        SRU06_LINE_1_N: street1,
-                        SRU06_LINE_2_N: street2,
-                        SRU06_POSTAL_CODE_N: postalCode,
-                        SRU06_CITY_N: city,
-                        SRU06_PROVINCE_N: province,
-                        SRU06_LOCATION_LATITUDE_N: latitude,
-                        SRU06_LOCATION_LONGITUDE_N: longitude
-                    }).where({
-                        SRU03_USER_MASTER_D: ActiveUser.userId
-                    });
-
-            } else {
-                await AddressDetails.query()
-                    .insert({
-                        SRU03_USER_MASTER_D: ActiveUser.userId,
-                        SRU06_LINE_1_N: street1,
-                        SRU06_LINE_2_N: street2,
-                        SRU06_CITY_N: city,
-                        SRU06_PROVINCE_N: province,
-                        SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
-                        SRU06_POSTAL_CODE_N: postalCode,
-                        SRU06_LOCATION_LATITUDE_N: latitude,
-                        SRU06_LOCATION_LONGITUDE_N: longitude,
-                        SRU06_CREATED_D: ActiveUser.userId
                     });
             }
+
+            //Row Exists Delete 
+            await AddressDetails.query().where("SRU03_USER_MASTER_D", ActiveUser.userId).delete();
+            //Insert new row
+            await AddressDetails.query()
+                .insert({
+                    SRU03_USER_MASTER_D: ActiveUser.userId,
+                    SRU06_LINE_1_N: street1,
+                    SRU06_LINE_2_N: street2,
+                    SRU06_CITY_N: city,
+                    SRU06_PROVINCE_N: province,
+                    SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
+                    SRU06_POSTAL_CODE_N: postalCode,
+                    SRU06_LOCATION_LATITUDE_N: latitude,
+                    SRU06_LOCATION_LONGITUDE_N: longitude,
+                    SRU06_CREATED_D: ActiveUser.userId
+                });
+
+            //call back service
+            const locationData = {
+                locationName: locationName,
+                latitude: latitude,
+                longitude: longitude
+            };
+            await BoardingService.addLocationdetails(req, res, locationData);//Internal service Call
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
         } catch (e) {
@@ -210,7 +211,7 @@ class DriverController extends BaseController {
 
             let experienceData = [];
             let specialityData = [];
-            const { data,licenseType } = req.body;
+            const { data, licenseType } = req.body;
 
             //Experience Details
             data.map((currExpDetails, index) => {
@@ -242,10 +243,10 @@ class DriverController extends BaseController {
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
 
             const userDetailsResponse = await UserDetails.query()
-                .update({ 
+                .update({
                     SRU04_LICENSE_TYPE_R: licenseType,
                     SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS
-                 })
+                })
                 .where('SRU03_USER_MASTER_D', user.userId);
 
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.added);
