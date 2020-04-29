@@ -34,21 +34,22 @@ const schemas = {
     }),
 
     travelsSignup: Joi.object().keys({
-        firstName: Joi.string().regex(/[a-zA-Z][a-zA-Z\s]*$/).max(50).required(),
-        lastName: Joi.string().regex(/^[a-zA-Z]*$/).max(50).required(),
+        firstName: Joi.string().max(50).required(),
+        lastName: Joi.string().max(50).required(),
         emailId: Joi.string().email().required(),
         password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,20}$/).min(8).max(20).required(),
         type: Joi.number().valid(
             UserRole.CUSTOMER_R
         ).required(),
-        phoneNo: Joi.number().min(10).max(15).required(),
+        // phoneNo: Joi.number().min(10).max(15).required(),
+        phoneNo: Joi.number().min(10).required(),
         compnayName: Joi.string().required(),
         numberofBuses: Joi.number().required(),
         address1: Joi.string().required(),
         address2: Joi.string().required(),
         postalCode: Joi.string().required(),
-        latitude: Joi.string().required(),
-        longitude: Joi.string().required()
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required()
         // longitude:Joi.string().required()
     }),
 

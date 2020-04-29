@@ -7,8 +7,8 @@ class BoardingService extends BaseController {
     addLocationdetails = async (req, res, data) => {
         try {
             let result = await newAxios(req, res, {
-                baseURL: NOTIFY_SERVICE,
-                url: `/location/drivers`,
+                baseURL: BOARDING_SERVICE,
+                url: `/api/location/drivers`,
                 method: "POST",
                 data
             });
