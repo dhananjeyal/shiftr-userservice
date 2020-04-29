@@ -656,8 +656,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                    expiresIn: 3600 // Will expire in next 1 hour
-                                })
+                                        expiresIn: 3600 // Will expire in next 1 hour
+                                    })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -1207,7 +1207,7 @@ class UserController extends BaseController {
                         _orWhere["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
                 }
             });
-            
+
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverSpecialityTrainingColumns];
             const _whereSize = Object.keys(_where).length;
             const _orWhereSize = Object.keys(_orWhere).length;
@@ -1219,6 +1219,7 @@ class UserController extends BaseController {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                     .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                    .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .where(_where)
                     .orWhere(_orWhere)
                     .select(columnList);
@@ -1226,23 +1227,25 @@ class UserController extends BaseController {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                     .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                    .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .where(_where)
                     .select(columnList);
             } else if (_orWhereSize > 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                     .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                    .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .where(_orWhere)
                     .select(columnList);
             };
 
             //TODO : Testing added will remove after testing
-            if (specialityQuery.length <= 0) {
-                specialityQuery = await SpecialityDetails.query()
-                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
-                    .select(columnList);
-            }
+
+            const allUserList = await SpecialityDetails.query()
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                .select(columnList);
+
 
             let userids = specialityQuery.map((value) => {
                 return value.driveruserId
@@ -1261,7 +1264,7 @@ class UserController extends BaseController {
                 .select(raw(`CONCAT(SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
                 .select(userListColumns);
 
-            const results = await userQuery.map((userValue) => {
+            const matchingUserList = await userQuery.map((userValue) => {
                 specialityQuery.find((specialityValue) => {
                     if (userValue.userId === specialityValue.driveruserId) {
                         userValue.SpecialityDetails = specialityValue;
@@ -1275,7 +1278,12 @@ class UserController extends BaseController {
                 .where('SRU03_USER_MASTER_D', req.user.userId)
                 .update({ 'SRU04_TRAVEL_LOGIN_STATUS_F': booleanType.YES });
 
-            return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
+            let result = {
+                matchingUserList,
+                allUserList
+            };
+
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
 
         } catch (e) {
             return this.internalServerError(req, res, e);
