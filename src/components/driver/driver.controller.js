@@ -752,6 +752,24 @@ class DriverController extends BaseController {
             this.internalServerError(req, res, e)
         }
     };
+
+/**
+     * @DESC : Send Push notification to Users (Active and DeActive)
+     * @return array/json
+     */
+    _notification = async (req, res, userId, status) => {
+        let notifyData = {
+            title: this.messageTypes.passMessages.title,
+            message: this.messageTypes.passMessages.activateUser,
+            body: this.messageTypes.passMessages.activateUser,
+            type: NotifyType.ACTIVATE_USER,
+            userId: userId
+        }
+        
+        return await NotifyService.sendNotication(req, res, notifyData);
+    }
+
+
 }
 
 

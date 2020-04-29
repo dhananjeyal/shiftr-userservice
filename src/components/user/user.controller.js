@@ -852,7 +852,7 @@ class UserController extends BaseController {
 
                     if (result) {
                         this.success(req, res, this.status.HTTP_OK, null, successMessage);
-                        // await this._notification(req, res, userId, { status: status })
+                        await this._notification(req, res, userId, { status: status })
                         return await mailer.activateDeactivate({
                             firstName: getUser.firstName,
                             emailId: getUser.emailId,
@@ -1207,7 +1207,7 @@ class UserController extends BaseController {
                         _orWhere["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
                 }
             });
-            
+
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverSpecialityTrainingColumns];
             const _whereSize = Object.keys(_where).length;
             const _orWhereSize = Object.keys(_orWhere).length;
