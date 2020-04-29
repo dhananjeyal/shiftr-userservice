@@ -186,7 +186,7 @@ class DriverController extends BaseController {
 
             //call back service
             const locationData = {
-                locationName: locationName,
+                locationName: street1,
                 latitude: latitude,
                 longitude: longitude
             };
