@@ -8,7 +8,8 @@ import {
     driverDocuments,
     documentUpload,
     CreateExperienceDetails,
-    profileUpload    
+    profileUpload,
+    deleteDocument    
 } from '../driver/driver.validators'
 
 function registerRoutes() {
@@ -33,6 +34,7 @@ function registerRoutes() {
         apiRouter.route("/driver/driver_documents").post(verify, driverDocuments, DriverController.driverDocuments);
         apiRouter.route("/driver/documentUpload").post(verify, documentUpload, DriverController.documentUpload);
         apiRouter.route("/driver/profileUpload").post(verify, profileUpload, DriverController.profileUpload);
+        apiRouter.route("/driver/documents").delete(verify, deleteDocument, DriverController.documentDelete);
        
         // apiRouter.route("/driver/driver_profile").get(verify, DriverController.getDriverProfile);
         apiRouter.route("/driver/driver_profile").delete(verify, DriverController.deleteDriverProfile);

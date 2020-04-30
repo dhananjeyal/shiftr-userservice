@@ -646,6 +646,35 @@ class DriverController extends BaseController {
         }
     }
 
+
+    /**
+     * @DESC : Upload driver Documents - Mobile APP
+     * @return array/json
+     * @param string/Integer
+     */
+    documentDelete = async (req, res) => {
+        try {
+
+            const { userId } = req.user;
+            const {
+                documentId,
+                documentName
+            } = req.body;
+
+            //Delete Existing documents
+            await UserDocument.query().delete()
+            .where({
+                SRU05_DOCUMENT_D:documentId,
+                SRU03_USER_MASTER_D: userId
+            });
+
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.deleted);
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
     /**
      * @DESC : Upload Profile Pictures- Mobile APP
      * @return array/json
@@ -753,10 +782,10 @@ class DriverController extends BaseController {
         }
     };
 
-/**
-     * @DESC : Send Push notification to Users (Active and DeActive)
-     * @return array/json
-     */
+    /**
+         * @DESC : Send Push notification to Users (Active and DeActive)
+         * @return array/json
+         */
     _notification = async (req, res, userId, status) => {
         let notifyData = {
             title: this.messageTypes.passMessages.title,
@@ -765,7 +794,7 @@ class DriverController extends BaseController {
             type: NotifyType.ACTIVATE_USER,
             userId: userId
         }
-        
+
         return await NotifyService.sendNotication(req, res, notifyData);
     }
 
