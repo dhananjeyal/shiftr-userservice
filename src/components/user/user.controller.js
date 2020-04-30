@@ -852,7 +852,7 @@ class UserController extends BaseController {
 
                     if (result) {
                         this.success(req, res, this.status.HTTP_OK, null, successMessage);
-                        // await this._notification(req, res, userId, { status: status })
+                        await this._notification(req, res, userId, { status: status })
                         return await mailer.activateDeactivate({
                             firstName: getUser.firstName,
                             emailId: getUser.emailId,
