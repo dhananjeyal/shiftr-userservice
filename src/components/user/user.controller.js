@@ -460,12 +460,8 @@ class UserController extends BaseController {
                     }
                 }
             } else {
-                // return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
-                //     message: this.messageTypes.authMessages.userSuspended
-                // }));
-                
-                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
-                    message: this.messageTypes.authMessages.userNotFound
+                return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
+                    message: this.messageTypes.authMessages.userSuspended
                 }));
             }
 
@@ -749,8 +745,10 @@ class UserController extends BaseController {
                         return false;
                     }
                 }
-            } else {
+            } else {               
                 if (sendResponse) {
+                    this.userNotFound(req, res);
+                }else{
                     this.userNotFound(req, res);
                 }
             }
