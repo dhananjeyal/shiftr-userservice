@@ -253,21 +253,22 @@ class UserController extends BaseController {
                         });
                 }
 
-
-                //Update contact Info
-                const contactInfoData = [];
-                contactInfo.forEach(contactvalue => {
-                    contactInfoData.push({
-                        SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
-                        SRU03_USER_MASTER_D: userId,
-                        SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
-                        SRU19_PHONE_R: contactvalue.phoneNumber,
-                        SRU01_TYPE_D: contactvalue.phoneNumberType
+                if (contactInfo.length > 0) {
+                    //Update contact Info
+                    const contactInfoData = [];
+                    contactInfo.forEach(contactvalue => {
+                        contactInfoData.push({
+                            SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
+                            SRU03_USER_MASTER_D: userId,
+                            SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
+                            SRU19_PHONE_R: contactvalue.phoneNumber,
+                            SRU01_TYPE_D: contactvalue.phoneNumberType
+                        });
                     });
-                });
 
-                await ContactInfo.query()
-                    .upsertGraph(contactInfoData);
+                    await ContactInfo.query()
+                        .upsertGraph(contactInfoData);
+                }
 
                 if (contactDetails.length > 0) {
                     //Insert contact Info
@@ -656,8 +657,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                        expiresIn: 3600 // Will expire in next 1 hour
-                                    })
+                                    expiresIn: 3600 // Will expire in next 1 hour
+                                })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -1222,6 +1223,7 @@ class UserController extends BaseController {
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .where(_where)
                     .orWhere(_orWhere)
+                    .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .select(columnList);
             } else if (_whereSize > 0) {
                 specialityQuery = await SpecialityDetails.query()
