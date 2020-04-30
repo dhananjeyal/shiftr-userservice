@@ -431,7 +431,9 @@ class UserController extends BaseController {
                 if (resultType === UserRole.DRIVER_R) {
                     verifyType = parseInt(req.headers['user-type']) === resultType;
                 }
-
+                console.log("========");
+                console.log(verifyType);
+                console.log("===-------=====");
                 if (verifyType) {
 
                     // Password check
@@ -458,8 +460,12 @@ class UserController extends BaseController {
                     }
                 }
             } else {
-                return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
-                    message: this.messageTypes.authMessages.userSuspended
+                // return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
+                //     message: this.messageTypes.authMessages.userSuspended
+                // }));
+                
+                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+                    message: this.messageTypes.authMessages.userNotFound
                 }));
             }
 
