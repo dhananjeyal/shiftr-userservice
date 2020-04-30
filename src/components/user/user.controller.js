@@ -431,7 +431,9 @@ class UserController extends BaseController {
                 if (resultType === UserRole.DRIVER_R) {
                     verifyType = parseInt(req.headers['user-type']) === resultType;
                 }
-
+                console.log("========");
+                console.log(verifyType);
+                console.log("===-------=====");
                 if (verifyType) {
 
                     // Password check
@@ -743,8 +745,10 @@ class UserController extends BaseController {
                         return false;
                     }
                 }
-            } else {
+            } else {               
                 if (sendResponse) {
+                    this.userNotFound(req, res);
+                }else{
                     this.userNotFound(req, res);
                 }
             }

@@ -2,12 +2,12 @@ import BaseJoi from 'joi';
 import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { options } from "../user/user.validators";
-import { Gender, UserRole, booleanType,licenseType } from "../../constants";
+import { Gender, UserRole, booleanType, licenseType } from "../../constants";
 import { validateFile } from "../../utils";
 
 const Joi = BaseJoi.extend(joinDateExtension);
 
-const CreateExperienceSchema = {    
+const CreateExperienceSchema = {
     driverExp: Joi.object({
         experience: Joi.string().required(),
         expInProvince: Joi.string().required(),
@@ -63,9 +63,9 @@ const schemas = {
     profileUpload: Joi.object().keys({
         userprofile: Joi.string().required()
     }),
-    
+
     CreateExperienceDetails: Joi.object().keys({
-        licenseType: Joi.number().valid(licenseType.CANADA, licenseType.USA,licenseType.BOTH).required(),
+        licenseType: Joi.number().valid(licenseType.CANADA, licenseType.USA, licenseType.BOTH).required(),
         data: Joi.array().items(CreateExperienceSchema).min(1)
     }),
 
@@ -118,6 +118,12 @@ const schemas = {
         attachment: Joi.string().required(),
         DocName: Joi.string().required(),
         DocType: Joi.number().required()
+    }),
+
+    //Mobile APP -Profile upload
+    deleteDocument: Joi.object().keys({
+        documentId: Joi.number().required(),
+        documentName: Joi.string().required()
     }),
 };
 
@@ -275,4 +281,19 @@ export const profileUpload = (req, res, next) => {
             Response.joierrors(req, res, err);
         });
     }
+};
+
+/**
+ * Upload Profile Picture - MobileApp
+ */
+export const deleteDocument = (req, res, next) => {        
+    let schema = schemas.deleteDocument;
+    let option = options.basic;
+    schema.validate({
+        ...req.body,
+    }, option).then(() => {
+        next();
+    }).catch(err => {
+        Response.joierrors(req, res, err);
+    });
 };
