@@ -146,7 +146,7 @@ class UserController extends BaseController {
                 SRU04_COMPANY_NAME_N: req.body.compnayName,
                 SRU04_NUMBER_OF_BUSES_R: req.body.numberofBuses,
                 SRU04_PHONE_N: req.body.phoneNo,
-                SRU04_EMAIL_STATUS_D: EmailStatus.VERIFIED,
+                SRU04_EMAIL_STATUS_D: EmailStatus.PENDING,
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
             });
 
