@@ -619,7 +619,7 @@ class DriverController extends BaseController {
 
 
             //Insert Documents
-            await UserDocument.query().insert(
+            const documentResponse = await UserDocument.query().insert(
                 {
                     SRU03_USER_MASTER_D: userId,
                     SRU05_NAME: DocName,
@@ -635,11 +635,15 @@ class DriverController extends BaseController {
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.FINANCIAL_DETAILS })
                 .where('SRU03_USER_MASTER_D', userId);
 
-            //get All users List (Driver)
-            const driver = await this._getDriverDetails(req, res, userId);
-            if (driver) {
-                return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.updated);
+            //Response data
+            const responseData = {
+                documentId: documentResponse.SRU05_DOCUMENT_D,
+                documentName: DocName,
+                documentType: DocType,
+                documentPath: attachment
             }
+
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.passMessages.updated);
 
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -663,10 +667,10 @@ class DriverController extends BaseController {
 
             //Delete Existing documents
             await UserDocument.query().delete()
-            .where({
-                SRU05_DOCUMENT_D:documentId,
-                SRU03_USER_MASTER_D: userId
-            });
+                .where({
+                    SRU05_DOCUMENT_D: documentId,
+                    SRU03_USER_MASTER_D: userId
+                });
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.deleted);
 
