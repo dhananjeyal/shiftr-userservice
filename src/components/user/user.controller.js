@@ -146,7 +146,7 @@ class UserController extends BaseController {
                 SRU04_COMPANY_NAME_N: req.body.compnayName,
                 SRU04_NUMBER_OF_BUSES_R: req.body.numberofBuses,
                 SRU04_PHONE_N: req.body.phoneNo,
-                SRU04_EMAIL_STATUS_D: EmailStatus.VERIFIED,
+                SRU04_EMAIL_STATUS_D: EmailStatus.PENDING,
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
             });
 
@@ -428,37 +428,42 @@ class UserController extends BaseController {
                 //     verifyType = parseInt(req.headers['user-type']) === resultType;
                 // }
 
-                if (resultType === UserRole.DRIVER_R) {
-                    verifyType = parseInt(req.headers['user-type']) === resultType;
-                }
-                console.log("========");
-                console.log(verifyType);
-                console.log("===-------=====");
-                if (verifyType) {
+                // if (resultType === UserRole.DRIVER_R) {
+                //     verifyType = parseInt(req.headers['user-type']) === resultType;
+                // }
 
-                    // Password check
-                    let compareResult = await bcrypt.compare(req.body.password, result.password);
-                    if (compareResult) {
+                if (parseInt(req.headers['user-type']) === resultType) {
+                    if (verifyType) {
 
-                        // Generate JWT token
-                        const token = jwt.sign({
-                            userId: result.userId,
-                            type: 'login'
-                        }, process.env.JWT_SECRET
-                            // , { expiresIn: 86400 }
-                        );
+                        // Password check
+                        let compareResult = await bcrypt.compare(req.body.password, result.password);
+                        if (compareResult) {
 
-                        result.token = `Bearer ${token}`;
+                            // Generate JWT token
+                            const token = jwt.sign({
+                                userId: result.userId,
+                                type: 'login'
+                            }, process.env.JWT_SECRET
+                                // , { expiresIn: 86400 }
+                            );
 
-                        // delete result.userDetails;
-                        delete result.password;
-                        return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
-                    } else {
-                        return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
-                            message: this.messageTypes.authMessages.userInvalidCredentials
-                        }));
+                            result.token = `Bearer ${token}`;
+
+                            // delete result.userDetails;
+                            delete result.password;
+                            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
+                        } else {
+                            return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+                                message: this.messageTypes.authMessages.userInvalidCredentials
+                            }));
+                        }
                     }
+                } else {                    
+                    return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+                        message: this.messageTypes.authMessages.userNotFound
+                    }));
                 }
+
             } else {
                 return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
                     message: this.messageTypes.authMessages.userSuspended
@@ -475,7 +480,7 @@ class UserController extends BaseController {
     };
 
 
-    /**
+    /**y
      * @DESC : Forget password
      * @return array/json
      * @param req
@@ -745,10 +750,10 @@ class UserController extends BaseController {
                         return false;
                     }
                 }
-            } else {               
+            } else {
                 if (sendResponse) {
                     this.userNotFound(req, res);
-                }else{
+                } else {
                     this.userNotFound(req, res);
                 }
             }
