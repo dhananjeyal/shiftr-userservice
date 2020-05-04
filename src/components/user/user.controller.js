@@ -458,7 +458,7 @@ class UserController extends BaseController {
                             }));
                         }
                     }
-                } else {                    
+                } else {
                     return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
                         message: this.messageTypes.authMessages.userNotFound
                     }));
@@ -1284,11 +1284,6 @@ class UserController extends BaseController {
                 return userValue;
             });
 
-            //Update Travel -user -Login details
-            await UserDetails.query()
-                .where('SRU03_USER_MASTER_D', req.user.userId)
-                .update({ 'SRU04_TRAVEL_LOGIN_STATUS_F': booleanType.YES });
-
             let result = {
                 matchingUserList,
                 allUserList
@@ -1722,6 +1717,26 @@ class UserController extends BaseController {
             } else {
                 return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
             };
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+    /**
+         * @DESC : Busowner Login Status
+         * @return array/json
+         * @param req
+         * @param res
+         */
+    busownerLoginStatus = async (req, res) => {
+        try {
+
+            //Update Travel[Busowner] -user -Login details
+            await UserDetails.query()
+                .where('SRU03_USER_MASTER_D', req.user.userId)
+                .update({ 'SRU04_TRAVEL_LOGIN_STATUS_F': booleanType.YES });
+
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }

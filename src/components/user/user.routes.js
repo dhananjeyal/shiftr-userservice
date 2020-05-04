@@ -32,6 +32,7 @@ function registerRoutes() {
         let verifyCustomer = AuthController.verifyCustomer;
         apiRouter.route("/user/travels").put(verifyCustomer,travelsUpdate,UserController.travelsUpdate);
         apiRouter.route("/user/:contactId/contacts").put(verifyCustomer,UserController.deleteContactInfo);
+        apiRouter.route("/user/login/status").get(verifyCustomer,UserController.busownerLoginStatus);
 
 
         // Required jwt authentication
