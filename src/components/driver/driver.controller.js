@@ -19,7 +19,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, allLanguageColumns, radiusColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import LicenseType from './model/licensetype.model';
@@ -761,7 +761,7 @@ class DriverController extends BaseController {
             const speciality = await SpecialityTraining.query().select(driverSpecialityTrainingColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
-            const languageList = await AllLanguages.query().pluck('SRU14_LANGUAGE_N');
+            const languageList = await AllLanguages.query().select(languageColumns);
 
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)

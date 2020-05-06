@@ -94,3 +94,8 @@ export let radiusColumns = [
     'SRU10_ALCOHOL_TEST_F as alcoholTest'
 ]
 
+export let languageColumns = [
+    'SRU14_LANGUAGE_D as languageId',
+    'SRU14_LANGUAGE_N as languageName'
+];
+

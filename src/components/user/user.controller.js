@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -354,7 +354,30 @@ class UserController extends BaseController {
         }
     };
 
+    /**
+     * @DESC : For other services - Get single User Result.
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    sendTripStatusNotication = async (req, res) => {
+        try {
+            const userId = req.body.userData.userId;
+            const tripDetails = req.body.tripDetails;
+            let user = await Users.query()
+                .select(userEmailDetails)
+                .where("SRU03_USER_MASTER_D", userId)
 
+            mailer.notifyBusOwner(
+                user[0],
+                tripDetails
+            );
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
+
+        } catch (error) {
+            return this.internalServerError(req, res, error);
+        }
+    }
 
     /**
      * @DESC : For other services

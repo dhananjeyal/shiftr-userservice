@@ -5,5 +5,6 @@ module.exports = {
     updated: "Updated Successfully!",
     deleted: "Deleted Successfully!",
     forgetPassword: "Password reset link has been sent!",    
-    resetPassword: "Your password has been successfully changed"
+    resetPassword: "Your password has been successfully changed",
+    mailSent: "Your E-mail sent successfully"
 };
