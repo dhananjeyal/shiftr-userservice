@@ -368,11 +368,11 @@ class UserController extends BaseController {
                 .select(userEmailDetails)
                 .where("SRU03_USER_MASTER_D", userId)
 
-            return await mailer.notifyBusOwner(
+            mailer.notifyBusOwner(
                 user[0],
                 tripDetails
             );
-            // return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
 
         } catch (error) {
             return this.internalServerError(req, res, error);
