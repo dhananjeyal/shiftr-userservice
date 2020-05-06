@@ -33,7 +33,7 @@ function registerRoutes() {
         apiRouter.route("/user/travels").put(verifyCustomer,travelsUpdate,UserController.travelsUpdate);
         apiRouter.route("/user/:contactId/contacts").put(verifyCustomer,UserController.deleteContactInfo);
         apiRouter.route("/user/login/status").get(verifyCustomer,UserController.busownerLoginStatus);
-
+        apiRouter.route("/user/trip_status").post(UserController.sendTripStatusNotication);
 
         // Required jwt authentication
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);
