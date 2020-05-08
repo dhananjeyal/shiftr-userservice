@@ -366,12 +366,20 @@ class UserController extends BaseController {
             const tripDetails = req.body.tripDetails;
             let user = await Users.query()
                 .select(userEmailDetails)
-                .where("SRU03_USER_MASTER_D", userId)
+                .where("SRU03_USER_MASTER_D", userId);
 
-            mailer.notifyBusOwner(
-                user[0],
-                tripDetails
-            );
+            if (!tripDetails.noMatchFound) {
+                mailer.notifyBusOwner(
+                    user[0],
+                    tripDetails
+                );
+            } else {
+                mailer.busOwnerNoMatch(
+                    user[0],
+                    tripDetails
+                );
+                mailer.superAdminNoMatch(tripDetails);
+            }
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
 
         } catch (error) {
@@ -687,8 +695,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                    expiresIn: 3600 // Will expire in next 1 hour
-                                })
+                                        expiresIn: 3600 // Will expire in next 1 hour
+                                    })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -1564,7 +1572,7 @@ class UserController extends BaseController {
                                     year: spcvalue.validYear
                                 }
                             },
-                            countryId: expvalue.experienceType
+                            countryId: expvalue.SRU09_TYPE_N
                         });
                     }
                 });

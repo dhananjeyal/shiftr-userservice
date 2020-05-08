@@ -118,7 +118,6 @@ export const resetPassword = (user) => {
     return sendMail(user.emailId, "Password reset", html)
 };
 
-
 export const notifyBusOwner = (user, tripDetails) => {
 
     let html = `<b>Hello ${user.firstName},</b>
@@ -137,4 +136,33 @@ export const notifyBusOwner = (user, tripDetails) => {
                     <p>Driver address:- ${tripDetails.driverAddress}</p>
                     <p>Best regards</p>`;
     return sendMail(user.emailId, "Trip - Details", html)
+};
+
+export const busOwnerNoMatch = (user, tripDetails) => {
+
+    let html = `<b>Hello ${user.firstName},</b>
+                    <p>Driver not found for your Trip ${tripDetails.tripCode} .</p>
+                    <p><b>Trip Details:-</b></p>
+                    <p>Company name:- ${tripDetails.companyName}</p>
+                    <p>Trip code:- ${tripDetails.tripCode}</p>
+                    <p>Trip type:- ${tripDetails.type}</p>
+                    <p>Trip start date:- ${tripDetails.startDate}</p>
+                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start time:- ${tripDetails.startTime}</p>`;
+    return sendMail(user.emailId, "Trip - Details", html)
+};
+
+
+export const superAdminNoMatch = (tripDetails) => {
+
+    let html = `<b>Hello shiftr,</b>
+                    <p>Driver not found for your Trip ${tripDetails.tripCode} .</p>
+                    <p><b>Trip Details:-</b></p>
+                    <p>Company name:- ${tripDetails.companyName}</p>
+                    <p>Trip code:- ${tripDetails.tripCode}</p>
+                    <p>Trip type:- ${tripDetails.type}</p>
+                    <p>Trip start date:- ${tripDetails.startDate}</p>
+                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start time:- ${tripDetails.startTime}</p>`;
+    return sendMail(`shiftr@joshiinc.com`, "Trip - Details", html)
 };
