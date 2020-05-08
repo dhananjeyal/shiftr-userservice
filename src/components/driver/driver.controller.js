@@ -19,9 +19,10 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
+import ExperienceReferenceDetails from './model/experienceReference.model';
 import LicenseType from './model/licensetype.model';
 import SpecialityTraining from './model/speciality.model';
 import SpecialityDetails from './model/driverspeciality.model';
@@ -211,6 +212,7 @@ class DriverController extends BaseController {
 
             let experienceData = [];
             let specialityData = [];
+            let experienceDataReference = [];
             const { data, licenseType } = req.body;
 
             //Experience Details
@@ -225,6 +227,15 @@ class DriverController extends BaseController {
                     SRU09_UPDATED_D: user.userId,
                     SRU09_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`
                 });
+                experienceDataReference.push({
+                    SRU03_USER_MASTER_D: user.userId,
+                    SRU20_COUNTRY_D: countryType,
+                    SRU20_EXPERIENCE_D: driverExp.experienceId,
+                    SRU20_PROVINCE_D: driverExp.expInProvinceId,
+                    SRU20_CREATED_D: user.userId,
+                    SRU20_UPDATED_D: user.userId,
+                    SRU20_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`
+                });
 
                 if (driverExp.driverSpeciality && driverExp.driverSpeciality.length > 0) {
                     driverExp.driverSpeciality.map(currSpeciality => {
@@ -233,7 +244,7 @@ class DriverController extends BaseController {
                             SRU09_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`,
                             SRU12_SPECIALITY_N: currSpeciality.specialityTraining,
                             SRU11_SPECIALITY_TRAINING_D: currSpeciality.specialityTrainingId,
-                            SRU12_VALIDYEAR_N: currSpeciality.year,
+                            SRU12_VALIDYEAR_N: currSpeciality.year
                         })
                     })
                 }
@@ -241,6 +252,7 @@ class DriverController extends BaseController {
 
             const experienceResponse = await ExperienceDetails.query().insertGraph(experienceData);
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
+            const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
 
             const userDetailsResponse = await UserDetails.query()
                 .update({
@@ -731,6 +743,53 @@ class DriverController extends BaseController {
                     builder.select(driverLanguageColumns)
                 }).modifyEager('radiusDetails', (builder) => {
                     builder.select(radiusColumns)
+                }).select(columns);
+
+            if (driver) {
+                delete driver.password;
+                return new Promise((resolve) => {
+                    resolve(driver);
+                });
+            } else {
+                this.userNotFound(req, res);
+            }
+        } catch (e) {
+            this.internalServerError(req, res, e)
+        }
+
+        return new Promise((resolve) => {
+            resolve(false);
+        });
+    };
+
+    /**
+     * @DESC : Get driver details reused method
+     * @return array/json
+     * @param req
+     * @param res
+     * @param userId
+     */
+    _getAllDriverDetails = async (req, res, userId) => {
+        try {
+            let driver = await Users.query().findById(userId)
+                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents,experienceDetails.experienceReferenceDetails]')
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(driverUserDetailsColumns)
+                    // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
+                }).modifyEager('addressDetails', (builder) => {
+                    builder.select(userAddressColumns)
+                }).modifyEager('financialDetails', (builder) => {
+                    builder.select(userFinancialColumns)
+                }).modifyEager('documents', (builder) => {
+                    builder.select(userDocumentColumns)
+                }).modifyEager('DriverspecialityDetails', (builder) => {
+                    builder.select(driverSpecialityDetailsColumns)
+                }).modifyEager('DriverLanguage', (builder) => {
+                    builder.select(driverLanguageColumns)
+                }).modifyEager('radiusDetails', (builder) => {
+                    builder.select(radiusColumns)
+                }).modifyEager('experienceDetails.experienceReferenceDetails', (builder) => {
+                    builder.select(driverExperienceReference)
                 }).select(columns);
 
             if (driver) {
