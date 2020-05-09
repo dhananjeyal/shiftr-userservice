@@ -31,10 +31,13 @@ function registerRoutes() {
         //Travels Update - Customer / Busowner
         let verifyCustomer = AuthController.verifyCustomer;
         apiRouter.route("/user/travels").put(verifyCustomer,travelsUpdate,UserController.travelsUpdate);
-        apiRouter.route("/user/:contactId/contacts").put(verifyCustomer,UserController.deleteContactInfo);
+        apiRouter.route("/user/:contactId/contacts").put(verifyCustomer,UserController.deleteContactInfo);        
         apiRouter.route("/user/login/status").get(verifyCustomer,UserController.busownerLoginStatus);
         apiRouter.route("/user/trip_status").post(UserController.sendTripStatusNotication);
 
+        let verifyAny = AuthController.verifyAny;
+        apiRouter.route("/user/trip/:userId/contacts").get(verifyAny,UserController.getContactInfo);
+        
         // Required jwt authentication
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);
         apiRouter.route("/user/verify_token").get(UserController.verifyToken);

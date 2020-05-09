@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType,phonenumbertype } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -349,6 +349,37 @@ class UserController extends BaseController {
                     SRU19_DELETED_F: booleanType.YES
                 });
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.deleted);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+    /**
+    * @DESC : Get user Contact Info
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    getContactInfo = async (req, res) => {
+        try {
+            const { userId } = req.params;
+
+            const responseData = await ContactInfo.query()
+            .select('SRU19_PHONE_R as contactNumber')
+                .where({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU01_TYPE_D: phonenumbertype.OFFICE,
+                })
+                .orWhere({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU01_TYPE_D: phonenumbertype.PERSONAL,
+                })
+                .orWhere({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU01_TYPE_D: phonenumbertype.HOME,
+                }).first();
+
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
@@ -695,8 +726,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                        expiresIn: 3600 // Will expire in next 1 hour
-                                    })
+                                    expiresIn: 3600 // Will expire in next 1 hour
+                                })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
