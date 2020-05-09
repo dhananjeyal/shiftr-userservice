@@ -94,3 +94,12 @@ export let radiusColumns = [
     'SRU10_ALCOHOL_TEST_F as alcoholTest'
 ]
 
+export let languageColumns = [
+    'SRU14_LANGUAGE_D as languageId',
+    'SRU14_LANGUAGE_N as languageName'
+];
+
+export let driverExperienceReference = [
+    'SRU20_DRIVEREXP_REFERENCE.SRU20_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
+    'SRU20_PROVINCE_D as provinceId'
+];

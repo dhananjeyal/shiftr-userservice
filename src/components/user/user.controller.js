@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -354,7 +354,38 @@ class UserController extends BaseController {
         }
     };
 
+    /**
+     * @DESC : For other services - Get single User Result.
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    sendTripStatusNotication = async (req, res) => {
+        try {
+            const userId = req.body.userData.userId;
+            const tripDetails = req.body.tripDetails;
+            let user = await Users.query()
+                .select(userEmailDetails)
+                .where("SRU03_USER_MASTER_D", userId);
 
+            if (!tripDetails.noMatchFound) {
+                mailer.notifyBusOwner(
+                    user[0],
+                    tripDetails
+                );
+            } else {
+                mailer.busOwnerNoMatch(
+                    user[0],
+                    tripDetails
+                );
+                mailer.superAdminNoMatch(tripDetails);
+            }
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
+
+        } catch (error) {
+            return this.internalServerError(req, res, error);
+        }
+    }
 
     /**
      * @DESC : For other services
@@ -664,8 +695,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                    expiresIn: 3600 // Will expire in next 1 hour
-                                })
+                                        expiresIn: 3600 // Will expire in next 1 hour
+                                    })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -1497,6 +1528,59 @@ class UserController extends BaseController {
 
             // delete driver.experienceDetails;//Remove Existing object
             // delete driver.DriverspecialityDetails; // Remove Existing Object
+
+            driver.DriverDetails = DriverDetails;
+
+            return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
+        } else {
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
+        }
+    }
+
+    /**
+     * @DESC : Get user's signup details {Driver}
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    getDriverSignUpDetails = async (req, res) => {
+        if (req.user.typeId === UserRole.DRIVER_R) {
+            const userId = req.user.userId;
+            const driver = await DriverController._getAllDriverDetails(req, res, userId);
+            let address = { ...driver.addressDetails }
+            let radius = { ...driver.radiusDetails }
+            delete driver.addressDetails
+            delete driver.radiusDetails
+            driver.userDetails = { ...driver.userDetails, ...address, ...radius }
+
+            let DriverDetails = []; // New array decalration 
+            //Driver - Experienced  structure change
+            driver.experienceDetails.forEach((expvalue) => {
+
+                //Driver - Speciality structure change
+                driver.DriverspecialityDetails.forEach((spcvalue) => {
+                    if (expvalue.SRU09_SPECIALITY_REFERENCE_N == spcvalue.specialityReferenceNumber) {
+                        DriverDetails.push({
+                            driverExp: {
+                                experienceId: expvalue.SRU09_DRIVEREXP_D,
+                                experience: expvalue.SRU09_TOTALEXP_N,
+                                expInProvinceId: expvalue.experienceReferenceDetails[0].provinceId,
+                                expInProvince: expvalue.SRU09_CURRENT_N,
+                                driverSpeciality: {
+                                    specialityTrainingId: spcvalue.specialityId,
+                                    specialityTraining: spcvalue.specialityName,
+                                    year: spcvalue.validYear
+                                }
+                            },
+                            countryId: expvalue.SRU09_TYPE_N
+                        });
+                    }
+                });
+
+            });
+
+            delete driver.experienceDetails;//Remove Existing object
+            delete driver.DriverspecialityDetails; // Remove Existing Object
 
             driver.DriverDetails = DriverDetails;
 

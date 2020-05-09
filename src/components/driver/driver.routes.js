@@ -20,6 +20,7 @@ function registerRoutes() {
 
         // Get driver signup details
         apiRouter.route("/user/signup_details").get(verify, UserController.getSignUpDetails);
+        apiRouter.route("/user/driver/signup_details").get(verify, UserController.getDriverSignUpDetails);
 
         // Get driver signup status
         apiRouter.route("/user/signup_status").get(verify, UserController.getSignUpStatus);
