@@ -106,7 +106,7 @@ class DriverController extends BaseController {
             await ContactInfo.query()
                 .insertGraph(phoneNumbers);
 
-            //Row exists
+            //Row existstG
             let langRowExists = await Language.query()
                 .select('SRU11_DRIVER_LANGUAGE_D')
                 .where('SRU03_USER_MASTER_D', ActiveUser.userId);
