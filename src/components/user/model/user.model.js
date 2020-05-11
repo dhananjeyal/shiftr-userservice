@@ -3,7 +3,7 @@ import UsersDetails from "./userDetails.model";
 import AddressDetails from "./address.model";
 import UserDocument from "./userDocument.model";
 import FinancialDetails from "../../driver/model/financial.model";
-import ExperienceDetails from '../../driver/model/experience.model';
+import ExperienceDetails from '../../driver/model/driverExperience.model';
 import ContactInfo from '../../driver/model/contactInfo.model';
 import SpecialityDetails from '../../driver/model/driverspeciality.model';
 import Language from '../../driver/model/language.model';
