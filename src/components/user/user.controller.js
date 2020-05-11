@@ -1583,8 +1583,8 @@ class UserController extends BaseController {
 
             let address = {
                 addressId: addressDetail.SRU06_ADDRESS_D,
-                street1: addressDetail.SRU06_LINE_1_N,
-                street2: addressDetail.SRU06_LINE_2_N,
+                address1: addressDetail.SRU06_LINE_1_N,
+                address2: addressDetail.SRU06_LINE_2_N,
                 userAddress: addressDetail.SRU06_LINE_1_N,
                 provinceId: addressDetail.provinceDetails.SRU16_PROVINCE_D,
                 province: addressDetail.provinceDetails.SRU16_PROVINCE_N,
