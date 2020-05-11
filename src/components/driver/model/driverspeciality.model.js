@@ -25,21 +25,21 @@ class SpecialityDetails extends BaseModel {
                 }
             },
             SpecialityTrainingDetails: {
-                relation: BaseModel.HasOneRelation,
+                relation: BaseModel.HasManyRelation,
                 modelClass: SpecialityTraining,
                 join: {
-                    from: 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D',
-                    to: 'SRU09_DRIVEREXP.SRU11_SPECIALITY_TRAINING_D'
+                    from: 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D',
+                    to: 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D'
+                }
+            },
+            specialityExpDetails: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: ExperienceDetails,
+                join: {
+                    from: 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N',
+                    to: 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N'
                 }
             }
-            // SpecialityDetails: {
-            //     relation: BaseModel.HasManyRelation,
-            //     modelClass: ExperienceDetails,
-            //     join: {
-            //         from: 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N',
-            //         to: 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N'
-            //     }
-            // }
         }
     }
 
