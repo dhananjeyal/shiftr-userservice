@@ -18,7 +18,7 @@ import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
+import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns } from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
@@ -773,10 +773,12 @@ class DriverController extends BaseController {
     _getAllDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents,experienceDetails.experienceReferenceDetails]')
+                .eager('[userDetails, contactInfoDetails, addressDetails, DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents,experienceDetails.experienceReferenceDetails]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
+                }).modifyEager('contactInfoDetails', (builder) => {
+                    builder.select(contactInfoDetailsColumns).pluck("SRU19_PHONE_R")
                 }).modifyEager('addressDetails', (builder) => {
                     builder.select(userAddressColumns)
                 }).modifyEager('financialDetails', (builder) => {

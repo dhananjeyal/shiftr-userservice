@@ -3,6 +3,7 @@ import DriverExperience from './experience.model';
 export let driverUserDetailsColumns = [
     'SRU04_DETAIL_D as detailsId',
     'SRU03_USER_MASTER_D as userId',
+    'SRU04_UNIT as unit',
     'SRU04_EMAIL_STATUS_D as emailStatus',
     'SRU04_SIGNUP_STATUS_D as signUpStatus',
     // 'SRU04_PHONE_N as phoneNo',
@@ -89,6 +90,7 @@ export let allLanguageColumns = [
 
 export let radiusColumns = [
     'SRU10_RADIOUS_D as radiusId',
+    'SRU01_TYPE_D as distanceType',
     'SRU10_DISTANCE_KILOMETER_R as kilometer',
     'SRU10_DISTANCE_RANGE_R as distance',
     'SRU10_OPEN_DISTANCE_F as opendistance',
