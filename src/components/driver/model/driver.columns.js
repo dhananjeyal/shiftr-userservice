@@ -85,6 +85,15 @@ export let allLanguageColumns = [
     'SRU14_LANGUAGE_D as languageId',
     'SRU14_LANGUAGE_SHORT_CODE_N as shortCode',
     'SRU14_LANGUAGE_N as languageName'
+];
+
+export let radiusDetailsColumns = [
+    'SRU10_RADIOUS_D as radiusId',
+    'SRU01_TYPE_D as distanceType',
+    'SRU10_DISTANCE_KILOMETER_R as kilometer',
+    'SRU10_DISTANCE_RANGE_R as radious',
+    'SRU10_OPEN_DISTANCE_F as opendistance',
+    'SRU10_ALCOHOL_TEST_F as alcoholTest'
 ]
 
 export let radiusColumns = [

@@ -19,7 +19,7 @@ import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, driverExperienceReference } from "./model/driver.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import ExperienceReferenceDetails from './model/experienceReference.model';
@@ -61,7 +61,7 @@ class DriverController extends BaseController {
                 street1,
                 street2,
                 city,
-                province,
+                provinceId,
                 postalCode,
                 languages,
                 distanceType,
@@ -177,7 +177,7 @@ class DriverController extends BaseController {
                     SRU06_LINE_1_N: street1,
                     SRU06_LINE_2_N: street2,
                     SRU06_CITY_N: city,
-                    SRU06_PROVINCE_N: province,
+                    SRU06_PROVINCE_D: provinceId,
                     SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
                     SRU06_POSTAL_CODE_N: postalCode,
                     SRU06_LOCATION_LATITUDE_N: latitude,
@@ -725,7 +725,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents]')
+                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -737,9 +737,9 @@ class DriverController extends BaseController {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
                     builder.select(userDocumentColumns)
-                }).modifyEager('DriverspecialityDetails', (builder) => {
+                }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
-                }).modifyEager('DriverLanguage', (builder) => {
+                }).modifyEager('driverLanguage', (builder) => {
                     builder.select(driverLanguageColumns)
                 }).modifyEager('radiusDetails', (builder) => {
                     builder.select(radiusColumns)
@@ -772,24 +772,24 @@ class DriverController extends BaseController {
     _getAllDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, contactInfoDetails, addressDetails, DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents,experienceDetails.experienceReferenceDetails]')
+                .eager('[userDetails, contactInfoDetails, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
                 }).modifyEager('contactInfoDetails', (builder) => {
-                    builder.select(contactInfoDetailsColumns).pluck("SRU19_PHONE_R")
-                }).modifyEager('addressDetails', (builder) => {
-                    builder.select(userAddressColumns)
+                    builder.select(contactInfoDetailsColumns)
+                }).modifyEager('addressDetails.provinceDetails', (builder) => {
+                    builder.select("*")
                 }).modifyEager('financialDetails', (builder) => {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
                     builder.select(userDocumentColumns)
-                }).modifyEager('DriverspecialityDetails', (builder) => {
+                }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
-                }).modifyEager('DriverLanguage', (builder) => {
+                }).modifyEager('driverLanguage', (builder) => {
                     builder.select(driverLanguageColumns)
                 }).modifyEager('radiusDetails', (builder) => {
-                    builder.select(radiusColumns)
+                    builder.select(radiusDetailsColumns)
                 }).modifyEager('experienceDetails.experienceReferenceDetails', (builder) => {
                     builder.select(driverExperienceReference)
                 }).select(columns);

@@ -45,7 +45,7 @@ class Users extends BaseModel {
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             },            
-            DriverspecialityDetails: {
+            driverspecialityDetails: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: SpecialityDetails,
                 join: {
@@ -53,7 +53,7 @@ class Users extends BaseModel {
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             }, 
-            DriverLanguage: {
+            driverLanguage: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: Language,
                 join: {

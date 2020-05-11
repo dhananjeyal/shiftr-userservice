@@ -1527,7 +1527,7 @@ class UserController extends BaseController {
             driver.experienceDetails.forEach((expvalue) => {
 
                 //Driver - Speciality structure change
-                driver.DriverspecialityDetails.forEach((spcvalue) => {
+                driver.driverspecialityDetails.forEach((spcvalue) => {
                     if (expvalue.specialityReferenceNumber == spcvalue.specialityReferenceNumber) {
                         DriverDetails.push({
                             driverExp: {
@@ -1558,7 +1558,7 @@ class UserController extends BaseController {
             });
 
             // delete driver.experienceDetails;//Remove Existing object
-            // delete driver.DriverspecialityDetails; // Remove Existing Object
+            // delete driver.driverspecialityDetails; // Remove Existing Object
 
             driver.DriverDetails = DriverDetails;
 
@@ -1578,42 +1578,57 @@ class UserController extends BaseController {
         if (req.user.typeId === UserRole.DRIVER_R) {
             const userId = req.user.userId;
             const driver = await DriverController._getAllDriverDetails(req, res, userId);
-            let address = { ...driver.addressDetails }
-            let radius = { ...driver.radiusDetails }
+            let addressDetail = { ...driver.addressDetails };
+            let radius = { ...driver.radiusDetails };
+
+            let address = {
+                addressId: addressDetail.SRU06_ADDRESS_D,
+                street1: addressDetail.SRU06_LINE_1_N,
+                street2: addressDetail.SRU06_LINE_2_N,
+                userAddress: addressDetail.SRU06_LINE_1_N,
+                provinceId: addressDetail.provinceDetails.SRU16_PROVINCE_D,
+                province: addressDetail.provinceDetails.SRU16_PROVINCE_N,
+                city: addressDetail.SRU06_CITY_N,
+                postalCode: addressDetail.postalCode,
+                latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
+                longitude: addressDetail.SRU06_LOCATION_LONGITUDE_N
+            };
+
             delete driver.addressDetails
             delete driver.radiusDetails
             driver.userDetails = { ...driver.userDetails, ...address, ...radius }
 
-            let DriverDetails = []; // New array decalration 
-            //Driver - Experienced  structure change
+            let DriverDetails = [];
+
             driver.experienceDetails.forEach((expvalue) => {
 
-                //Driver - Speciality structure change
-                driver.DriverspecialityDetails.forEach((spcvalue) => {
-                    if (expvalue.SRU09_SPECIALITY_REFERENCE_N == spcvalue.specialityReferenceNumber) {
-                        DriverDetails.push({
-                            driverExp: {
-                                experienceId: expvalue.SRU09_DRIVEREXP_D,
-                                experience: expvalue.SRU09_TOTALEXP_N,
-                                expInProvinceId: expvalue.experienceReferenceDetails[0].provinceId,
-                                expInProvince: expvalue.SRU09_CURRENT_N,
-                                driverSpeciality: {
-                                    specialityTrainingId: spcvalue.specialityId,
-                                    specialityTraining: spcvalue.specialityName,
-                                    year: spcvalue.validYear
-                                }
-                            },
-                            countryId: expvalue.SRU09_TYPE_N
-                        });
-                    }
+                let driverSpeciality = [];
+                driver.driverspecialityDetails.filter((spcvalue) => {
+                    if (expvalue.SRU09_SPECIALITY_REFERENCE_N == spcvalue.specialityReferenceNumber)
+                        driverSpeciality.push({
+                            specialityTrainingId: spcvalue.specialityId,
+                            specialityTraining: spcvalue.specialityName,
+                            year: spcvalue.validYear
+                        })
+                });
+
+                DriverDetails.push({
+                    driverExp: {
+                        experienceId: expvalue.SRU09_DRIVEREXP_D,
+                        experience: expvalue.SRU09_TOTALEXP_N,
+                        expInProvinceId: expvalue.experienceReferenceDetails[0].provinceId,
+                        expInProvince: expvalue.SRU09_CURRENT_N,
+                        driverSpeciality
+                    },
+                    countryId: expvalue.SRU09_TYPE_N
                 });
 
             });
 
             delete driver.experienceDetails;//Remove Existing object
-            delete driver.DriverspecialityDetails; // Remove Existing Object
+            delete driver.driverspecialityDetails; // Remove Existing Object
 
-            driver.DriverDetails = DriverDetails;
+            driver.driverDetails = DriverDetails;
 
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
         } else {

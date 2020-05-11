@@ -41,7 +41,7 @@ const schemas = {
             street1: Joi.string().required(),
             street2: Joi.string(),
             city: Joi.string().required(),
-            province: Joi.string().required(),
+            provinceId: Joi.number().required(),
             postalCode: Joi.string().required(),
             // languages: Joi.array().items(lang),
             radious: Joi.string().required(),
