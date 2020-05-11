@@ -772,10 +772,12 @@ class DriverController extends BaseController {
     _getAllDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents,experienceDetails.experienceReferenceDetails]')
+                .eager('[userDetails, contactInfoDetails, addressDetails, DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents,experienceDetails.experienceReferenceDetails]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
+                }).modifyEager('contactInfoDetails', (builder) => {
+                    builder.pluck("SRU19_PHONE_R as phoneNumber")
                 }).modifyEager('addressDetails', (builder) => {
                     builder.select(userAddressColumns)
                 }).modifyEager('financialDetails', (builder) => {
