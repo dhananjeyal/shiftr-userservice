@@ -1616,7 +1616,7 @@ class UserController extends BaseController {
                     driverExp: {
                         experienceId: expvalue.SRU09_DRIVEREXP_D,
                         experience: expvalue.SRU09_TOTALEXP_N,
-                        expInProvinceId: expvalue.experienceReferenceDetails[0].provinceId,
+                        expInProvinceId: expvalue.experienceReferenceDetails.provinceId,
                         expInProvince: expvalue.SRU09_CURRENT_N,
                         driverSpeciality
                     },

@@ -4,6 +4,7 @@ import Speciality from '../model/driverspeciality.model';
 import Country from '../../masterdetails/model/country.model';
 import Province from '../../masterdetails/model/province.model';
 import ExperienceList from './experienceList.model';
+import ExperienceReferenceDetails from './experienceReference.model';
 
 class ExperienceDetails extends BaseModel {
 
@@ -56,7 +57,15 @@ class ExperienceDetails extends BaseModel {
                     from: 'SRU09_DRIVEREXP.SRU15_COUNTRY_D',
                     to: 'SRU15_COUNTRY.SRU15_COUNTRY_D'
                 }
-            }
+            },
+            experienceReferenceDetails: {
+                relation: BaseModel.HasOneRelation,
+                modelClass: ExperienceReferenceDetails,
+                join: {
+                    from: 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N',
+                    to: 'SRU20_DRIVEREXP_REFERENCE.SRU20_SPECIALITY_REFERENCE_N'
+                }
+            },
         }
     }
 
