@@ -97,12 +97,12 @@ class DriverController extends BaseController {
             phones.map((data, index) => {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU19_CONTACT_PERSON_N: ActiveUser.firstName,
-                    SRU01_TYPE_D: phonenumbertype.PERSONAL,
-                    SRU19_PHONE_R: phones[index]
+                    SRU19_CONTACT_PERSON_N: data.contactPerson,
+                    SRU01_TYPE_D: data.phonuemberType,
+                    SRU19_PHONE_R: data.phoneNumber
                 });
             });
-
+            
             //Insert contact Info
             await ContactInfo.query()
                 .insertGraph(phoneNumbers);
@@ -121,7 +121,8 @@ class DriverController extends BaseController {
             languages.map((data, index) => {
                 languagesKnown.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU11_LANGUAGE_N: languages[index]
+                    SRU14_LANGUAGE_D:data.languageId,
+                    SRU11_LANGUAGE_N: data.languageName
                 });
             });
 
