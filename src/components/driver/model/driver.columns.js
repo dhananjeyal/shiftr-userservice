@@ -1,5 +1,3 @@
-import DriverExperience from './experience.model';
-
 export let driverUserDetailsColumns = [
     'SRU04_DETAIL_D as detailsId',
     'SRU03_USER_MASTER_D as userId',

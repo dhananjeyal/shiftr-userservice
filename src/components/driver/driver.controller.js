@@ -251,10 +251,11 @@ class DriverController extends BaseController {
                 }
             });
 
-            const experienceResponse = await ExperienceDetails.query().insertGraph(experienceData);
+            const experienceResponse = await ExperienceDetails.query().insertGraphAndFetch(experienceData);
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
             const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
 
+            
             const userDetailsResponse = await UserDetails.query()
                 .update({
                     SRU04_LICENSE_TYPE_R: licenseType,
@@ -265,11 +266,6 @@ class DriverController extends BaseController {
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.added);
 
         } catch (e) {
-            console.log(e);
-            if (e.code === 'ER_DUP_ENTRY') {
-                e.message = this.messageTypes.passMessages.userExists;
-                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, e));
-            }
             return this.internalServerError(req, res, e);
         }
     }

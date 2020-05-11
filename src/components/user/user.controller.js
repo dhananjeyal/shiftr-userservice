@@ -14,7 +14,7 @@ import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
 import NotifyService from "../../services/notifyServices";
-import ExperienceDetails from "../driver/model/experience.model";
+import ExperienceDetails from "../driver/model/driverExperience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
 import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns } from "../driver/model/driver.columns";
@@ -770,11 +770,11 @@ class UserController extends BaseController {
                 .modifyEager('userDetails', builder => {
                     builder.select(userDetailsColumns)
                 }).select(columns).limit(1);
-
+                
             if (result.length) {
                 result = result[0];
                 // User status check
-                if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
+                if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {                    
                     let emailStatus = result.userDetails.emailStatus;
                     if (result.status === UserStatus.FIRST_TIME) {
                         result.changedPassword = false
