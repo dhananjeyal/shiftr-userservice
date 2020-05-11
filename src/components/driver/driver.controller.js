@@ -178,7 +178,7 @@ class DriverController extends BaseController {
                     SRU06_LINE_1_N: street1,
                     SRU06_LINE_2_N: street2,
                     SRU06_CITY_N: city,
-                    SRU06_PROVINCE_D: provinceId,
+                    SRU16_PROVINCE_D: provinceId,
                     SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
                     SRU06_POSTAL_CODE_N: postalCode,
                     SRU06_LOCATION_LATITUDE_N: latitude,

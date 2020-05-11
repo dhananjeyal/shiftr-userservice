@@ -26,7 +26,7 @@ class AddressDetails extends BaseModel {
                 relation: BaseModel.HasOneRelation,
                 modelClass: ProvinceModel,
                 join: {
-                    from: 'SRU06_ADDRESS.SRU06_PROVINCE_D',
+                    from: 'SRU06_ADDRESS.SRU16_PROVINCE_D',
                     to: 'SRU16_PROVINCE.SRU16_PROVINCE_D',
                 }
             }
