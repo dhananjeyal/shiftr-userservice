@@ -16,7 +16,7 @@ const CreateExperienceSchema = {
             year: Joi.string().required()
         })
     }).required(),
-    countryId: Joi.number().required(),
+    countryType: Joi.number().required()
 }
 
 const phone = {
