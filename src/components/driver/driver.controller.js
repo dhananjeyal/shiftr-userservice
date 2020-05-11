@@ -777,7 +777,7 @@ class DriverController extends BaseController {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
                 }).modifyEager('contactInfoDetails', (builder) => {
-                    builder.pluck("SRU19_PHONE_R as phoneNumber")
+                    builder.pluck("SRU19_PHONE_R")
                 }).modifyEager('addressDetails', (builder) => {
                     builder.select(userAddressColumns)
                 }).modifyEager('financialDetails', (builder) => {
