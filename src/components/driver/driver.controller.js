@@ -10,17 +10,19 @@ import {
     DocumentType,
     SignUpStatus,
     phonenumbertype,
-    CountryType
+    CountryType,
+    Typeofdistance
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, allLanguageColumns, radiusColumns } from "./model/driver.columns";
+import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns } from "../user/model/user.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
-import ExperienceDetails from './model/driverExperience.model';
+import ExperienceDetails from './model/experience.model';
+import ExperienceReferenceDetails from './model/experienceReference.model';
 import LicenseType from './model/licensetype.model';
 import SpecialityTraining from './model/speciality.model';
 import SpecialityDetails from './model/driverspeciality.model';
@@ -32,6 +34,8 @@ import ContactInfo from "./model/contactInfo.model";
 import Validyear from "./model/validyear.model";
 import Province from '../masterdetails/model/province.model'
 import { provinceColumns } from '../masterdetails/model/location.columns';
+import NotifyService from "../../services/notifyServices";
+import BoardingService from "../../services/boardingServices";
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -42,12 +46,11 @@ class DriverController extends BaseController {
         super();
     }
 
-
     /**
-     * @DESC :Create Driver Profile
-     * @param string/Integer/object
-     * @return array/json
-     */
+        * @DESC :Create Driver Profile
+        * @param string/Integer/object
+        * @return array/json
+        */
     CreateDriverProfile = async (req, res) => {
         try {
 
@@ -58,12 +61,11 @@ class DriverController extends BaseController {
                 street1,
                 street2,
                 city,
-                province,
+                provinceId,
                 postalCode,
                 languages,
+                distanceType,
                 radious,
-                km,
-                miles,
                 openDistance,
                 alcoholTest,
                 phones,
@@ -81,7 +83,7 @@ class DriverController extends BaseController {
 
             //Row exists
             let rowExists = await ContactInfo.query()
-                .select('SRU09_PHONE_D')
+                .select('SRU19_CONTACT_INFO_D')
                 .where('SRU03_USER_MASTER_D', ActiveUser.userId);
 
 
@@ -95,16 +97,17 @@ class DriverController extends BaseController {
             phones.map((data, index) => {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU01_TYPE_D: phonenumbertype.HOME,
-                    SRU09_PHONE_R: phones[index]
+                    SRU19_CONTACT_PERSON_N: data.contactPerson,
+                    SRU01_TYPE_D: data.phonuemberType,
+                    SRU19_PHONE_R: data.phoneNumber
                 });
             });
-
+            
             //Insert contact Info
             await ContactInfo.query()
                 .insertGraph(phoneNumbers);
 
-            //Row exists
+            //Row existstG
             let langRowExists = await Language.query()
                 .select('SRU11_DRIVER_LANGUAGE_D')
                 .where('SRU03_USER_MASTER_D', ActiveUser.userId);
@@ -118,7 +121,8 @@ class DriverController extends BaseController {
             languages.map((data, index) => {
                 languagesKnown.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU11_LANGUAGE_N: languages[index]
+                    SRU14_LANGUAGE_D:data.languageId,
+                    SRU11_LANGUAGE_N: data.languageName
                 });
             });
 
@@ -127,7 +131,7 @@ class DriverController extends BaseController {
                 .insertGraph(languagesKnown);
 
 
-            //Row exists
+            // Row exists
             let radiusRowExists = await Radious.query()
                 .select('SRU03_USER_MASTER_D')
                 .where('SRU03_USER_MASTER_D', ActiveUser.userId);
@@ -137,11 +141,18 @@ class DriverController extends BaseController {
                     .delete()
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             };
+
+            if (distanceType == Typeofdistance.MILES) {
+                var kilometers = radious * Typeofdistance.DEFAULTKM;
+            } else {
+                var kilometers = radious;
+            }
+
             await Radious.query().insert({
-                SRU03_USER_MASTER_D:ActiveUser.userId,
-                SRU10_KILOMETER_F: km,
-                SRU10_MILES_F: miles,
-                SRU10_DISTANCE_RANGE_N: radious,
+                SRU03_USER_MASTER_D: ActiveUser.userId,
+                SRU01_TYPE_D: distanceType,
+                SRU10_DISTANCE_RANGE_R: radious,
+                SRU10_DISTANCE_KILOMETER_R: kilometers,
                 SRU10_OPEN_DISTANCE_F: openDistance,
                 SRU10_ALCOHOL_TEST_F: alcoholTest,
                 SRU03_CREATED_D: ActiveUser.userId
@@ -152,39 +163,36 @@ class DriverController extends BaseController {
                 await UserDetails.query()
                     .patch({
                         SRU04_UNIT: unit || UserDetailsResponse.unit,
-                        SRU04_PROFILE_I: userprofile
+                        SRU04_PROFILE_I: userprofile || UserDetailsResponse.userprofile
                     }).where({
                         SRU03_USER_MASTER_D: ActiveUser.userId
-                    });
-
-                await AddressDetails.query()
-                    .patch({
-                        SRU06_LINE_1_N: street1,
-                        SRU06_LINE_2_N: street2,
-                        SRU06_POSTAL_CODE_N: postalCode,
-                        SRU06_CITY_N: city,
-                        SRU06_PROVINCE_N: province,
-                        SRU06_LOCATION_LATITUDE_N: latitude,
-                        SRU06_LOCATION_LONGITUDE_N: longitude
-                    }).where({
-                        SRU03_USER_MASTER_D: ActiveUser.userId
-                    });
-
-            } else {
-                await AddressDetails.query()
-                    .insert({
-                        SRU03_USER_MASTER_D: ActiveUser.userId,
-                        SRU06_LINE_1_N: street1,
-                        SRU06_LINE_2_N: street2,
-                        SRU06_CITY_N: city,
-                        SRU06_PROVINCE_N: province,
-                        SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
-                        SRU06_POSTAL_CODE_N: postalCode,
-                        SRU06_LOCATION_LATITUDE_N: latitude,
-                        SRU06_LOCATION_LONGITUDE_N: longitude,
-                        SRU06_CREATED_D: ActiveUser.userId
                     });
             }
+
+            //Row Exists Delete 
+            await AddressDetails.query().where("SRU03_USER_MASTER_D", ActiveUser.userId).delete();
+            //Insert new row
+            await AddressDetails.query()
+                .insert({
+                    SRU03_USER_MASTER_D: ActiveUser.userId,
+                    SRU06_LINE_1_N: street1,
+                    SRU06_LINE_2_N: street2,
+                    SRU06_CITY_N: city,
+                    SRU06_PROVINCE_D: provinceId,
+                    SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
+                    SRU06_POSTAL_CODE_N: postalCode,
+                    SRU06_LOCATION_LATITUDE_N: latitude,
+                    SRU06_LOCATION_LONGITUDE_N: longitude,
+                    SRU06_CREATED_D: ActiveUser.userId
+                });
+
+            //call back service
+            const locationData = {
+                locationName: street1,
+                latitude: latitude,
+                longitude: longitude
+            };
+            await BoardingService.addLocationdetails(req, res, locationData);//Internal service Call
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
         } catch (e) {
@@ -205,18 +213,29 @@ class DriverController extends BaseController {
 
             let experienceData = [];
             let specialityData = [];
-            const { data } = req.body;
+            let experienceDataReference = [];
+            const { data, licenseType } = req.body;
 
             //Experience Details
             data.map((currExpDetails, index) => {
-                const { driverExp, countryId } = currExpDetails;
+                const { driverExp, countryType } = currExpDetails;
                 experienceData.push({
                     SRU03_USER_MASTER_D: user.userId,
-                    SRU15_COUNTRY_D: countryId,                    
-                    SRU13_EXPERIENCE_D: driverExp.experienceId,
-                    SRU16_PROVINCE_D: driverExp.expInProvinceId,
-                    SRU09_CREATED_D: user.userId, 
+                    SRU09_TYPE_N: countryType,
+                    SRU09_TOTALEXP_N: driverExp.experience,
+                    SRU09_CURRENT_N: driverExp.expInProvince,
+                    SRU09_CREATED_D: user.userId,
+                    SRU09_UPDATED_D: user.userId,
                     SRU09_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`
+                });
+                experienceDataReference.push({
+                    SRU03_USER_MASTER_D: user.userId,
+                    SRU20_COUNTRY_D: countryType,
+                    SRU20_EXPERIENCE_D: driverExp.experienceId,
+                    SRU20_PROVINCE_D: driverExp.expInProvinceId,
+                    SRU20_CREATED_D: user.userId,
+                    SRU20_UPDATED_D: user.userId,
+                    SRU20_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`
                 });
 
                 if (driverExp.driverSpeciality && driverExp.driverSpeciality.length > 0) {
@@ -225,7 +244,8 @@ class DriverController extends BaseController {
                             SRU03_USER_MASTER_D: user.userId,
                             SRU09_SPECIALITY_REFERENCE_N: `${user.userId}SRDS${index}`,
                             SRU12_SPECIALITY_N: currSpeciality.specialityTraining,
-                            SRU12_VALIDYEAR_N: currSpeciality.year,
+                            SRU11_SPECIALITY_TRAINING_D: currSpeciality.specialityTrainingId,
+                            SRU12_VALIDYEAR_N: currSpeciality.year
                         })
                     })
                 }
@@ -233,10 +253,14 @@ class DriverController extends BaseController {
 
             const experienceResponse = await ExperienceDetails.query().insertGraphAndFetch(experienceData);
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
+            const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
 
             
             const userDetailsResponse = await UserDetails.query()
-                .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS })
+                .update({
+                    SRU04_LICENSE_TYPE_R: licenseType,
+                    SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS
+                })
                 .where('SRU03_USER_MASTER_D', user.userId);
 
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.added);
@@ -255,42 +279,78 @@ class DriverController extends BaseController {
     updateDriverProfile = async (req, res) => {
         try {
 
-            let userId = req.user.userId;
-            let rowExists = await AddressDetails.query()
-                .select('SRU06_ADDRESS_D')
-                .where('SRU03_USER_MASTER_D', userId);
+            const {
+                userId,
+                firstName,
+                lastName,
+                phone,
+                addressId,
+                unit,
+                address1,
+                postalCode,
+                latitude,
+                longitude,
+                experienceDetails,
+                specialityDetails
+            } = req.body;
 
-            if (rowExists.length > 0) {
-                await AddressDetails.query()
-                    .findById(userId)
-                    .patch({
-                        SRU03_USER_MASTER_D: userId,
-                        SRU06_LINE_1_N: req.body.userAddress,
-                        SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
-                        SRU06_LOCATION_LATITUDE_N: req.body.latitude,
-                        SRU06_LOCATION_LATITUDE_N: req.body.longitude,
-                        SRU06_UPDATED_D: userId
-                    });
-            } else {
-                // User Address
-                await AddressDetails.query().insert({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU06_LINE_1_N: req.body.userAddress,
-                    SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
-                    SRU06_LOCATION_LATITUDE_N: req.body.latitude,
-                    SRU06_LOCATION_LONGITUDE_N: req.body.longitude,
-                    SRU06_CREATED_D: userId
-                });
-            }
-
-            await UserDetails.query().where('SRU03_USER_MASTER_D', userId)
+            //user - Update
+            await Users.query()
+                .where('SRU03_USER_MASTER_D', userId)
                 .patch({
-                    SRU04_GENDER_D: req.body.gender,
-                    SRU04_PHONE_N: req.body.phone,
-                    SRU04_EXPERIENCE_D: req.body.experience,
-                    SRU04_WORKING_WITH_OTHERS: req.body.workingWithOthers,
-                    SRU04_OTHER_SERVICE_INFO: req.body.otherServiceInfo
+                    SRU03_FIRST_N: firstName,
+                    SRU03_LAST_N: lastName,
+                    SRU03_UPDATED_D: req.user.userId
                 });
+
+            //user-Details Update
+            await UserDetails.query()
+                .where('SRU03_USER_MASTER_D', userId)
+                .patch({
+                    SRU04_PHONE_N: phone,
+                    SRU04_UNIT: unit,
+                    SRU04_UPDATED_D: req.user.userId
+                });
+
+            //Update Address Details
+            await AddressDetails.query()
+                .where({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU06_ADDRESS_D: addressId
+                })
+                .patch({
+                    SRU06_LINE_1_N: address1,
+                    SRU06_POSTAL_CODE_N: postalCode,
+                    SRU06_LOCATION_LATITUDE_N: latitude,
+                    SRU06_LOCATION_LONGITUDE_N: longitude,
+                    SRU06_UPDATED_D: req.user.userId
+                });
+
+            //Update Experience Details
+            const driverExperienceDetails = []
+            experienceDetails.forEach(expvalue => {
+                driverExperienceDetails.push({
+                    SRU09_DRIVEREXP_D: expvalue.driverExperienceId,
+                    SRU09_TYPE_N: expvalue.experienceType,
+                    SRU09_TOTALEXP_N: expvalue.totalExp
+                });
+            });
+
+            await ExperienceDetails.query()
+                .upsertGraph(driverExperienceDetails);
+
+            //Update speciality details
+            const DriverspecialityDetails = []
+            specialityDetails.forEach(specvalue => {
+                DriverspecialityDetails.push({
+                    SRU12_DRIVER_SPECIALITY_D: specvalue.specialityId,
+                    SRU12_SPECIALITY_N: specvalue.specialityName
+                });
+            });
+
+            await SpecialityDetails.query()
+                .upsertGraph(DriverspecialityDetails);
+
 
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.updated);
 
@@ -365,6 +425,14 @@ class DriverController extends BaseController {
     */
     financialDetails = async (req, res) => {
         try {
+
+            //User Details
+            const {
+                firstName,
+                emailId,
+                userId
+            } = req.user;
+
             // Insert financial details
             const {
                 bankName,
@@ -380,12 +448,12 @@ class DriverController extends BaseController {
             // Insert financial attachment if available
             if (attachment) {
                 await UserDocument.query().insert({
-                    SRU03_USER_MASTER_D: req.user.userId,
+                    SRU03_USER_MASTER_D: userId,
                     SRU05_NAME: DocumentName.FINANCIAL,
                     SRU01_TYPE_D: DocumentType.FINANCIAL,
                     SRU02_STATUS_D: DocumentStatus.VERIFIED,
                     SRU05_DOCUMENT_I: attachment,
-                    SRU05_CREATED_D: req.user.userId
+                    SRU05_CREATED_D: userId
                 });
 
                 // await FinancialDetails.query().insert({
@@ -396,64 +464,45 @@ class DriverController extends BaseController {
 
             } else {
                 await FinancialDetails.query().delete().where({
-                    SRU03_USER_MASTER_D: req.user.userId
+                    SRU03_USER_MASTER_D: userId
                 })
                 await AddressDetails.query().delete().where({
-                    SRU03_USER_MASTER_D: req.user.userId
+                    SRU03_USER_MASTER_D: userId
                 })
 
                 await FinancialDetails.query().insert({
-                    SRU03_USER_MASTER_D: req.user.userId,
+                    SRU03_USER_MASTER_D: userId,
                     SRU08_BANK_N: bankName,
                     SRU08_ACCOUNT_N: accountNumber,
                     SRU08_INSTITUTION_N: institutionNumber,
                     SRU08_TRANSIT_N: transitNumber,
-                    SRU08_CREATED_D: req.user.userId,
+                    SRU08_CREATED_D: userId,
                 });
 
                 await AddressDetails.query().insert({
-                    SRU03_USER_MASTER_D: req.user.userId,
+                    SRU03_USER_MASTER_D: userId,
                     SRU06_LINE_1_N: address,
                     SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL,
                     SRU06_LOCATION_LATITUDE_N: latitude,
                     SRU06_LOCATION_LONGITUDE_N: longitude,
-                    SRU06_CREATED_D: req.user.userId,
+                    SRU06_CREATED_D: userId,
                 });
             }
 
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED })
-                .where('SRU03_USER_MASTER_D', req.user.userId);
+                .where('SRU03_USER_MASTER_D', userId);
 
-            const driver = await this._getDriverDetails(req, res, req.user.userId);
+            const driver = await this._getDriverDetails(req, res, userId);
 
-            if (driver) {
+            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated); return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
 
-                let emailToken = encrypt(JSON.stringify({
-                    emailId: req.user.emailId,
-                    userId: req.user.userId
-                }));
-
-                const token = encrypt(JSON.stringify({
-                    emailId: req.user.emailId,
-                    userId: req.user.userId,
-                    for: "BEAMS"
-                }));
-
-                let host = req.protocol + '://' + req.get('host');
-                driver.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
-                driver.beamstoken = token
-
-                this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
-            }
-
-
-            //TODO: Send the mail
+            // TODO: Send the mail
             return await mailer.signUp(
-                req.user.firstName,
-                req.user.emailId,
-                driver.verifyEmailLink
+                firstName,
+                emailId
             );
+
 
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -579,7 +628,7 @@ class DriverController extends BaseController {
 
 
             //Insert Documents
-            await UserDocument.query().insert(
+            const documentResponse = await UserDocument.query().insert(
                 {
                     SRU03_USER_MASTER_D: userId,
                     SRU05_NAME: DocName,
@@ -595,11 +644,44 @@ class DriverController extends BaseController {
                 .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.FINANCIAL_DETAILS })
                 .where('SRU03_USER_MASTER_D', userId);
 
-            //get All users List (Driver)
-            const driver = await this._getDriverDetails(req, res, userId);
-            if (driver) {
-                return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.updated);
+            //Response data
+            const responseData = {
+                documentId: documentResponse.SRU05_DOCUMENT_D,
+                documentName: DocName,
+                documentType: DocType,
+                documentPath: attachment
             }
+
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.passMessages.updated);
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+
+    /**
+     * @DESC : Upload driver Documents - Mobile APP
+     * @return array/json
+     * @param string/Integer
+     */
+    documentDelete = async (req, res) => {
+        try {
+
+            const { userId } = req.user;
+            const {
+                documentId,
+                documentName
+            } = req.body;
+
+            //Delete Existing documents
+            await UserDocument.query().delete()
+                .where({
+                    SRU05_DOCUMENT_D: documentId,
+                    SRU03_USER_MASTER_D: userId
+                });
+
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.deleted);
 
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -640,7 +722,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents]')
+                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -652,12 +734,61 @@ class DriverController extends BaseController {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
                     builder.select(userDocumentColumns)
-                }).modifyEager('DriverspecialityDetails', (builder) => {
+                }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
-                }).modifyEager('DriverLanguage', (builder) => {
+                }).modifyEager('driverLanguage', (builder) => {
                     builder.select(driverLanguageColumns)
                 }).modifyEager('radiusDetails', (builder) => {
                     builder.select(radiusColumns)
+                }).select(columns);
+
+            if (driver) {
+                delete driver.password;
+                return new Promise((resolve) => {
+                    resolve(driver);
+                });
+            } else {
+                this.userNotFound(req, res);
+            }
+        } catch (e) {
+            this.internalServerError(req, res, e)
+        }
+
+        return new Promise((resolve) => {
+            resolve(false);
+        });
+    };
+
+    /**
+     * @DESC : Get driver details reused method
+     * @return array/json
+     * @param req
+     * @param res
+     * @param userId
+     */
+    _getAllDriverDetails = async (req, res, userId) => {
+        try {
+            let driver = await Users.query().findById(userId)
+                .eager('[userDetails, contactInfoDetails, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails]')
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(driverUserDetailsColumns)
+                    // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
+                }).modifyEager('contactInfoDetails', (builder) => {
+                    builder.select(contactInfoDetailsColumns)
+                }).modifyEager('addressDetails.provinceDetails', (builder) => {
+                    builder.select("*")
+                }).modifyEager('financialDetails', (builder) => {
+                    builder.select(userFinancialColumns)
+                }).modifyEager('documents', (builder) => {
+                    builder.select(userDocumentColumns)
+                }).modifyEager('driverspecialityDetails', (builder) => {
+                    builder.select(driverSpecialityDetailsColumns)
+                }).modifyEager('driverLanguage', (builder) => {
+                    builder.select(driverLanguageColumns)
+                }).modifyEager('radiusDetails', (builder) => {
+                    builder.select(radiusDetailsColumns)
+                }).modifyEager('experienceDetails.experienceReferenceDetails', (builder) => {
+                    builder.select(driverExperienceReference)
                 }).select(columns);
 
             if (driver) {
@@ -685,10 +816,10 @@ class DriverController extends BaseController {
     getMasterData = async (req, res) => {
         try {
             const licenseType = await LicenseType.query().select(driverLicenseTypeColumns);
-            const speciality = await SpecialityTraining.query().select(driverSpecialityColumns);
+            const speciality = await SpecialityTraining.query().select(driverSpecialityTrainingColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
-            const languageList = await AllLanguages.query().pluck('SRU14_LANGUAGE_N');
+            const languageList = await AllLanguages.query().select(languageColumns);
 
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
@@ -712,6 +843,24 @@ class DriverController extends BaseController {
             this.internalServerError(req, res, e)
         }
     };
+
+    /**
+         * @DESC : Send Push notification to Users (Active and DeActive)
+         * @return array/json
+         */
+    _notification = async (req, res, userId, status) => {
+        let notifyData = {
+            title: this.messageTypes.passMessages.title,
+            message: this.messageTypes.passMessages.activateUser,
+            body: this.messageTypes.passMessages.activateUser,
+            type: NotifyType.ACTIVATE_USER,
+            userId: userId
+        }
+
+        return await NotifyService.sendNotication(req, res, notifyData);
+    }
+
+
 }
 
 

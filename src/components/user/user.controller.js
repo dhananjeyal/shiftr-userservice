@@ -8,8 +8,8 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType } from "../../constants";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails } from "./model/user.columns";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -17,7 +17,7 @@ import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/driverExperience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
-import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityDetailsColumns, driverLanguageColumns } from "../driver/model/driver.columns";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
@@ -79,40 +79,31 @@ class UserController extends BaseController {
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
             });
 
-            // let emailToken = encrypt(JSON.stringify({
-            //     emailId: insertResult.emailId,
-            //     userId: insertResult.userId
-            // }));
+            let emailToken = encrypt(JSON.stringify({
+                emailId: insertResult.emailId,
+                userId: insertResult.userId
+            }));
 
-            // const token = encrypt(JSON.stringify({
-            //     emailId: insertResult.emailId,
-            //     userId: insertResult.userId,
-            //     for: "BEAMS"
-            // }));
-
-            // let host = req.protocol + '://' + req.get('host');
-            // insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
-            // insertResult.beamstoken = token
-
-
-            // Generate JWT token
-            const authToken = jwt.sign({
+            const token = encrypt(JSON.stringify({
+                emailId: insertResult.emailId,
                 userId: insertResult.userId,
-                type: 'login'
-            }, process.env.JWT_SECRET
-                // , { expiresIn: 86400 }
-            );
+                for: "BEAMS"
+            }));
 
-            insertResult.token = `Bearer ${authToken}`;
+            let host = req.protocol + '://' + req.get('host');
+            insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
+            insertResult.beamstoken = token
+
+
 
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
-            //TODO: Send the mail
-            // return await mailer.signUp(
-            //     insertResult.firstName,
-            //     insertResult.emailId,
-            //     insertResult.verifyEmailLink
-            // );
+            // TODO: Send the mail
+            return await mailer.signUp(
+                insertResult.firstName,
+                insertResult.emailId,
+                insertResult.verifyEmailLink
+            );
 
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -165,8 +156,8 @@ class UserController extends BaseController {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: insertResult.userId,
                     SRU01_TYPE_D: data.phonuemberType,
-                    SRU09_CONTACT_PERSON_N: data.contactPerson,
-                    SRU09_PHONE_R: data.phoneNumber
+                    SRU19_CONTACT_PERSON_N: data.contactPerson,
+                    SRU19_PHONE_R: data.phoneNumber
                 });
             });
 
@@ -214,6 +205,218 @@ class UserController extends BaseController {
         }
     };
 
+    /**
+     * @DESC : Busowner /Travels Update
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    travelsUpdate = async (req, res) => {
+        try {
+
+            const userId = req.user.userId;
+
+            const {
+                screenType,
+                firstName,
+                lastName,
+                compnayName,
+                numberofBuses,
+                contactInfo,
+                contactDetails,
+                addressId,
+                address1,
+                postalCode,
+                latitude,
+                longitude,
+                userprofile,
+                notificationflag
+            } = req.body;
+
+            if (screenType == WebscreenType.PROFILE) {
+
+                // update user
+                await Users.query()
+                    .where("SRU03_USER_MASTER_D", userId)
+                    .update({
+                        SRU03_FIRST_N: firstName,
+                        SRU03_LAST_N: lastName
+                    });
+
+                if (userprofile) {
+                    // Update UserDetails
+                    await UserDetails.query()
+                        .where('SRU03_USER_MASTER_D', userId)
+                        .update({
+                            SRU04_PROFILE_I: userprofile,
+                            SRU04_UPDATED_D: req.user.userId
+                        });
+                }
+
+                if (contactInfo.length > 0) {
+                    //Update contact Info
+                    const contactInfoData = [];
+                    contactInfo.forEach(contactvalue => {
+                        contactInfoData.push({
+                            SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
+                            SRU03_USER_MASTER_D: userId,
+                            SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
+                            SRU19_PHONE_R: contactvalue.phoneNumber,
+                            SRU01_TYPE_D: contactvalue.phoneNumberType
+                        });
+                    });
+
+                    await ContactInfo.query()
+                        .upsertGraph(contactInfoData);
+                }
+
+                if (contactDetails.length > 0) {
+                    //Insert contact Info
+                    const contactInfodetailsData = [];
+                    contactDetails.forEach(contactvalue => {
+                        contactInfodetailsData.push({
+                            SRU03_USER_MASTER_D: userId,
+                            SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
+                            SRU19_PHONE_R: contactvalue.phoneNumber,
+                            SRU01_TYPE_D: contactvalue.phoneNumberType
+                        });
+                    });
+                    await ContactInfo.query()
+                        .insertGraph(contactInfodetailsData);
+                }
+
+            }
+
+            if (screenType == WebscreenType.COMPANY) {
+                // Insert user details
+                await UserDetails.query()
+                    .where('SRU03_USER_MASTER_D', userId)
+                    .update({
+                        SRU04_COMPANY_NAME_N: compnayName,
+                        SRU04_NUMBER_OF_BUSES_R: numberofBuses,
+                        SRU04_UPDATED_D: userId
+                    });
+
+                //Address Update
+                await AddressDetails.query()
+                    .where({
+                        SRU06_ADDRESS_D: addressId,
+                        SRU03_USER_MASTER_D: userId
+                    })
+                    .update({
+                        SRU06_LINE_1_N: address1,
+                        SRU06_POSTAL_CODE_N: postalCode,
+                        SRU06_LOCATION_LATITUDE_N: latitude,
+                        SRU06_LOCATION_LONGITUDE_N: longitude,
+                        SRU06_UPDATED_D: userId
+                    });
+            }
+
+            if (screenType == WebscreenType.SETTINGS) {
+                // Update UserDetails
+                await UserDetails.query()
+                    .where('SRU03_USER_MASTER_D', userId)
+                    .update({
+                        SRU04_NOTIFICATION_SETTINGS_F: notificationflag
+                    });
+            }
+
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.updated);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+    /**
+     * @DESC : Delete Contact Info
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    deleteContactInfo = async (req, res) => {
+        try {
+
+            const userId = req.user.userId;
+
+            const { contactId } = req.params;
+
+            await ContactInfo.query()
+                .where({
+                    SRU19_CONTACT_INFO_D: contactId,
+                    SRU03_USER_MASTER_D: userId
+                })
+                .update({
+                    SRU19_DELETED_F: booleanType.YES
+                });
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.deleted);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+    /**
+    * @DESC : Get user Contact Info
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    getContactInfo = async (req, res) => {
+        try {
+            const { userId } = req.params;
+
+            const responseData = await ContactInfo.query()
+                .select('SRU19_PHONE_R as contactNumber')
+                .where({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU01_TYPE_D: phonenumbertype.OFFICE,
+                })
+                .orWhere({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU01_TYPE_D: phonenumbertype.PERSONAL,
+                })
+                .orWhere({
+                    SRU03_USER_MASTER_D: userId,
+                    SRU01_TYPE_D: phonenumbertype.HOME,
+                }).first();
+
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+    /**
+     * @DESC : For other services - Get single User Result.
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    sendTripStatusNotication = async (req, res) => {
+        try {
+            const userId = req.body.userData.userId;
+            const tripDetails = req.body.tripDetails;
+            let user = await Users.query()
+                .select(userEmailDetails)
+                .where("SRU03_USER_MASTER_D", userId);
+
+            if (!tripDetails.noMatchFound) {
+                mailer.notifyBusOwner(
+                    user[0],
+                    tripDetails
+                );
+            } else {
+                mailer.busOwnerNoMatch(
+                    user[0],
+                    tripDetails
+                );
+                mailer.superAdminNoMatch(tripDetails);
+            }
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
+
+        } catch (error) {
+            return this.internalServerError(req, res, error);
+        }
+    }
 
     /**
      * @DESC : For other services
@@ -287,38 +490,49 @@ class UserController extends BaseController {
                 //     verifyType = parseInt(req.headers['user-type']) === resultType;
                 // }
 
-                if (resultType === UserRole.DRIVER_R) {
-                    verifyType = parseInt(req.headers['user-type']) === resultType;
-                }
+                // if (resultType === UserRole.DRIVER_R) {
+                //     verifyType = parseInt(req.headers['user-type']) === resultType;
+                // }
 
-                if (verifyType) {
+                if (parseInt(req.headers['user-type']) === resultType) {
+                    if (verifyType) {
 
-                    // Password check
-                    let compareResult = await bcrypt.compare(req.body.password, result.password);
-                    if (compareResult) {
+                        // Password check
+                        let compareResult = await bcrypt.compare(req.body.password, result.password);
+                        if (compareResult) {
 
-                        // Generate JWT token
-                        const token = jwt.sign({
-                            userId: result.userId,
-                            type: 'login'
-                        }, process.env.JWT_SECRET
-                            // , { expiresIn: 86400 }
-                        );
+                            // Generate JWT token
+                            const token = jwt.sign({
+                                userId: result.userId,
+                                type: 'login'
+                            }, process.env.JWT_SECRET
+                                // , { expiresIn: 86400 }
+                            );
 
-                        result.token = `Bearer ${token}`;
+                            result.token = `Bearer ${token}`;
 
-                        // delete result.userDetails;
-                        delete result.password;
-                        return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
-                    } else {
-                        return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
-                            message: this.messageTypes.authMessages.userInvalidCredentials
-                        }));
+                            // delete result.userDetails;
+                            delete result.password;
+                            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
+                        } else {
+                            return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+                                message: this.messageTypes.authMessages.userInvalidCredentials
+                            }));
+                        }
                     }
+                } else {
+                    return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+                        message: this.messageTypes.authMessages.userNotFound
+                    }));
                 }
+
+            } else {
+                return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
+                    message: this.messageTypes.authMessages.userSuspended
+                }));
             }
 
-            this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+            return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
                 message: this.messageTypes.authMessages.userNotFound
             }));
 
@@ -328,7 +542,7 @@ class UserController extends BaseController {
     };
 
 
-    /**
+    /**y
      * @DESC : Forget password
      * @return array/json
      * @param req
@@ -345,7 +559,16 @@ class UserController extends BaseController {
                     userId: result.userId
                 });
 
-                let resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
+                let resetLink;
+                if (result.typeId == UserRole.CUSTOMER_R) {
+
+                    resetLink = `${process.env.END_USER_RESET_PASSWORD_LINK}?token=${resetToken}`;
+                } else {
+
+                    resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
+                }
+
+                // let resetLink = `${process.env.RESET_PASSWORD_LINK}?token=${resetToken}`;
 
                 delete result.userDetails;
                 delete result.password;
@@ -399,10 +622,11 @@ class UserController extends BaseController {
                                 }).where({
                                     SRU03_USER_MASTER_D: payload.userId
                                 });
+
                                 let notifyData = {
                                     title: this.messageTypes.passMessages.title,
                                     message: this.messageTypes.passMessages.emailVerified,
-                                    body: "PickupsOnDemand Welcomes You, Email verified Successfully",
+                                    body: "ShiftR Welcomes You, Email verified Successfully",
                                     type: NotifyType.VERIFY_EMAIL
                                 }
 
@@ -502,8 +726,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                        expiresIn: 3600 // Will expire in next 1 hour
-                                    })
+                                    expiresIn: 3600 // Will expire in next 1 hour
+                                })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -531,6 +755,7 @@ class UserController extends BaseController {
      */
     _getVerificationStatus = async (req, res, sendResponse = true) => {
         try {
+
             const { emailId, userId } = req.body;
             let where = {
                 SRU03_EMAIL_N: emailId,
@@ -548,8 +773,6 @@ class UserController extends BaseController {
                 
             if (result.length) {
                 result = result[0];
-
-
                 // User status check
                 if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {                    
                     let emailStatus = result.userDetails.emailStatus;
@@ -584,15 +807,15 @@ class UserController extends BaseController {
                             }));
                         }
                     }
-                } else {                   
-                    if (sendResponse) {
-                        this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
-                            message: this.messageTypes.authMessages.userSuspended
-                        }));
+                } else {
+                    if (sendResponse || result.status == UserStatus.INACTIVE) {
+                        return false;
                     }
                 }
             } else {
                 if (sendResponse) {
+                    this.userNotFound(req, res);
+                } else {
                     this.userNotFound(req, res);
                 }
             }
@@ -831,6 +1054,12 @@ class UserController extends BaseController {
         } else {
             req.user.changedPassword = true
         }
+
+        const contactinfo = [];
+        contactinfo.push(req.user.contactInfoDetails);
+        req.user.contactinfo = contactinfo;
+        delete req.user.contactInfoDetails;//Delete Existing Contact object
+
         this.success(req, res, this.status.HTTP_OK, req.user, this.messageTypes.authMessages.userValidToken);
     };
 
@@ -964,14 +1193,15 @@ class UserController extends BaseController {
             }
 
             if (userType === UserRole.CUSTOMER_R) {
-                //To fetch drivers financial details
+                //To fetch contactInfo details
                 userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
-                columnList = [...columnList, ...userDetailsColumns, ...contactInfoColumns];
+
+                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`);
+
+                // columnList = [...columnList, ...userDetailsColumns, ...contactInfoColumns];
+                columnList = [...columnList, ...userDetailsColumns, ...userAddressColumns, ...contactInfoColumns];
             }
-
-
-
 
             if (search) {
                 userQuery = userQuery.where(builder => {
@@ -1025,64 +1255,73 @@ class UserController extends BaseController {
     _getAllUsersList = async (req, res) => {
         try {
             const {
-                experienceCanada,
-                experienceUsa,
-                canadaProvince,
-                usaProvince,
-                trainingCanada,
-                trainingUsa,
-                languageCanada,
-                licenceType,
-                languageUsa
-            } = req.body
+                driverDetails,
+                driverLicensetype,
+                driverIdlist
+            } = req.body;
 
-            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
+            const userIdlist = await UserDetails.query()
+                .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
+                .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+                .pluck('SRU03_USER_MASTER_D');
+
+            let _where = {};
+            let _orWhere = {};
+
+            driverDetails.forEach((data, index) => {
+                if (index === 0) {
+                    _where["SRU09_DRIVEREXP.SRU09_TYPE_N"] = data.countryType,
+                        _where["SRU09_DRIVEREXP.SRU09_TOTALEXP_N"] = data.experience,
+                        _where["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
+                } else {
+                    _orWhere["SRU09_DRIVEREXP.SRU09_TYPE_N"] = data.countryType,
+                        _orWhere["SRU09_DRIVEREXP.SRU09_TOTALEXP_N"] = data.experience,
+                        _orWhere["SRU09_DRIVEREXP.SRU09_CURRENT_N"] = data.province
+                }
+            });
+
+            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverSpecialityTrainingColumns];
+            const _whereSize = Object.keys(_where).length;
+            const _orWhereSize = Object.keys(_orWhere).length;
+            let specialityQuery;
 
             //Filter By Driver Details
-            let specialityQuery = await SpecialityDetails.query()
-                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                .where({
-                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": trainingCanada
-                })
-                .orWhere({
-                    "SRU12_DRIVER_SPECIALITY.SRU12_SPECIALITY_N": trainingUsa
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceCanada,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": canadaProvince
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceUsa,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceCanada
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.CANADA,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": canadaProvince
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_TOTALEXP_N": experienceUsa
-                })
-                .orWhere({
-                    "SRU09_DRIVEREXP.SRU09_TYPE_N": CountryType.USA,
-                    "SRU09_DRIVEREXP.SRU09_CURRENT_N": usaProvince
-                }).select(columnList);
 
-            //TODO : Testing added will remove after testing
-            if (specialityQuery.length <= 0) {
+            if (_whereSize > 0 && _orWhereSize > 0) {
                 specialityQuery = await SpecialityDetails.query()
                     .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                    .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                    .where(_where)
+                    .orWhere(_orWhere)
+                    .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .select(columnList);
-            }
+            } else if (_whereSize > 0) {
+                specialityQuery = await SpecialityDetails.query()
+                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                    .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                    .where(_where)
+                    .select(columnList);
+            } else if (_orWhereSize > 0) {
+                specialityQuery = await SpecialityDetails.query()
+                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                    .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                    .where(_orWhere)
+                    .select(columnList);
+            };
+
+            //TODO : Testing added will remove after testing
+
+            const allUserList = await SpecialityDetails.query()
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                .join("SRU11_SPECIALITY_TRAINING", 'SRU11_SPECIALITY_TRAINING.SRU11_SPECIALITY_TRAINING_D', 'SRU12_DRIVER_SPECIALITY.SRU11_SPECIALITY_TRAINING_D')
+                .select(columnList);
+
 
             let userids = specialityQuery.map((value) => {
-                return value.userId
+                return value.driveruserId
             });
 
 
@@ -1095,24 +1334,24 @@ class UserController extends BaseController {
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
             )
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
-                .select(raw(`CONCAT("${profilePath}", SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
+                .select(raw(`CONCAT(SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
                 .select(userListColumns);
 
-            const results = await userQuery.map((userValue) => {
+            const matchingUserList = await userQuery.map((userValue) => {
                 specialityQuery.find((specialityValue) => {
-                    if (userValue.userId === specialityValue.userId) {
+                    if (userValue.userId === specialityValue.driveruserId) {
                         userValue.SpecialityDetails = specialityValue;
                     }
                 });
                 return userValue;
             });
 
-            //Update Travel -user -Login details
-            await UserDetails.query()
-                .where('SRU03_USER_MASTER_D', req.user.userId)
-                .update({ 'SRU04_TRAVEL_LOGIN_STATUS_F': booleanType.YES });
+            let result = {
+                matchingUserList,
+                allUserList
+            };
 
-            return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
 
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -1142,7 +1381,7 @@ class UserController extends BaseController {
                 .select(columnList);
 
             let userids = specialityQuery.map((value) => {
-                return value.userId
+                return value.driveruserId
             });
 
             let where = {
@@ -1154,12 +1393,12 @@ class UserController extends BaseController {
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
             )
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
-                .select(raw(`CONCAT("${profilePath}", SRU04_USER_DETAIL.SRU04_PROFILE_I) as userprofile`))
+                .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
                 .select(userListColumns);
 
             const results = await userQuery.map((userValue) => {
                 specialityQuery.find((specialityValue) => {
-                    if (userValue.userId === specialityValue.userId) {
+                    if (userValue.userId === specialityValue.driveruserId) {
                         userValue.SpecialityDetails = specialityValue;
                     }
                 });
@@ -1288,7 +1527,7 @@ class UserController extends BaseController {
             driver.experienceDetails.forEach((expvalue) => {
 
                 //Driver - Speciality structure change
-                driver.DriverspecialityDetails.forEach((spcvalue) => {
+                driver.driverspecialityDetails.forEach((spcvalue) => {
                     if (expvalue.specialityReferenceNumber == spcvalue.specialityReferenceNumber) {
                         DriverDetails.push({
                             driverExp: {
@@ -1319,9 +1558,77 @@ class UserController extends BaseController {
             });
 
             // delete driver.experienceDetails;//Remove Existing object
-            // delete driver.DriverspecialityDetails; // Remove Existing Object
+            // delete driver.driverspecialityDetails; // Remove Existing Object
 
             driver.DriverDetails = DriverDetails;
+
+            return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
+        } else {
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
+        }
+    }
+
+    /**
+     * @DESC : Get user's signup details {Driver}
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    getDriverSignUpDetails = async (req, res) => {
+        if (req.user.typeId === UserRole.DRIVER_R) {
+            const userId = req.user.userId;
+            const driver = await DriverController._getAllDriverDetails(req, res, userId);
+            let addressDetail = { ...driver.addressDetails };
+            let radius = { ...driver.radiusDetails };
+
+            let address = {
+                addressId: addressDetail.SRU06_ADDRESS_D,
+                street1: addressDetail.SRU06_LINE_1_N,
+                street2: addressDetail.SRU06_LINE_2_N,
+                userAddress: addressDetail.SRU06_LINE_1_N,
+                provinceId: addressDetail.provinceDetails.SRU16_PROVINCE_D,
+                province: addressDetail.provinceDetails.SRU16_PROVINCE_N,
+                city: addressDetail.SRU06_CITY_N,
+                postalCode: addressDetail.postalCode,
+                latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
+                longitude: addressDetail.SRU06_LOCATION_LONGITUDE_N
+            };
+
+            delete driver.addressDetails
+            delete driver.radiusDetails
+            driver.userDetails = { ...driver.userDetails, ...address, ...radius }
+
+            let DriverDetails = [];
+
+            driver.experienceDetails.forEach((expvalue) => {
+
+                let driverSpeciality = [];
+                driver.driverspecialityDetails.filter((spcvalue) => {
+                    if (expvalue.SRU09_SPECIALITY_REFERENCE_N == spcvalue.specialityReferenceNumber)
+                        driverSpeciality.push({
+                            specialityTrainingId: spcvalue.specialityId,
+                            specialityTraining: spcvalue.specialityName,
+                            year: spcvalue.validYear
+                        })
+                });
+
+                DriverDetails.push({
+                    driverExp: {
+                        experienceId: expvalue.SRU09_DRIVEREXP_D,
+                        experience: expvalue.SRU09_TOTALEXP_N,
+                        expInProvinceId: expvalue.experienceReferenceDetails[0].provinceId,
+                        expInProvince: expvalue.SRU09_CURRENT_N,
+                        driverSpeciality
+                    },
+                    countryId: expvalue.SRU09_TYPE_N
+                });
+
+            });
+
+            delete driver.experienceDetails;//Remove Existing object
+            delete driver.driverspecialityDetails; // Remove Existing Object
+
+            driver.driverDetails = DriverDetails;
 
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
         } else {
@@ -1512,6 +1819,59 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     };
+
+
+    /**
+     * @DESC : Mobile Number - Exists
+     * @return array/json
+     * @param req
+     * @param res
+     */
+
+    existingMobilenumber = async (req, res) => {
+        try {
+            const { mobileNumber } = req.body;
+
+            let result = await ContactInfo.query().where({
+                SRU19_PHONE_R: mobileNumber
+            }).count('SRU19_CONTACT_INFO_D as id');
+
+            let response = await UserDetails.query().where({
+                SRU04_PHONE_N: mobileNumber
+            }).count('SRU04_DETAIL_D as detailsId');
+
+            if (result[0].id || response[0].detailsId) {
+                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, {
+                    message: this.messageTypes.authMessages.existMobilenumber + "[" + mobileNumber + "]"
+                }));
+            } else {
+                return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+            };
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+    /**
+         * @DESC : Busowner Login Status
+         * @return array/json
+         * @param req
+         * @param res
+         */
+    busownerLoginStatus = async (req, res) => {
+        try {
+
+            //Update Travel[Busowner] -user -Login details
+            await UserDetails.query()
+                .where('SRU03_USER_MASTER_D', req.user.userId)
+                .update({ 'SRU04_TRAVEL_LOGIN_STATUS_F': booleanType.YES });
+
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
 }
 
 export default new UserController();

@@ -93,5 +93,24 @@ export class screeningcanadastatus {
 
 export class phonenumbertype {
     static OFFICE = 19;    
-    static HOME = 20;    
+    static PERSONAL = 20;    
+    static HOME = 21;    
+}
+
+export class WebscreenType {
+    static PROFILE = 1;    
+    static COMPANY = 2;
+    static SETTINGS = 3;     
+}
+
+export class licenseType {
+    static CANADA = 1;    
+    static USA = 2;
+    static BOTH = 3;     
+}
+
+export class Typeofdistance {
+    static KM = 22;    
+    static MILES = 23;
+    static DEFAULTKM = 1.6;  // 1miles   = 1.6 KM 
 }

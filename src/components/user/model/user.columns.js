@@ -22,7 +22,8 @@ export let userDetailsColumns = [
     'SRU04_PHONE_N as phoneNumber',
     'SRU04_COMPANY_NAME_N as companyName',
     'SRU04_NUMBER_OF_BUSES_R as NumberofBus',
-    'SRU04_TRAVEL_LOGIN_STATUS_F as firsttimeLoginstatus'
+    'SRU04_TRAVEL_LOGIN_STATUS_F as firsttimeLoginstatus',
+    'SRU04_NOTIFICATION_SETTINGS_F as notificationSettings'
 ];
 
 export let userAddressColumns = [
@@ -32,11 +33,7 @@ export let userAddressColumns = [
     'SRU06_LINE_2_N as addressLine2',
     'SRU06_POSTAL_CODE_N as postalCode',
     'SRU06_LOCATION_LATITUDE_N as latitude',
-    'SRU06_LOCATION_LONGITUDE_N as longitude',
-    "SRU06_CREATED_AT as createdAt",
-    "SRU06_UPDATED_AT as updatedAt",
-    "SRU06_CREATED_D as createdBy",
-    "SRU06_UPDATED_D as updatedBy",
+    'SRU06_LOCATION_LONGITUDE_N as longitude'
 ];
 
 export let userFinancialColumns = [
@@ -89,4 +86,17 @@ export let screeningCanadastatus = [
     'SRU09_SCREENING_CANADA_STATUS_D as SCstatusId',    
     'SRU09_SC_USER_N as screeningcanadaUserId',
     'SRU09_SC_STATUS_N as ScreeningCanadastatus'
+];
+
+export let contactInfoDetailsColumns = [
+    'SRU19_CONTACT_INFO_D as contactinfoId',
+    'SRU19_CONTACT_PERSON_N as contcatPersonName',
+    'SRU19_PHONE_R as contactpersonPhoneNumber'
+];
+
+export let userEmailDetails = [
+    "SRU03_USER_MASTER_D as userId",
+    "SRU03_FIRST_N as firstName",
+    "SRU03_LAST_N as lastName",
+    "SRU03_EMAIL_N as emailId"
 ];

@@ -45,7 +45,7 @@ class Users extends BaseModel {
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             },            
-            DriverspecialityDetails: {
+            driverspecialityDetails: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: SpecialityDetails,
                 join: {
@@ -53,7 +53,7 @@ class Users extends BaseModel {
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             }, 
-            DriverLanguage: {
+            driverLanguage: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: Language,
                 join: {
@@ -78,10 +78,10 @@ class Users extends BaseModel {
                 }
             },
             contactInfoDetails: {
-                relation: BaseModel.HasOneRelation,
+                relation: BaseModel.HasManyRelation,
                 modelClass: ContactInfo,
                 join: {
-                    from: 'SRU09_CONTACT_INFO.SRU03_USER_MASTER_D',
+                    from: 'SRU19_CONTACT_INFO.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             },

@@ -2,7 +2,7 @@ import BaseJoi from 'joi';
 import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { options } from "../user/user.validators";
-import { Gender, UserRole, booleanType } from "../../constants";
+import { Gender, UserRole, booleanType, licenseType } from "../../constants";
 import { validateFile } from "../../utils";
 
 const Joi = BaseJoi.extend(joinDateExtension);
@@ -41,7 +41,7 @@ const schemas = {
             street1: Joi.string().required(),
             street2: Joi.string(),
             city: Joi.string().required(),
-            province: Joi.string().required(),
+            provinceId: Joi.number().required(),
             postalCode: Joi.string().required(),
             // languages: Joi.array().items(lang),
             radious: Joi.string().required(),
@@ -65,17 +65,19 @@ const schemas = {
     }),
 
     CreateExperienceDetails: Joi.object().keys({
+        licenseType: Joi.number().valid(licenseType.CANADA, licenseType.USA, licenseType.BOTH).required(),
         data: Joi.array().items(CreateExperienceSchema).min(1)
     }),
 
     updateDriverProfile: Joi.object().keys({
-        userAddress: Joi.string().max(200).required(),
-        type: Joi.number().valid(1, 2, 3).required(),
-        age: Joi.number().required(),
-        gender: Joi.string().max(10).required(),
+        userId: Joi.number().required(),
+        firstName: Joi.string().required(),
+        lastName: Joi.string().required(),
         phone: Joi.number().required(),
-        experience: Joi.number().required(),
-        workingWithOthers: Joi.string().valid(booleanType.YES, booleanType.NO).required(),
+        addressId: Joi.number().required(),
+        unit: Joi.string().required(),
+        address1: Joi.string().required(),
+        postalCode: Joi.number().required(),
         latitude: Joi.string().required(),
         longitude: Joi.string().required()
     }),
@@ -116,6 +118,12 @@ const schemas = {
         attachment: Joi.string().required(),
         DocName: Joi.string().required(),
         DocType: Joi.number().required()
+    }),
+
+    //Mobile APP -Profile upload
+    deleteDocument: Joi.object().keys({
+        documentId: Joi.number().required(),
+        documentName: Joi.string().required()
     }),
 };
 
@@ -273,4 +281,19 @@ export const profileUpload = (req, res, next) => {
             Response.joierrors(req, res, err);
         });
     }
+};
+
+/**
+ * Upload Profile Picture - MobileApp
+ */
+export const deleteDocument = (req, res, next) => {        
+    let schema = schemas.deleteDocument;
+    let option = options.basic;
+    schema.validate({
+        ...req.body,
+    }, option).then(() => {
+        next();
+    }).catch(err => {
+        Response.joierrors(req, res, err);
+    });
 };

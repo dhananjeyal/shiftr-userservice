@@ -29,13 +29,23 @@ export const sendMail = async (to, subject, html) => {
 
 export const signUp = (firstName, email, link) => {
     let html = `<b>Hello ${firstName}</b>
-                <p>Thank you for submitting the documents for verification.</p>
-                <p><b>Current status :</b>document submitted for verification.</p>
-                <p>Once your documents are verified you will be notified.</p>
+                <p>Congratulations.! you have successfully signed up for your account.</p>
+                <p>Let's add some more details to verify your account.</p>
                 <a href="${link}">Verify your account</a>
                 <p>Best regards</p>`;
     return sendMail(email, "Verification Email", html)
 };
+
+export const DriversignUpCompleted = (firstName, email) => {
+    let html = `<b>Hello ${firstName}</b>
+                <p>Thank you for submitting the documents for verification.</p>
+                <p><b>Current status :</b>document submitted for verification.</p>
+                <p>Once your documents are verified you will be notified.</p>
+                <p>Best regards</p>`;
+    return sendMail(email, "Signup Confirmation Email", html)
+};
+
+
 
 export const emailVerified = (user) => {
     let html = `<b>Hello ${user.firstName}</b>
@@ -106,4 +116,53 @@ export const resetPassword = (user) => {
                     <p>You have successfully reset your password you can now log in to the app with your new credential.</p>
                     <p>Best regards</p>`;
     return sendMail(user.emailId, "Password reset", html)
+};
+
+export const notifyBusOwner = (user, tripDetails) => {
+
+    let html = `<b>Hello ${user.firstName},</b>
+                    <p>Your Trip have been ${tripDetails.tripStatus} by ${tripDetails.driverFirstName}.</p>
+                    <p><b>Trip Details:-</b></p>
+                    <p>Company name:- ${tripDetails.companyName}</p>
+                    <p>Trip code:- ${tripDetails.tripCode}</p>
+                    <p>Trip type:- ${tripDetails.type}</p>
+                    <p>Trip start date:- ${tripDetails.startDate}</p>
+                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start time:- ${tripDetails.startTime}</p>
+                    <p>Trip start yard:- ${tripDetails.startYard}</p>
+                    <p><b>Driver Details:-</b></p>
+                    <p>Driver name:- ${tripDetails.driverFirstName} ${tripDetails.driverLastName}</p>
+                    <p>Driver contact:- ${tripDetails.driverPhoneNumber}</p>
+                    <p>Driver address:- ${tripDetails.driverAddress}</p>
+                    <p>Best regards</p>`;
+    return sendMail(user.emailId, "Trip - Details", html)
+};
+
+export const busOwnerNoMatch = (user, tripDetails) => {
+
+    let html = `<b>Hello ${user.firstName},</b>
+                    <p>Driver not found for your Trip ${tripDetails.tripCode} .</p>
+                    <p><b>Trip Details:-</b></p>
+                    <p>Company name:- ${tripDetails.companyName}</p>
+                    <p>Trip code:- ${tripDetails.tripCode}</p>
+                    <p>Trip type:- ${tripDetails.type}</p>
+                    <p>Trip start date:- ${tripDetails.startDate}</p>
+                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start time:- ${tripDetails.startTime}</p>`;
+    return sendMail(user.emailId, "Trip - Details", html)
+};
+
+
+export const superAdminNoMatch = (tripDetails) => {
+
+    let html = `<b>Hello shiftr,</b>
+                    <p>Driver not found for your Trip ${tripDetails.tripCode} .</p>
+                    <p><b>Trip Details:-</b></p>
+                    <p>Company name:- ${tripDetails.companyName}</p>
+                    <p>Trip code:- ${tripDetails.tripCode}</p>
+                    <p>Trip type:- ${tripDetails.type}</p>
+                    <p>Trip start date:- ${tripDetails.startDate}</p>
+                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start time:- ${tripDetails.startTime}</p>`;
+    return sendMail(`shiftr@joshiinc.com`, "Trip - Details", html)
 };

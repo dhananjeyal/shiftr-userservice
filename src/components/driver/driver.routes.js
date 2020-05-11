@@ -8,7 +8,8 @@ import {
     driverDocuments,
     documentUpload,
     CreateExperienceDetails,
-    profileUpload    
+    profileUpload,
+    deleteDocument    
 } from '../driver/driver.validators'
 
 function registerRoutes() {
@@ -19,18 +20,22 @@ function registerRoutes() {
 
         // Get driver signup details
         apiRouter.route("/user/signup_details").get(verify, UserController.getSignUpDetails);
+        apiRouter.route("/user/driver/signup_details").get(verify, UserController.getDriverSignUpDetails);
 
         // Get driver signup status
         apiRouter.route("/user/signup_status").get(verify, UserController.getSignUpStatus);
 
         // Signup completion
         apiRouter.route("/driver/driver_profile").post(verify, CreateDriverProfile, DriverController.CreateDriverProfile);        
-        apiRouter.route("/driver/driver_profile").put(verify, updateDriverProfile, DriverController.updateDriverProfile);        
+       //Driver Update -[SuperAdmin ]
+        let verifySuperAdminOrAdmin = AuthController.verifySuperAdminOrAdmin;
+        apiRouter.route("/driver/driver_profile").put(verifySuperAdminOrAdmin , updateDriverProfile, DriverController.updateDriverProfile);        
         apiRouter.route("/driver/experience_details").post(verify, CreateExperienceDetails, DriverController.CreateExperienceDetails);
         apiRouter.route("/driver/financial_details").post(verify, financialDetails, DriverController.financialDetails);
         apiRouter.route("/driver/driver_documents").post(verify, driverDocuments, DriverController.driverDocuments);
         apiRouter.route("/driver/documentUpload").post(verify, documentUpload, DriverController.documentUpload);
         apiRouter.route("/driver/profileUpload").post(verify, profileUpload, DriverController.profileUpload);
+        apiRouter.route("/driver/documents").delete(verify, deleteDocument, DriverController.documentDelete);
        
         // apiRouter.route("/driver/driver_profile").get(verify, DriverController.getDriverProfile);
         apiRouter.route("/driver/driver_profile").delete(verify, DriverController.deleteDriverProfile);
