@@ -91,7 +91,7 @@ export let radiusDetailsColumns = [
     'SRU01_TYPE_D as distanceType',
     'SRU10_DISTANCE_KILOMETER_R as kilometer',
     'SRU10_DISTANCE_RANGE_R as radious',
-    'SRU10_OPEN_DISTANCE_F as opendistance',
+    'SRU10_OPEN_DISTANCE_F as openDistance',
     'SRU10_ALCOHOL_TEST_F as alcoholTest'
 ]
 
