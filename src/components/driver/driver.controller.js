@@ -58,8 +58,8 @@ class DriverController extends BaseController {
             let languagesKnown = [];
             const {
                 unit,
-                street1,
-                street2,
+                address1,
+                address2,
                 city,
                 provinceId,
                 postalCode,
@@ -175,8 +175,8 @@ class DriverController extends BaseController {
             await AddressDetails.query()
                 .insert({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU06_LINE_1_N: street1,
-                    SRU06_LINE_2_N: street2,
+                    SRU06_LINE_1_N: address1,
+                    SRU06_LINE_2_N: address2,
                     SRU06_CITY_N: city,
                     SRU16_PROVINCE_D: provinceId,
                     SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
@@ -188,7 +188,7 @@ class DriverController extends BaseController {
 
             //call back service
             const locationData = {
-                locationName: street1,
+                locationName: address1,
                 latitude: latitude,
                 longitude: longitude
             };

@@ -38,8 +38,8 @@ const schemas = {
     CreateDriverProfile: (isImage = true) => {
         const rule = {
             unit: Joi.number().required(),
-            street1: Joi.string().required(),
-            street2: Joi.string(),
+            address1: Joi.string().required(),
+            address2: Joi.string(),
             city: Joi.string().required(),
             provinceId: Joi.number().required(),
             postalCode: Joi.string().required(),
