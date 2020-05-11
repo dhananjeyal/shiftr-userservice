@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType,phonenumbertype } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -365,7 +365,7 @@ class UserController extends BaseController {
             const { userId } = req.params;
 
             const responseData = await ContactInfo.query()
-            .select('SRU19_PHONE_R as contactNumber')
+                .select('SRU19_PHONE_R as contactNumber')
                 .where({
                     SRU03_USER_MASTER_D: userId,
                     SRU01_TYPE_D: phonenumbertype.OFFICE,
