@@ -94,7 +94,7 @@ class DriverController extends BaseController {
             }
 console.log(phones);
             //Format data
-            phones.map((data, index) => {
+            phones.forEach((data, index) => {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
                     SRU19_CONTACT_PERSON_N: data.contactPerson,
