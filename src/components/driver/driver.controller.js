@@ -92,7 +92,7 @@ class DriverController extends BaseController {
                     .delete()
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             }
-
+console.log(phones);
             //Format data
             phones.map((data, index) => {
                 phoneNumbers.push({
