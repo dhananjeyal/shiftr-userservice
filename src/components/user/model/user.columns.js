@@ -31,6 +31,7 @@ export let tripUserDetailsColumns = [
     'SRU04_DETAIL_D as detailsId',
     'SRU04_EMAIL_STATUS_D as emailStatus',
     'SRU04_SIGNUP_STATUS_D as signUpStatus',
+    `SRU04_LICENSE_TYPE_R as licenseType`,
     'SRU04_PHONE_N as phoneNumber',
     'SRU04_COMPANY_NAME_N as companyName',
     'SRU04_NUMBER_OF_BUSES_R as NumberofBus',
@@ -125,7 +126,6 @@ export let usersColumns = [
     `SRU03_LAST_N as lastName`,
     `SRU03_EMAIL_N as emailId`,
     `SRU03_STATUS_D as status`,
-    `SRU04_LICENSE_TYPE_R as licenseType`,
     `SRU03_UPDATED_AT as updatedAt`
 ];
 
