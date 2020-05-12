@@ -105,6 +105,13 @@ export let contactInfoDetailsColumns = [
     'SRU19_PHONE_R as contactpersonPhoneNumber'
 ];
 
+export let drivercontactInfoDetailsColumns = [
+    'SRU19_CONTACT_INFO_D as contactinfoId',
+    'SRU01_TYPE_D as phonenumberType',
+    'SRU19_CONTACT_PERSON_N as contactPerson',
+    'SRU19_PHONE_R as phoneNumber'
+];
+
 export let userEmailDetails = [
     "SRU03_USER_MASTER_D as userId",
     "SRU03_FIRST_N as firstName",
@@ -118,6 +125,7 @@ export let usersColumns = [
     `SRU03_LAST_N as lastName`,
     `SRU03_EMAIL_N as emailId`,
     `SRU03_STATUS_D as status`,
+    `SRU04_LICENSE_TYPE_R as licenseType`,
     `SRU03_UPDATED_AT as updatedAt`
 ];
 
