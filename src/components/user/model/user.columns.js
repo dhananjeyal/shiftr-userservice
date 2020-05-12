@@ -118,6 +118,7 @@ export let usersColumns = [
     `SRU03_LAST_N as lastName`,
     `SRU03_EMAIL_N as emailId`,
     `SRU03_STATUS_D as status`,
+    `SRU04_LICENSE_TYPE_R as licenseType`,
     `SRU03_UPDATED_AT as updatedAt`
 ];
 
