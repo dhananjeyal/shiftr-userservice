@@ -17,7 +17,7 @@ import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/driverExperience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
-import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns } from "../driver/model/driver.columns";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns, omitDriverSpecialityColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
@@ -1280,7 +1280,6 @@ class UserController extends BaseController {
                 }
             });
 
-            // const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverSpecialityTrainingColumns];
             const _whereSize = Object.keys(_where).length;
             const _orWhereSize = Object.keys(_orWhere).length;
             let specialityQuery;
@@ -1297,11 +1296,12 @@ class UserController extends BaseController {
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.where(_where).orWhere(_orWhere)
-                            // .omit(driverspecialityDetails, subscriptionplanDetailsomit)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder.select(driverSpecialityTrainingColumns)
-                    }).select(usersColumns);
+                    })
+                    .omit(SpecialityDetails, omitDriverSpecialityColumns)
+                    .select(usersColumns);
             } else if (_whereSize > 0) {
 
                 specialityQuery = await Users.query()
@@ -1312,12 +1312,13 @@ class UserController extends BaseController {
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.where(_where)
-                            // .omit(driverspecialityDetails, subscriptionplanDetailsomit)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder
                             .select(driverSpecialityTrainingColumns)
-                    }).select(usersColumns);
+                    })
+                    .omit(SpecialityDetails, omitDriverSpecialityColumns)
+                    .select(usersColumns);
             } else if (_orWhereSize > 0) {
 
                 specialityQuery = await Users.query()
@@ -1328,11 +1329,12 @@ class UserController extends BaseController {
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.where(_orWhere)
-                            // .omit(driverspecialityDetails, subscriptionplanDetailsomit)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder.select(driverSpecialityTrainingColumns)
-                    }).select(usersColumns);
+                    })
+                    .omit(SpecialityDetails, omitDriverSpecialityColumns)
+                    .select(usersColumns);
             };
             const matchingUserList = specialityQuery;
 
@@ -1345,13 +1347,14 @@ class UserController extends BaseController {
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                     builder.where((builder) => {
                         builder
-                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                            .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                     })
-                        // .omit(driverspecialityDetails, subscriptionplanDetailsomit)
-                        .select("*")
+                        .select(driverExperienceColumns)
                 }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                     builder.select(driverSpecialityTrainingColumns)
-                }).select(usersColumns);
+                })
+                .omit(SpecialityDetails, omitDriverSpecialityColumns)
+                .select(usersColumns);
 
             let result = {
                 matchingUserList,

@@ -113,3 +113,9 @@ export let driverExperienceReference = [
     'SRU20_DRIVEREXP_REFERENCE.SRU20_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
     'SRU20_PROVINCE_D as provinceId'
 ];
+
+export let omitDriverSpecialityColumns = [
+    "SRU03_USER_MASTER_D",
+    "SRU09_SPECIALITY_REFERENCE_N",
+    "SRU11_SPECIALITY_TRAINING_D"
+]
