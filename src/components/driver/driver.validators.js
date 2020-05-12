@@ -9,14 +9,14 @@ const Joi = BaseJoi.extend(joinDateExtension);
 
 const CreateExperienceSchema = {
     driverExp: Joi.object({
-        experience: Joi.string().required(),
-        expInProvince: Joi.string().required(),
+        experienceId: Joi.number().required(),
+        expInProvinceId: Joi.number().required(),
         driverSpeciality: Joi.array().items({
             specialityTraining: Joi.string().required(),
             year: Joi.string().required()
         })
     }).required(),
-    countryType: Joi.number().required(),
+    countryType: Joi.number().required()
 }
 
 const phone = {
@@ -38,10 +38,10 @@ const schemas = {
     CreateDriverProfile: (isImage = true) => {
         const rule = {
             unit: Joi.number().required(),
-            street1: Joi.string().required(),
-            street2: Joi.string(),
+            address1: Joi.string().required(),
+            address2: Joi.string(),
             city: Joi.string().required(),
-            province: Joi.string().required(),
+            provinceId: Joi.number().required(),
             postalCode: Joi.string().required(),
             // languages: Joi.array().items(lang),
             radious: Joi.string().required(),

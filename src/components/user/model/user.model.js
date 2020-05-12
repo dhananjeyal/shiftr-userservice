@@ -3,7 +3,7 @@ import UsersDetails from "./userDetails.model";
 import AddressDetails from "./address.model";
 import UserDocument from "./userDocument.model";
 import FinancialDetails from "../../driver/model/financial.model";
-import ExperienceDetails from '../../driver/model/experience.model';
+import ExperienceDetails from '../../driver/model/driverExperience.model';
 import ContactInfo from '../../driver/model/contactInfo.model';
 import SpecialityDetails from '../../driver/model/driverspeciality.model';
 import Language from '../../driver/model/language.model';
@@ -45,7 +45,7 @@ class Users extends BaseModel {
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             },            
-            DriverspecialityDetails: {
+            driverspecialityDetails: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: SpecialityDetails,
                 join: {
@@ -53,7 +53,7 @@ class Users extends BaseModel {
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             }, 
-            DriverLanguage: {
+            driverLanguage: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: Language,
                 join: {
@@ -78,7 +78,7 @@ class Users extends BaseModel {
                 }
             },
             contactInfoDetails: {
-                relation: BaseModel.HasOneRelation,
+                relation: BaseModel.HasManyRelation,
                 modelClass: ContactInfo,
                 join: {
                     from: 'SRU19_CONTACT_INFO.SRU03_USER_MASTER_D',

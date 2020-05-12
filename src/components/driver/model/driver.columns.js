@@ -1,8 +1,7 @@
-import DriverExperience from './experience.model';
-
 export let driverUserDetailsColumns = [
     'SRU04_DETAIL_D as detailsId',
     'SRU03_USER_MASTER_D as userId',
+    'SRU04_UNIT as unit',
     'SRU04_EMAIL_STATUS_D as emailStatus',
     'SRU04_SIGNUP_STATUS_D as signUpStatus',
     // 'SRU04_PHONE_N as phoneNo',
@@ -71,7 +70,8 @@ export let driverSpecialityDetailsColumns = [
 ]
 
 export let driverLanguageColumns = [
-    'SRU11_DRIVER_LANGUAGE_D as languageId',
+    'SRU11_DRIVER_LANGUAGE_D as driverLanguageId',
+    'SRU14_LANGUAGE_D as languageId',
     'SRU11_LANGUAGE_N as languageName'
 ]
 
@@ -84,10 +84,20 @@ export let allLanguageColumns = [
     'SRU14_LANGUAGE_D as languageId',
     'SRU14_LANGUAGE_SHORT_CODE_N as shortCode',
     'SRU14_LANGUAGE_N as languageName'
+];
+
+export let radiusDetailsColumns = [
+    'SRU10_RADIOUS_D as radiusId',
+    'SRU01_TYPE_D as distanceType',
+    'SRU10_DISTANCE_KILOMETER_R as kilometer',
+    'SRU10_DISTANCE_RANGE_R as radious',
+    'SRU10_OPEN_DISTANCE_F as openDistance',
+    'SRU10_ALCOHOL_TEST_F as alcoholTest'
 ]
 
 export let radiusColumns = [
     'SRU10_RADIOUS_D as radiusId',
+    'SRU01_TYPE_D as distanceType',
     'SRU10_DISTANCE_KILOMETER_R as kilometer',
     'SRU10_DISTANCE_RANGE_R as distance',
     'SRU10_OPEN_DISTANCE_F as opendistance',
@@ -103,3 +113,9 @@ export let driverExperienceReference = [
     'SRU20_DRIVEREXP_REFERENCE.SRU20_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
     'SRU20_PROVINCE_D as provinceId'
 ];
+
+export let omitDriverSpecialityColumns = [
+    "SRU03_USER_MASTER_D",
+    "SRU09_SPECIALITY_REFERENCE_N",
+    "SRU11_SPECIALITY_TRAINING_D"
+]

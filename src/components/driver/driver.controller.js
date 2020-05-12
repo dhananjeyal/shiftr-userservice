@@ -18,8 +18,8 @@ import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns } from "../user/model/user.columns";
-import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, driverExperienceReference } from "./model/driver.columns";
+import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns } from "../user/model/user.columns";
+import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import ExperienceReferenceDetails from './model/experienceReference.model';
@@ -58,10 +58,10 @@ class DriverController extends BaseController {
             let languagesKnown = [];
             const {
                 unit,
-                street1,
-                street2,
+                address1,
+                address2,
                 city,
-                province,
+                provinceId,
                 postalCode,
                 languages,
                 distanceType,
@@ -97,12 +97,12 @@ class DriverController extends BaseController {
             phones.map((data, index) => {
                 phoneNumbers.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU19_CONTACT_PERSON_N: ActiveUser.firstName,
-                    SRU01_TYPE_D: phonenumbertype.PERSONAL,
-                    SRU19_PHONE_R: phones[index]
+                    SRU19_CONTACT_PERSON_N: data.contactPerson,
+                    SRU01_TYPE_D: data.phonenumberType,
+                    SRU19_PHONE_R: data.phoneNumber
                 });
             });
-
+            
             //Insert contact Info
             await ContactInfo.query()
                 .insertGraph(phoneNumbers);
@@ -121,7 +121,8 @@ class DriverController extends BaseController {
             languages.map((data, index) => {
                 languagesKnown.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU11_LANGUAGE_N: languages[index]
+                    SRU14_LANGUAGE_D:data.languageId,
+                    SRU11_LANGUAGE_N: data.languageName
                 });
             });
 
@@ -174,10 +175,10 @@ class DriverController extends BaseController {
             await AddressDetails.query()
                 .insert({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU06_LINE_1_N: street1,
-                    SRU06_LINE_2_N: street2,
+                    SRU06_LINE_1_N: address1,
+                    SRU06_LINE_2_N: address2,
                     SRU06_CITY_N: city,
-                    SRU06_PROVINCE_N: province,
+                    SRU16_PROVINCE_D: provinceId,
                     SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT,
                     SRU06_POSTAL_CODE_N: postalCode,
                     SRU06_LOCATION_LATITUDE_N: latitude,
@@ -187,7 +188,7 @@ class DriverController extends BaseController {
 
             //call back service
             const locationData = {
-                locationName: street1,
+                locationName: address1,
                 latitude: latitude,
                 longitude: longitude
             };
@@ -250,10 +251,11 @@ class DriverController extends BaseController {
                 }
             });
 
-            const experienceResponse = await ExperienceDetails.query().insertGraph(experienceData);
+            const experienceResponse = await ExperienceDetails.query().insertGraphAndFetch(experienceData);
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
             const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
 
+            
             const userDetailsResponse = await UserDetails.query()
                 .update({
                     SRU04_LICENSE_TYPE_R: licenseType,
@@ -264,11 +266,6 @@ class DriverController extends BaseController {
             return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.added);
 
         } catch (e) {
-            console.log(e);
-            if (e.code === 'ER_DUP_ENTRY') {
-                e.message = this.messageTypes.passMessages.userExists;
-                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, e));
-            }
             return this.internalServerError(req, res, e);
         }
     }
@@ -725,7 +722,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents]')
+                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -737,9 +734,9 @@ class DriverController extends BaseController {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
                     builder.select(userDocumentColumns)
-                }).modifyEager('DriverspecialityDetails', (builder) => {
+                }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
-                }).modifyEager('DriverLanguage', (builder) => {
+                }).modifyEager('driverLanguage', (builder) => {
                     builder.select(driverLanguageColumns)
                 }).modifyEager('radiusDetails', (builder) => {
                     builder.select(radiusColumns)
@@ -772,22 +769,24 @@ class DriverController extends BaseController {
     _getAllDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,DriverspecialityDetails,DriverLanguage,financialDetails,radiusDetails, documents,experienceDetails.experienceReferenceDetails]')
+                .eager('[userDetails, contactInfoDetails, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
-                }).modifyEager('addressDetails', (builder) => {
-                    builder.select(userAddressColumns)
+                }).modifyEager('contactInfoDetails', (builder) => {
+                    builder.select(contactInfoDetailsColumns)
+                }).modifyEager('addressDetails.provinceDetails', (builder) => {
+                    builder.select("*")
                 }).modifyEager('financialDetails', (builder) => {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
                     builder.select(userDocumentColumns)
-                }).modifyEager('DriverspecialityDetails', (builder) => {
+                }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
-                }).modifyEager('DriverLanguage', (builder) => {
+                }).modifyEager('driverLanguage', (builder) => {
                     builder.select(driverLanguageColumns)
                 }).modifyEager('radiusDetails', (builder) => {
-                    builder.select(radiusColumns)
+                    builder.select(radiusDetailsColumns)
                 }).modifyEager('experienceDetails.experienceReferenceDetails', (builder) => {
                     builder.select(driverExperienceReference)
                 }).select(columns);
