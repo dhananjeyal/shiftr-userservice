@@ -1630,7 +1630,7 @@ class UserController extends BaseController {
                         expInProvince: expvalue.SRU09_CURRENT_N,
                         driverSpeciality
                     },
-                    countryId: expvalue.SRU09_TYPE_N
+                    countryType: expvalue.SRU09_TYPE_N
                 });
 
             });

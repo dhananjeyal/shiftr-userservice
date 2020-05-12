@@ -107,7 +107,7 @@ export let contactInfoDetailsColumns = [
 
 export let drivercontactInfoDetailsColumns = [
     'SRU19_CONTACT_INFO_D as contactinfoId',
-    'SRU01_TYPE_D as phonuemberType',
+    'SRU01_TYPE_D as phonenumberType',
     'SRU19_CONTACT_PERSON_N as contactPerson',
     'SRU19_PHONE_R as phoneNumber'
 ];
