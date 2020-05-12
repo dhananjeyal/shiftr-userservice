@@ -18,7 +18,7 @@ import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns } from "../user/model/user.columns";
+import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns ,drivercontactInfoDetailsColumns} from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
@@ -774,7 +774,7 @@ class DriverController extends BaseController {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
                 }).modifyEager('contactInfoDetails', (builder) => {
-                    builder.select(contactInfoDetailsColumns)
+                    builder.select(drivercontactInfoDetailsColumns)
                 }).modifyEager('addressDetails.provinceDetails', (builder) => {
                     builder.select("*")
                 }).modifyEager('financialDetails', (builder) => {
