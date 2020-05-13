@@ -1295,7 +1295,14 @@ class UserController extends BaseController {
                         builder.select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                        builder.where(_where).orWhere(_orWhere)
+                        builder.where((builder) => {
+                            builder
+                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                            .where(_where)
+                            .orWhere(_orWhere)
+                        })
+                            // (_where).orWhere(_orWhere)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder.select(driverSpecialityTrainingColumns)
@@ -1311,7 +1318,14 @@ class UserController extends BaseController {
                         builder.select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                        builder.where(_where)
+                        builder.
+                        where((builder) => {
+                            builder
+                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                            .where(_where)
+                        })
+                        // where(_where)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder
@@ -1328,7 +1342,14 @@ class UserController extends BaseController {
                         builder.select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                        builder.where(_orWhere)
+                        builder.
+                        where((builder) => {
+                            builder
+                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                            .where(_orWhere)
+                        })
+                        // where(_orWhere)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder.select(driverSpecialityTrainingColumns)
