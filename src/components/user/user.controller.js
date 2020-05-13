@@ -1620,8 +1620,8 @@ class UserController extends BaseController {
                     address1: addressDetail.SRU06_LINE_1_N,
                     address2: addressDetail.SRU06_LINE_2_N,
                     userAddress: addressDetail.SRU06_LINE_1_N,
-                    provinceId: addressDetail.provinceDetails.SRU16_PROVINCE_D,
-                    province: addressDetail.provinceDetails.SRU16_PROVINCE_N,
+                    provinceId: Object.keys(addressDetail.provinceDetails).length != booleanType.NO ? addressDetail.provinceDetails.SRU16_PROVINCE_D : null,
+                    province: Object.keys(addressDetail.provinceDetails).length != booleanType.NO ? addressDetail.provinceDetails.SRU16_PROVINCE_N: "",
                     city: addressDetail.SRU06_CITY_N,
                     postalCode: addressDetail.postalCode,
                     latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
@@ -1635,7 +1635,7 @@ class UserController extends BaseController {
 
             let DriverDetails = [];
 
-            if (driver.experienceDetails.length > booleanType.NO) {
+            if (driver.experienceDetails.length > booleanType.NO && driver.driverspecialityDetails.length > booleanType.NO) {
                 driver.experienceDetails.forEach((expvalue) => {
 
                     let driverSpeciality = [];
