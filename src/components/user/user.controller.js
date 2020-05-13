@@ -1651,7 +1651,7 @@ class UserController extends BaseController {
                         expInProvince: expvalue.SRU09_CURRENT_N,
                         driverSpeciality
                     },
-                    countryType: expvalue.SRU09_TYPE_N
+                    countryType: expvalue.SRU09_TYPE_N ? parseInt(expvalue.SRU09_TYPE_N) : null
                 });
 
             });
