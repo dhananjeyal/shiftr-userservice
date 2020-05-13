@@ -1612,18 +1612,22 @@ class UserController extends BaseController {
             let addressDetail = { ...driver.addressDetails };
             let radius = { ...driver.radiusDetails };
 
-            let address = {
-                addressId: addressDetail.SRU06_ADDRESS_D,
-                address1: addressDetail.SRU06_LINE_1_N,
-                address2: addressDetail.SRU06_LINE_2_N,
-                userAddress: addressDetail.SRU06_LINE_1_N,
-                provinceId: addressDetail.provinceDetails.SRU16_PROVINCE_D,
-                province: addressDetail.provinceDetails.SRU16_PROVINCE_N,
-                city: addressDetail.SRU06_CITY_N,
-                postalCode: addressDetail.postalCode,
-                latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
-                longitude: addressDetail.SRU06_LOCATION_LONGITUDE_N
-            };
+            let address = {};
+
+            if (Object.keys(addressDetail).length != booleanType.NO) {
+                address = {
+                    addressId: addressDetail.SRU06_ADDRESS_D,
+                    address1: addressDetail.SRU06_LINE_1_N,
+                    address2: addressDetail.SRU06_LINE_2_N,
+                    userAddress: addressDetail.SRU06_LINE_1_N,
+                    provinceId: addressDetail.provinceDetails.SRU16_PROVINCE_D,
+                    province: addressDetail.provinceDetails.SRU16_PROVINCE_N,
+                    city: addressDetail.SRU06_CITY_N,
+                    postalCode: addressDetail.postalCode,
+                    latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
+                    longitude: addressDetail.SRU06_LOCATION_LONGITUDE_N
+                };
+            }
 
             delete driver.addressDetails
             delete driver.radiusDetails
@@ -1631,30 +1635,31 @@ class UserController extends BaseController {
 
             let DriverDetails = [];
 
-            driver.experienceDetails.forEach((expvalue) => {
+            if (driver.experienceDetails.length > booleanType.NO) {
+                driver.experienceDetails.forEach((expvalue) => {
 
-                let driverSpeciality = [];
-                driver.driverspecialityDetails.filter((spcvalue) => {
-                    if (expvalue.SRU09_SPECIALITY_REFERENCE_N == spcvalue.specialityReferenceNumber)
-                        driverSpeciality.push({
-                            specialityTrainingId: spcvalue.specialityId,
-                            specialityTraining: spcvalue.specialityName,
-                            year: spcvalue.validYear
-                        })
+                    let driverSpeciality = [];
+                    driver.driverspecialityDetails.filter((spcvalue) => {
+                        if (expvalue.SRU09_SPECIALITY_REFERENCE_N == spcvalue.specialityReferenceNumber)
+                            driverSpeciality.push({
+                                specialityTrainingId: spcvalue.specialityId,
+                                specialityTraining: spcvalue.specialityName,
+                                year: spcvalue.validYear
+                            });
+                    });
+
+                    DriverDetails.push({
+                        driverExp: {
+                            experienceId: expvalue.SRU09_DRIVEREXP_D,
+                            experience: expvalue.SRU09_TOTALEXP_N,
+                            expInProvinceId: Object.keys(expvalue.experienceReferenceDetails).length != booleanType.NO ? expvalue.experienceReferenceDetails.provinceId : null,
+                            expInProvince: expvalue.SRU09_CURRENT_N,
+                            driverSpeciality
+                        },
+                        countryType: expvalue.SRU09_TYPE_N ? parseInt(expvalue.SRU09_TYPE_N) : null
+                    });
                 });
-
-                DriverDetails.push({
-                    driverExp: {
-                        experienceId: expvalue.SRU09_DRIVEREXP_D,
-                        experience: expvalue.SRU09_TOTALEXP_N,
-                        expInProvinceId: expvalue.experienceReferenceDetails.provinceId,
-                        expInProvince: expvalue.SRU09_CURRENT_N,
-                        driverSpeciality
-                    },
-                    countryType: expvalue.SRU09_TYPE_N ? parseInt(expvalue.SRU09_TYPE_N) : null
-                });
-
-            });
+            }
 
             delete driver.experienceDetails;//Remove Existing object
             delete driver.driverspecialityDetails; // Remove Existing Object
