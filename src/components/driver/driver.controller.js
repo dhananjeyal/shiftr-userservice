@@ -254,7 +254,6 @@ class DriverController extends BaseController {
             const experienceResponse = await ExperienceDetails.query().insertGraphAndFetch(experienceData);
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
             const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
-
             
             const userDetailsResponse = await UserDetails.query()
                 .update({

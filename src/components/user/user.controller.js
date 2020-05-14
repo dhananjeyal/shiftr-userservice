@@ -1642,7 +1642,7 @@ class UserController extends BaseController {
                     driver.driverspecialityDetails.filter((spcvalue) => {
                         if (expvalue.SRU09_SPECIALITY_REFERENCE_N == spcvalue.specialityReferenceNumber)
                             driverSpeciality.push({
-                                specialityTrainingId: spcvalue.specialityId,
+                                specialityTrainingId: spcvalue.specialityTrainingId,
                                 specialityTraining: spcvalue.specialityName,
                                 year: spcvalue.validYear
                             });
