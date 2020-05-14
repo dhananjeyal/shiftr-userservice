@@ -1623,7 +1623,7 @@ class UserController extends BaseController {
                     provinceId: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_D : null,
                     province: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_N: "",
                     city: addressDetail.SRU06_CITY_N,
-                    postalCode: addressDetail.postalCode,
+                    postalCode: addressDetail.SRU06_POSTAL_CODE_N,
                     latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
                     longitude: addressDetail.SRU06_LOCATION_LONGITUDE_N
                 };
