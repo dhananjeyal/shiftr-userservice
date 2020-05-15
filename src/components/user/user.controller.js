@@ -1362,9 +1362,13 @@ class UserController extends BaseController {
             let allUserList;
             allUserList = await Users.query().where('SRU03_DELETED_F', null);
             if (userIdlist.length > 0) {
-                allUserList = allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist);
+                allUserList = await Users.query()
+                .where('SRU03_DELETED_F', null)
+                .whereIn('SRU03_USER_MASTER_D', userIdlist);
             } else if (driverIdlist.length > 0) {
-                allUserList = allUserList.whereIn('SRU03_USER_MASTER_D', driverIdlist);
+                allUserList = await Users.query()
+                .where('SRU03_DELETED_F', null)
+                .whereIn('SRU03_USER_MASTER_D', driverIdlist);
             }
             // const allUserList = await Users.query()
             // allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist)
