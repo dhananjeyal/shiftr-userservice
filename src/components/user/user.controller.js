@@ -1370,11 +1370,7 @@ class UserController extends BaseController {
             if (allUserList.length < 0) {
                 allUserList = await this._getunmatchedUserList();//call back function
             }
-
-            console.log("userId",userIdlist);
-            console.log("driverId",driverIdlist);
-            console.log("length",allUserList);
-
+            
             let result = {
                 matchingUserList,
                 allUserList
