@@ -1360,19 +1360,12 @@ class UserController extends BaseController {
             const matchingUserList = specialityQuery;
 
             let allUserList;
-            allUserList = await Users.query().where('SRU03_DELETED_F', null);
-            if (userIdlist.length > 0) {
-                allUserList = await Users.query()
-                .where('SRU03_DELETED_F', null)
-                .whereIn('SRU03_USER_MASTER_D', userIdlist);
-            } else if (driverIdlist.length > 0) {
-                allUserList = await Users.query()
-                .where('SRU03_DELETED_F', null)
-                .whereIn('SRU03_USER_MASTER_D', driverIdlist);
-            }
+
             // const allUserList = await Users.query()
             // allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist)
-            allUserList = allUserList.eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            allUserList = await Users.query()
+                .where('SRU03_DELETED_F', null)
+                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
                 })
@@ -1384,8 +1377,15 @@ class UserController extends BaseController {
                         .select(driverExperienceColumns)
                 }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                     builder.select(driverSpecialityTrainingColumns)
-                })
-                .omit(SpecialityDetails, omitDriverSpecialityColumns)
+                });
+
+            if (userIdlist.length > 0) {
+                allUserList = allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist);
+            } else if (driverIdlist.length > 0) {
+                allUserList = allUserList.whereIn('SRU03_USER_MASTER_D', driverIdlist);
+            }
+
+            allUserList = allUserList.omit(SpecialityDetails, omitDriverSpecialityColumns)
                 .select(usersColumns);
 
             let result = {
