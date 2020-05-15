@@ -1361,14 +1361,19 @@ class UserController extends BaseController {
 
             let allUserList;
             if (userIdlist.length > 0) {
-                allUserList = this._getmatchedUserList(userIdlist);//call back function
+                allUserList = await this._getmatchedUserList(userIdlist);//call back function
             } else if (driverIdlist.length > 0) {
-                allUserList = this._getpartialmatchedUserList(driverIdlist);//call back function
+                allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
             }
 
+
             if (allUserList.length < 0) {
-                allUserList = this._getunmatchedUserList();//call back function
+                allUserList = await this._getunmatchedUserList();//call back function
             }
+
+            console.log("userId",userIdlist);
+            console.log("driverId",driverIdlist);
+            console.log("length",allUserList);
 
             let result = {
                 matchingUserList,
