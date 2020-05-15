@@ -1359,36 +1359,14 @@ class UserController extends BaseController {
             };
             const matchingUserList = specialityQuery;
 
-            let _whereCondition;
-            if (userIdlist.length > 0) {
-                _whereCondition = "whereIn('SRU03_USER_MASTER_D'"+","+ `${userIdlist}`+")";
-            } else if (driverIdlist.length > 0) {
-                _whereCondition = "whereIn('SRU03_USER_MASTER_D'"+","+ `${driverIdlist}`+")";
-            } else {
-                _whereCondition = "where('SRU03_DELETED_F'"+","+ `${null}`+")";                
-            }
-
-
-
             let allUserList;
-
-            // const allUserList = await Users.query()
-            // allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist)
-            allUserList = await Users.query()
-                ._whereCondition
-                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
-                .modifyEager('userDetails', (builder) => {
-                    builder.select(tripUserDetailsColumns)
-                })
-                .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                    builder.where((builder) => {
-                        builder
-                            .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                    })
-                        .select(driverExperienceColumns)
-                }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
-                    builder.select(driverSpecialityTrainingColumns)
-                }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+            if (userIdlist.length > 0) {
+                allUserList = this._getmatchedUserList(userIdlist);//call back function
+            } else if (driverIdlist.length > 0) {
+                allUserList = this._getpartialmatchedUserList(driverIdlist);//call back function
+            } else {
+                allUserList = this._getunmatchedUserList();//call back function
+            }
 
             let result = {
                 matchingUserList,
@@ -1921,6 +1899,80 @@ class UserController extends BaseController {
         }
     };
 
+    /**
+     * @DESC : get Matched userList
+     * @return array/json
+     * @param req
+     * @param res
+     */
+
+    _getmatchedUserList = async (userIdlist) => {
+        const allUserList = await Users.query()
+            .whereIn('SRU03_USER_MASTER_D', userIdlist)
+            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            .modifyEager('userDetails', (builder) => {
+                builder.select(tripUserDetailsColumns)
+            })
+            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                builder.where((builder) => {
+                    builder
+                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                })
+                    .select(driverExperienceColumns)
+            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                builder.select(driverSpecialityTrainingColumns)
+            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+        return allUserList;
+    }
+
+     /**
+     * @DESC : get partialMatched userList
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    _getpartialmatchedUserList = async (userIdlist) => {
+        const allUserList = await Users.query()
+            .whereIn('SRU03_USER_MASTER_D', userIdlist)
+            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            .modifyEager('userDetails', (builder) => {
+                builder.select(tripUserDetailsColumns)
+            })
+            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                builder.where((builder) => {
+                    builder
+                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                })
+                    .select(driverExperienceColumns)
+            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                builder.select(driverSpecialityTrainingColumns)
+            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+        return allUserList;
+    }
+ /**
+     * @DESC : get UnMatched userList
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    _getunmatchedUserList = async () => {
+        const allUserList = await Users.query()            
+            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            .modifyEager('userDetails', (builder) => {
+                builder.select(tripUserDetailsColumns)
+            })
+            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                builder.where((builder) => {
+                    builder
+                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                })
+                    .select(driverExperienceColumns)
+            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                builder.select(driverSpecialityTrainingColumns)
+            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+        return allUserList;
+    }
+    
 }
 
 export default new UserController();
