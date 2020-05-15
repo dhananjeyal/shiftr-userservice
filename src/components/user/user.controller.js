@@ -1361,11 +1361,11 @@ class UserController extends BaseController {
 
             let _whereCondition;
             if (userIdlist.length > 0) {
-                _whereCondition = whereIn('SRU03_USER_MASTER_D', userIdlist);
+                _whereCondition = "whereIn('SRU03_USER_MASTER_D'"+","+ `${userIdlist}`+")";
             } else if (driverIdlist.length > 0) {
-                _whereCondition = whereIn('SRU03_USER_MASTER_D', driverIdlist);
+                _whereCondition = "whereIn('SRU03_USER_MASTER_D'"+","+ `${driverIdlist}`+")";
             } else {
-                _whereCondition = where('SRU03_DELETED_F', null);
+                _whereCondition = "where('SRU03_DELETED_F'"+","+ `${null}`+")";                
             }
 
 
