@@ -214,7 +214,7 @@ class DriverController extends BaseController {
             let experienceData = [];
             let specialityData = [];
             let experienceDataReference = [];
-            const { data, licenseType } = req.body;
+            const { data, licenseType,licenseName } = req.body;
 
             //Experience Details
             data.map((currExpDetails, index) => {
@@ -258,6 +258,7 @@ class DriverController extends BaseController {
             const userDetailsResponse = await UserDetails.query()
                 .update({
                     SRU04_LICENSE_TYPE_R: licenseType,
+                    SRU04_LICENSE_TYPE_N: licenseName,
                     SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS
                 })
                 .where('SRU03_USER_MASTER_D', user.userId);
