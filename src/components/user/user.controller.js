@@ -1370,7 +1370,7 @@ class UserController extends BaseController {
             if (allUserList.length < 0) {
                 allUserList = await this._getunmatchedUserList();//call back function
             }
-            
+
             let result = {
                 matchingUserList,
                 allUserList
@@ -1860,15 +1860,25 @@ class UserController extends BaseController {
 
     existingMobilenumber = async (req, res) => {
         try {
-            const { mobileNumber } = req.body;
+            const { mobileNumber, userId } = req.body;
+            let _where;
+            if (userId) {
+                _where = {
+                    SRU03_USER_MASTER_D: userId,
+                    SRU04_PHONE_N: mobileNumber
+                }
+            }else{
+                _where = {                   
+                    SRU04_PHONE_N: mobileNumber
+                }
+            }
+            let result = await ContactInfo.query()
+            .where(_where)
+            .count('SRU19_CONTACT_INFO_D as id');
 
-            let result = await ContactInfo.query().where({
-                SRU19_PHONE_R: mobileNumber
-            }).count('SRU19_CONTACT_INFO_D as id');
-
-            let response = await UserDetails.query().where({
-                SRU04_PHONE_N: mobileNumber
-            }).count('SRU04_DETAIL_D as detailsId');
+            let response = await UserDetails.query()
+            .where(_where)
+            .count('SRU04_DETAIL_D as detailsId');
 
             if (result[0].id || response[0].detailsId) {
                 return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, {
@@ -1881,12 +1891,13 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     };
+
     /**
-         * @DESC : Busowner Login Status
-         * @return array/json
-         * @param req
-         * @param res
-         */
+     * @DESC : Busowner Login Status
+     * @return array/json
+     * @param req
+     * @param res
+     */
     busownerLoginStatus = async (req, res) => {
         try {
 
