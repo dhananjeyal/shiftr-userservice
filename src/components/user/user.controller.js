@@ -1380,13 +1380,16 @@ class UserController extends BaseController {
                 });
 
             if (userIdlist.length > 0) {
-                allUserList = allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist);
+                allUserList = allUserList.where(builder => {
+                    builder.whereIn('SRU03_USER_MASTER_D', userIdlist)
+                });
             } else if (driverIdlist.length > 0) {
-                allUserList = allUserList.whereIn('SRU03_USER_MASTER_D', driverIdlist);
+                allUserList = allUserList.where(builder => {
+                    builder.whereIn('SRU03_USER_MASTER_D', driverIdlist)
+                });
             }
 
-            allUserList = allUserList.omit(SpecialityDetails, omitDriverSpecialityColumns)
-                .select(usersColumns);
+            allUserList = allUserList.omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
 
             let result = {
                 matchingUserList,
