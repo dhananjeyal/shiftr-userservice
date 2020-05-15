@@ -1359,12 +1359,23 @@ class UserController extends BaseController {
             };
             const matchingUserList = specialityQuery;
 
+            let _whereCondition;
+            if (userIdlist.length > 0) {
+                _whereCondition = whereIn('SRU03_USER_MASTER_D', userIdlist);
+            } else if (driverIdlist.length > 0) {
+                _whereCondition = whereIn('SRU03_USER_MASTER_D', driverIdlist);
+            } else {
+                _whereCondition = where('SRU03_DELETED_F', null);
+            }
+
+
+
             let allUserList;
 
             // const allUserList = await Users.query()
             // allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist)
             allUserList = await Users.query()
-                .where('SRU03_DELETED_F', null)
+                ._whereCondition
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
@@ -1377,19 +1388,7 @@ class UserController extends BaseController {
                         .select(driverExperienceColumns)
                 }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                     builder.select(driverSpecialityTrainingColumns)
-                });
-
-            if (userIdlist.length > 0) {
-                allUserList = allUserList.where(builder => {
-                    builder.whereIn('SRU03_USER_MASTER_D', userIdlist)
-                });
-            } else if (driverIdlist.length > 0) {
-                allUserList = allUserList.where(builder => {
-                    builder.whereIn('SRU03_USER_MASTER_D', driverIdlist)
-                });
-            }
-
-            allUserList = allUserList.omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+                }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
 
             let result = {
                 matchingUserList,
