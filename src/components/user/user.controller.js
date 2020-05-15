@@ -1364,7 +1364,9 @@ class UserController extends BaseController {
                 allUserList = this._getmatchedUserList(userIdlist);//call back function
             } else if (driverIdlist.length > 0) {
                 allUserList = this._getpartialmatchedUserList(driverIdlist);//call back function
-            } else {
+            }
+
+            if (allUserList.length < 0) {
                 allUserList = this._getunmatchedUserList();//call back function
             }
 
@@ -1925,12 +1927,12 @@ class UserController extends BaseController {
         return allUserList;
     }
 
-     /**
-     * @DESC : get partialMatched userList
-     * @return array/json
-     * @param req
-     * @param res
-     */
+    /**
+    * @DESC : get partialMatched userList
+    * @return array/json
+    * @param req
+    * @param res
+    */
     _getpartialmatchedUserList = async (userIdlist) => {
         const allUserList = await Users.query()
             .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1949,14 +1951,15 @@ class UserController extends BaseController {
             }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
         return allUserList;
     }
- /**
-     * @DESC : get UnMatched userList
-     * @return array/json
-     * @param req
-     * @param res
-     */
+
+    /**
+    * @DESC : get UnMatched userList
+    * @return array/json
+    * @param req
+    * @param res
+    */
     _getunmatchedUserList = async () => {
-        const allUserList = await Users.query()            
+        const allUserList = await Users.query()
             .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
             .modifyEager('userDetails', (builder) => {
                 builder.select(tripUserDetailsColumns)
@@ -1972,7 +1975,7 @@ class UserController extends BaseController {
             }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
         return allUserList;
     }
-    
+
 }
 
 export default new UserController();
