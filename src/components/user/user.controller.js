@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails,usersColumns, tripUserDetailsColumns } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -770,11 +770,11 @@ class UserController extends BaseController {
                 .modifyEager('userDetails', builder => {
                     builder.select(userDetailsColumns)
                 }).select(columns).limit(1);
-                
+
             if (result.length) {
                 result = result[0];
                 // User status check
-                if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {                    
+                if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
                     let emailStatus = result.userDetails.emailStatus;
                     if (result.status === UserStatus.FIRST_TIME) {
                         result.changedPassword = false
@@ -1297,10 +1297,10 @@ class UserController extends BaseController {
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.where((builder) => {
                             builder
-                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
-                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                            .where(_where)
-                            .orWhere(_orWhere)
+                                .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                .where(_where)
+                                .orWhere(_orWhere)
                         })
                             // (_where).orWhere(_orWhere)
                             .select(driverExperienceColumns)
@@ -1319,13 +1319,13 @@ class UserController extends BaseController {
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.
-                        where((builder) => {
-                            builder
-                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
-                            .where(_where)
-                        })
-                        // where(_where)
+                            where((builder) => {
+                                builder
+                                    // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                    .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                    .where(_where)
+                            })
+                            // where(_where)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder
@@ -1343,13 +1343,13 @@ class UserController extends BaseController {
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.
-                        where((builder) => {
-                            builder
-                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
-                            .where(_orWhere)
-                        })
-                        // where(_orWhere)
+                            where((builder) => {
+                                builder
+                                    // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                    .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                    .where(_orWhere)
+                            })
+                            // where(_orWhere)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder.select(driverSpecialityTrainingColumns)
@@ -1359,9 +1359,16 @@ class UserController extends BaseController {
             };
             const matchingUserList = specialityQuery;
 
-            const allUserList = await Users.query()
-                .whereIn('SRU03_USER_MASTER_D', userIdlist)
-                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            let allUserList;
+            allUserList = await Users.query().where('SRU03_DELETED_F', null);
+            if (userIdlist.length > 0) {
+                allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist);
+            } else if (driverIdlist.length > 0) {
+                allUserList.whereIn('SRU03_USER_MASTER_D', driverIdlist);
+            }
+            // const allUserList = await Users.query()
+            // allUserList.whereIn('SRU03_USER_MASTER_D', userIdlist)
+            allUserList.eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
                 })
@@ -1621,7 +1628,7 @@ class UserController extends BaseController {
                     address2: addressDetail.SRU06_LINE_2_N,
                     userAddress: addressDetail.SRU06_LINE_1_N,
                     provinceId: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_D : null,
-                    province: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_N: "",
+                    province: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_N : "",
                     city: addressDetail.SRU06_CITY_N,
                     postalCode: addressDetail.SRU06_POSTAL_CODE_N,
                     latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
