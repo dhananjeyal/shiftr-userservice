@@ -33,9 +33,9 @@ function registerRoutes() {
         // Deactivate and activate {Admin, Driver, Customer}
         apiRouter.route("/user/deactivate_user/:userId").put(verify, UserController.deactivateUser);
         apiRouter.route("/user/activate_user/:userId").put(verify, UserController.activateUser);
-
+        let verifyAny = AuthController.verifyAny;
         // Create update user
-        apiRouter.route("/user/update_profile").put(verify, updateProfile, UserController.updateProfile);
+        apiRouter.route("/user/update_profile").put(verifyAny, updateProfile, UserController.updateProfile);
     };
 }
 
