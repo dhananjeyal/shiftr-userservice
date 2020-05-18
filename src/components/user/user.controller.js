@@ -1865,22 +1865,23 @@ class UserController extends BaseController {
             if (userId) {
                 _where = {
                     SRU03_USER_MASTER_D: userId,
-                    SRU04_PHONE_N: mobileNumber
+                    SRU19_PHONE_R: mobileNumber
                 }
             }else{
                 _where = {                   
-                    SRU04_PHONE_N: mobileNumber
+                    SRU19_PHONE_R: mobileNumber
                 }
             }
             let result = await ContactInfo.query()
             .where(_where)
             .count('SRU19_CONTACT_INFO_D as id');
 
-            let response = await UserDetails.query()
-            .where(_where)
-            .count('SRU04_DETAIL_D as detailsId');
+            // let response = await UserDetails.query()
+            // .where(_where)
+            // .count('SRU04_DETAIL_D as detailsId');
 
-            if (result[0].id || response[0].detailsId) {
+            // if (result[0].id || response[0].detailsId) {
+            if (result[0].id) {
                 return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, {
                     message: this.messageTypes.authMessages.existMobilenumber + "[" + mobileNumber + "]"
                 }));
