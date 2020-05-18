@@ -1860,8 +1860,7 @@ class UserController extends BaseController {
 
     existingMobilenumber = async (req, res) => {
         try {
-            const { mobileNumber, userId } = req.body;
-            console.log(userId);
+            const { mobileNumber, userId } = req.body;           
             let _where;
             if (userId) {
                 _where = {
