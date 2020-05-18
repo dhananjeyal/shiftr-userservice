@@ -1861,33 +1861,37 @@ class UserController extends BaseController {
     existingMobilenumber = async (req, res) => {
         try {
             const { mobileNumber, userId } = req.body;
+            console.log(userId);
             let _where;
             if (userId) {
                 _where = {
                     SRU03_USER_MASTER_D: userId,
                     SRU19_PHONE_R: mobileNumber
                 }
-            }else{
-                _where = {                   
+            } else {
+                _where = {
                     SRU19_PHONE_R: mobileNumber
                 }
             }
             let result = await ContactInfo.query()
-            .where(_where)
-            .count('SRU19_CONTACT_INFO_D as id');
+                .where(_where)
+                .count('SRU19_CONTACT_INFO_D as id');
 
             // let response = await UserDetails.query()
             // .where(_where)
             // .count('SRU04_DETAIL_D as detailsId');
 
             // if (result[0].id || response[0].detailsId) {
-            if (result[0].id) {
+            if (result[0].id && userId) {
+                return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+            } else if (result[0].id) {
                 return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, {
                     message: this.messageTypes.authMessages.existMobilenumber + "[" + mobileNumber + "]"
                 }));
             } else {
                 return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
-            };
+            }
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
