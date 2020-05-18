@@ -114,3 +114,13 @@ export class Typeofdistance {
     static MILES = 23;
     static DEFAULTKM = 1.6;  // 1miles   = 1.6 KM 
 }
+
+export class EmailContents {
+    static TRIP_PENDING = "Trip is not accepted by any drivers";
+    static TRIP_NO_MATCH = "Driver not found for your Trip";
+}
+
+export class tripTypes {
+    static CHARTER_TRIP = "CHARTER BASED TRIP";
+    static SCHOOL_TRIP = "SCHOOL BASED TRIP";
+}

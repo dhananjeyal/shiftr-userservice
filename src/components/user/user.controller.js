@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -386,7 +386,7 @@ class UserController extends BaseController {
     };
 
     /**
-     * @DESC : For other services - Get single User Result.
+     * @DESC : Send email notification.
      * @return array/json
      * @param req
      * @param res
@@ -405,12 +405,53 @@ class UserController extends BaseController {
                     tripDetails
                 );
             } else {
-                mailer.busOwnerNoMatch(
+                mailer.busOwnerEmail(
                     user[0],
-                    tripDetails
+                    tripDetails,
+                    EmailContents.TRIP_NO_MATCH
                 );
-                mailer.superAdminNoMatch(tripDetails);
+                mailer.superAdminEmail(tripDetails, EmailContents.TRIP_NO_MATCH);
             }
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
+
+        } catch (error) {
+            return this.internalServerError(req, res, error);
+        }
+    }
+
+     /**
+     * @DESC : Send email notification.
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    sendTripPendingNotication = async (req, res) => {
+        try {
+            const tripDetails = req.body.busOwnerTripDetails;
+
+            const userIds = tripDetails.map(userId => userId.busownerId);
+
+            let userDetail = await Users.query()
+                .select(userEmailDetails)
+                .whereIn("SRU03_USER_MASTER_D", userIds);
+
+            for (const trip of tripDetails) {
+                const user = userDetail.filter(matchUser => matchUser.userId == trip.busownerId);
+
+                const tripDetail = {
+                    companyName: trip.companyName,
+                    tripCode: trip.tripCode,
+                    type: trip.tripTypeId == booleanType.YES ? tripTypes.CHARTER_TRIP : tripTypes.SCHOOL_TRIP,
+                    startDate: trip.scheduleDetails[0].startDate,
+                    endDate: trip.scheduleDetails[0].endDate,
+                    startTime: trip.scheduleDetails[0].startTime
+                }
+                
+                await mailer.busOwnerEmail( user[0], tripDetail, EmailContents.TRIP_PENDING );
+
+                await mailer.superAdminEmail(tripDetails, EmailContents.TRIP_PENDING);
+            }
+
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
 
         } catch (error) {

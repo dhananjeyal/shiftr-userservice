@@ -34,6 +34,7 @@ function registerRoutes() {
         apiRouter.route("/user/:contactId/contacts").put(verifyCustomer,UserController.deleteContactInfo);        
         apiRouter.route("/user/login/status").get(verifyCustomer,UserController.busownerLoginStatus);
         apiRouter.route("/user/trip_status").post(UserController.sendTripStatusNotication);
+        apiRouter.route("/user/email/trip_pending").post(UserController.sendTripPendingNotication);
 
         let verifyAny = AuthController.verifyAny;
         apiRouter.route("/user/trip/:userId/contacts").get(verifyAny,UserController.getContactInfo);
