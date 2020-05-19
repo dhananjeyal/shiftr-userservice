@@ -1408,7 +1408,7 @@ class UserController extends BaseController {
             }
 
 
-            if (allUserList.length < 0) {
+            if (allUserList && allUserList.length < 0) {
                 allUserList = await this._getunmatchedUserList();//call back function
             }
 
