@@ -364,20 +364,23 @@ class UserController extends BaseController {
         try {
             const { userId } = req.params;
 
-            const responseData = await ContactInfo.query()
-                .select('SRU19_PHONE_R as contactNumber')
-                .where({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU01_TYPE_D: phonenumbertype.OFFICE,
+            const responseData = await UserDetails.query()
+                .where({ SRU03_USER_MASTER_D: userId })
+                .eager(`[userAddressDetails, contactInfo]`)
+                .modifyEager('userAddressDetails', (builder) => {
+                    builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
+                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.RESIDENTIAL })
+                        .first()
+                        .select(userAddressColumns)
                 })
-                .orWhere({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU01_TYPE_D: phonenumbertype.PERSONAL,
-                })
-                .orWhere({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU01_TYPE_D: phonenumbertype.HOME,
-                }).first();
+                .modifyEager('contactInfo', (builder) => {
+                    builder.where({ SRU01_TYPE_D: phonenumbertype.OFFICE })
+                        .orWhere({ SRU01_TYPE_D: phonenumbertype.PERSONAL })
+                        .orWhere({ SRU01_TYPE_D: phonenumbertype.HOME })
+                        .first()
+                        .select('SRU19_PHONE_R as contactNumber')
+                }).select("SRU04_PROFILE_I as profileImage");
 
             return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
         } catch (e) {
