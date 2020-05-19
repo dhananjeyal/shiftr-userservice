@@ -1403,7 +1403,7 @@ class UserController extends BaseController {
             let allUserList;
             if (userIdlist.length > 0) {
                 allUserList = await this._getmatchedUserList(userIdlist);//call back function
-            } else if (driverIdlist.length > 0) {
+            } else if (driverIdlist && driverIdlist.length > 0) {
                 allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
             }
 
