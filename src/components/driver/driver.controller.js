@@ -11,7 +11,8 @@ import {
     SignUpStatus,
     phonenumbertype,
     CountryType,
-    Typeofdistance
+    Typeofdistance,
+    booleanType
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
@@ -733,7 +734,8 @@ class DriverController extends BaseController {
                 }).modifyEager('financialDetails', (builder) => {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
-                    builder.select(userDocumentColumns)
+                    builder.where({ "SRU05_DELETED_F": booleanType.NO })
+                        .select(userDocumentColumns)
                 }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
                 }).modifyEager('driverLanguage', (builder) => {
@@ -780,7 +782,8 @@ class DriverController extends BaseController {
                 }).modifyEager('financialDetails', (builder) => {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
-                    builder.select(userDocumentColumns)
+                    builder.where({ "SRU05_DELETED_F": booleanType.NO })
+                        .select(userDocumentColumns)
                 }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
                 }).modifyEager('driverLanguage', (builder) => {

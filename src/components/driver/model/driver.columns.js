@@ -113,7 +113,8 @@ export let languageColumns = [
 
 export let driverExperienceReference = [
     'SRU20_DRIVEREXP_REFERENCE.SRU20_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
-    'SRU20_PROVINCE_D as provinceId'
+    'SRU20_PROVINCE_D as provinceId',
+    'SRU20_EXPERIENCE_D as experienceId'
 ];
 
 export let omitDriverSpecialityColumns = [

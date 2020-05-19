@@ -1685,7 +1685,7 @@ class UserController extends BaseController {
 
                     DriverDetails.push({
                         driverExp: {
-                            experienceId: expvalue.SRU09_DRIVEREXP_D,
+                            experienceId: expvalue.experienceReferenceDetails.experienceId,
                             experience: expvalue.SRU09_TOTALEXP_N,
                             expInProvinceId: Object.keys(expvalue.experienceReferenceDetails).length != booleanType.NO ? expvalue.experienceReferenceDetails.provinceId : null,
                             expInProvince: expvalue.SRU09_CURRENT_N,
