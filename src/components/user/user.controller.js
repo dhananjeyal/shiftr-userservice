@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, userAddressReports, usersColumnsReports } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -387,6 +387,33 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     };
+
+    /**
+    * @DESC : Get user address
+    * @return array/json
+    * @param req
+    * @param res
+    */
+   driverDetailsReport = async (req, res) => {
+    try {
+        const { driverId } = req.body;
+        
+        const responseData = await Users.query()
+                .whereIn( 'SRU03_USER_MASTER_D', driverId )
+                .eager(`[addressDetails]`)
+                .modifyEager('addressDetails', (builder) => {
+                    builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
+                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.RESIDENTIAL })
+                        .first()
+                        .select(userAddressReports)
+                }).select(usersColumnsReports);
+
+        return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
+    } catch (e) {
+        return this.internalServerError(req, res, e);
+    }
+};
 
     /**
      * @DESC : Send email notification.
