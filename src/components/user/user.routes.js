@@ -17,7 +17,8 @@ function registerRoutes() {
 
         // Email verification
         openRouter.route("/api/user/verify_email").get(UserController.verifyUser);
-
+        openRouter.route("/api/user/email/trip_pending").post(UserController.sendTripPendingNotication);
+        
         let verifySuperAdminOrAdmin = AuthController.verifySuperAdminOrAdmin;
         //Existing Email verification
         apiRouter.route("/user/existing_email/:emailId").get(verifySuperAdminOrAdmin, existingEmail, UserController.existingEmail);
@@ -33,8 +34,7 @@ function registerRoutes() {
         apiRouter.route("/user/travels").put(verifyCustomer,travelsUpdate,UserController.travelsUpdate);
         apiRouter.route("/user/:contactId/contacts").put(verifyCustomer,UserController.deleteContactInfo);        
         apiRouter.route("/user/login/status").get(verifyCustomer,UserController.busownerLoginStatus);
-        apiRouter.route("/user/trip_status").post(UserController.sendTripStatusNotication);
-        openRouter.route("/api/user/email/trip_pending").post(UserController.sendTripPendingNotication);
+        apiRouter.route("/user/trip_status").post(UserController.sendTripStatusNotication);        
 
         let verifyAny = AuthController.verifyAny;
         apiRouter.route("/user/trip/:userId/contacts").get(verifyAny,UserController.getContactInfo);
