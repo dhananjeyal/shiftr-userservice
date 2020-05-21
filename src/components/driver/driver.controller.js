@@ -11,7 +11,8 @@ import {
     SignUpStatus,
     phonenumbertype,
     CountryType,
-    Typeofdistance
+    Typeofdistance,
+    booleanType
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
@@ -214,7 +215,7 @@ class DriverController extends BaseController {
             let experienceData = [];
             let specialityData = [];
             let experienceDataReference = [];
-            const { data, licenseType } = req.body;
+            const { data, licenseType,licenseName } = req.body;
 
             //Experience Details
             data.map((currExpDetails, index) => {
@@ -258,6 +259,7 @@ class DriverController extends BaseController {
             const userDetailsResponse = await UserDetails.query()
                 .update({
                     SRU04_LICENSE_TYPE_R: licenseType,
+                    SRU04_LICENSE_TYPE_N: licenseName,
                     SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS
                 })
                 .where('SRU03_USER_MASTER_D', user.userId);
@@ -732,7 +734,8 @@ class DriverController extends BaseController {
                 }).modifyEager('financialDetails', (builder) => {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
-                    builder.select(userDocumentColumns)
+                    builder.where({ "SRU05_DELETED_F": booleanType.NO })
+                        .select(userDocumentColumns)
                 }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
                 }).modifyEager('driverLanguage', (builder) => {
@@ -779,7 +782,8 @@ class DriverController extends BaseController {
                 }).modifyEager('financialDetails', (builder) => {
                     builder.select(userFinancialColumns)
                 }).modifyEager('documents', (builder) => {
-                    builder.select(userDocumentColumns)
+                    builder.where({ "SRU05_DELETED_F": booleanType.NO })
+                        .select(userDocumentColumns)
                 }).modifyEager('driverspecialityDetails', (builder) => {
                     builder.select(driverSpecialityDetailsColumns)
                 }).modifyEager('driverLanguage', (builder) => {

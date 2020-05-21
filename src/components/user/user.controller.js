@@ -8,8 +8,8 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails,usersColumns, tripUserDetailsColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype } from "../../constants";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, userAddressReports, usersColumnsReports } from "./model/user.columns";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -364,20 +364,23 @@ class UserController extends BaseController {
         try {
             const { userId } = req.params;
 
-            const responseData = await ContactInfo.query()
-                .select('SRU19_PHONE_R as contactNumber')
-                .where({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU01_TYPE_D: phonenumbertype.OFFICE,
+            const responseData = await UserDetails.query()
+                .where({ SRU03_USER_MASTER_D: userId })
+                .eager(`[userAddressDetails, contactInfo]`)
+                .modifyEager('userAddressDetails', (builder) => {
+                    builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
+                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.RESIDENTIAL })
+                        .first()
+                        .select(userAddressColumns)
                 })
-                .orWhere({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU01_TYPE_D: phonenumbertype.PERSONAL,
-                })
-                .orWhere({
-                    SRU03_USER_MASTER_D: userId,
-                    SRU01_TYPE_D: phonenumbertype.HOME,
-                }).first();
+                .modifyEager('contactInfo', (builder) => {
+                    builder.where({ SRU01_TYPE_D: phonenumbertype.OFFICE })
+                        .orWhere({ SRU01_TYPE_D: phonenumbertype.PERSONAL })
+                        .orWhere({ SRU01_TYPE_D: phonenumbertype.HOME })
+                        .first()
+                        .select('SRU19_PHONE_R as contactNumber')
+                }).select("SRU04_PROFILE_I as profileImage");
 
             return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
         } catch (e) {
@@ -386,7 +389,34 @@ class UserController extends BaseController {
     };
 
     /**
-     * @DESC : For other services - Get single User Result.
+    * @DESC : Get user address
+    * @return array/json
+    * @param req
+    * @param res
+    */
+   driverDetailsReport = async (req, res) => {
+    try {
+        const { driverId } = req.body;
+        
+        const responseData = await Users.query()
+                .whereIn( 'SRU03_USER_MASTER_D', driverId )
+                .eager(`[addressDetails]`)
+                .modifyEager('addressDetails', (builder) => {
+                    builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
+                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.RESIDENTIAL })
+                        .first()
+                        .select(userAddressReports)
+                }).select(usersColumnsReports);
+
+        return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
+    } catch (e) {
+        return this.internalServerError(req, res, e);
+    }
+};
+
+    /**
+     * @DESC : Send email notification.
      * @return array/json
      * @param req
      * @param res
@@ -405,12 +435,53 @@ class UserController extends BaseController {
                     tripDetails
                 );
             } else {
-                mailer.busOwnerNoMatch(
+                mailer.busOwnerEmail(
                     user[0],
-                    tripDetails
+                    tripDetails,
+                    EmailContents.TRIP_NO_MATCH
                 );
-                mailer.superAdminNoMatch(tripDetails);
+                mailer.superAdminEmail(tripDetails, EmailContents.TRIP_NO_MATCH);
             }
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
+
+        } catch (error) {
+            return this.internalServerError(req, res, error);
+        }
+    }
+
+     /**
+     * @DESC : Send email notification.
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    sendTripPendingNotication = async (req, res) => {
+        try {
+            const tripDetails = req.body.busOwnerTripDetails;
+
+            const userIds = tripDetails.map(userId => userId.busownerId);
+
+            let userDetail = await Users.query()
+                .select(userEmailDetails)
+                .whereIn("SRU03_USER_MASTER_D", userIds);
+
+            for (const trip of tripDetails) {
+                const user = userDetail.filter(matchUser => matchUser.userId == trip.busownerId);
+
+                const tripDetail = {
+                    companyName: trip.companyName,
+                    tripCode: trip.tripCode,
+                    type: trip.tripTypeId == booleanType.YES ? tripTypes.CHARTER_TRIP : tripTypes.SCHOOL_TRIP,
+                    startDate: trip.scheduleDetails[0].startDate,
+                    endDate: trip.scheduleDetails[0].endDate,
+                    startTime: trip.scheduleDetails[0].startTime
+                }
+                
+                await mailer.busOwnerEmail( user[0], tripDetail, EmailContents.TRIP_PENDING );
+
+                await mailer.superAdminEmail(tripDetails, EmailContents.TRIP_PENDING);
+            }
+
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
 
         } catch (error) {
@@ -770,11 +841,11 @@ class UserController extends BaseController {
                 .modifyEager('userDetails', builder => {
                     builder.select(userDetailsColumns)
                 }).select(columns).limit(1);
-                
+
             if (result.length) {
                 result = result[0];
                 // User status check
-                if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {                    
+                if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
                     let emailStatus = result.userDetails.emailStatus;
                     if (result.status === UserStatus.FIRST_TIME) {
                         result.changedPassword = false
@@ -1297,10 +1368,10 @@ class UserController extends BaseController {
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.where((builder) => {
                             builder
-                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
-                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                            .where(_where)
-                            .orWhere(_orWhere)
+                                .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                .where(_where)
+                                .orWhere(_orWhere)
                         })
                             // (_where).orWhere(_orWhere)
                             .select(driverExperienceColumns)
@@ -1319,13 +1390,13 @@ class UserController extends BaseController {
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.
-                        where((builder) => {
-                            builder
-                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
-                            .where(_where)
-                        })
-                        // where(_where)
+                            where((builder) => {
+                                builder
+                                    // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                    .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                    .where(_where)
+                            })
+                            // where(_where)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder
@@ -1343,13 +1414,13 @@ class UserController extends BaseController {
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.
-                        where((builder) => {
-                            builder
-                            // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                            .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
-                            .where(_orWhere)
-                        })
-                        // where(_orWhere)
+                            where((builder) => {
+                                builder
+                                    // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                    .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                    .where(_orWhere)
+                            })
+                            // where(_orWhere)
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder.select(driverSpecialityTrainingColumns)
@@ -1359,23 +1430,17 @@ class UserController extends BaseController {
             };
             const matchingUserList = specialityQuery;
 
-            const allUserList = await Users.query()
-                .whereIn('SRU03_USER_MASTER_D', userIdlist)
-                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
-                .modifyEager('userDetails', (builder) => {
-                    builder.select(tripUserDetailsColumns)
-                })
-                .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                    builder.where((builder) => {
-                        builder
-                            .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                    })
-                        .select(driverExperienceColumns)
-                }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
-                    builder.select(driverSpecialityTrainingColumns)
-                })
-                .omit(SpecialityDetails, omitDriverSpecialityColumns)
-                .select(usersColumns);
+            let allUserList;
+            if (userIdlist.length > 0) {
+                allUserList = await this._getmatchedUserList(userIdlist);//call back function
+            } else if (driverIdlist && driverIdlist.length > 0) {
+                allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
+            }
+
+
+            if (allUserList && allUserList.length < 0) {
+                allUserList = await this._getunmatchedUserList();//call back function
+            }
 
             let result = {
                 matchingUserList,
@@ -1621,7 +1686,7 @@ class UserController extends BaseController {
                     address2: addressDetail.SRU06_LINE_2_N,
                     userAddress: addressDetail.SRU06_LINE_1_N,
                     provinceId: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_D : null,
-                    province: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_N: "",
+                    province: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_N : "",
                     city: addressDetail.SRU06_CITY_N,
                     postalCode: addressDetail.SRU06_POSTAL_CODE_N,
                     latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
@@ -1650,7 +1715,7 @@ class UserController extends BaseController {
 
                     DriverDetails.push({
                         driverExp: {
-                            experienceId: expvalue.SRU09_DRIVEREXP_D,
+                            experienceId: expvalue.experienceReferenceDetails.experienceId,
                             experience: expvalue.SRU09_TOTALEXP_N,
                             expInProvinceId: Object.keys(expvalue.experienceReferenceDetails).length != booleanType.NO ? expvalue.experienceReferenceDetails.provinceId : null,
                             expInProvince: expvalue.SRU09_CURRENT_N,
@@ -1866,33 +1931,48 @@ class UserController extends BaseController {
 
     existingMobilenumber = async (req, res) => {
         try {
-            const { mobileNumber } = req.body;
+            const { mobileNumber, userId } = req.body;           
+            let _where;
+            if (userId) {
+                _where = {
+                    SRU03_USER_MASTER_D: userId,
+                    SRU19_PHONE_R: mobileNumber
+                }
+            } else {
+                _where = {
+                    SRU19_PHONE_R: mobileNumber
+                }
+            }
+            let result = await ContactInfo.query()
+                .where(_where)
+                .count('SRU19_CONTACT_INFO_D as id');
 
-            let result = await ContactInfo.query().where({
-                SRU19_PHONE_R: mobileNumber
-            }).count('SRU19_CONTACT_INFO_D as id');
+            // let response = await UserDetails.query()
+            // .where(_where)
+            // .count('SRU04_DETAIL_D as detailsId');
 
-            let response = await UserDetails.query().where({
-                SRU04_PHONE_N: mobileNumber
-            }).count('SRU04_DETAIL_D as detailsId');
-
-            if (result[0].id || response[0].detailsId) {
+            // if (result[0].id || response[0].detailsId) {
+            if (result[0].id && userId) {
+                return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+            } else if (result[0].id) {
                 return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, {
                     message: this.messageTypes.authMessages.existMobilenumber + "[" + mobileNumber + "]"
                 }));
             } else {
                 return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
-            };
+            }
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
     };
+
     /**
-         * @DESC : Busowner Login Status
-         * @return array/json
-         * @param req
-         * @param res
-         */
+     * @DESC : Busowner Login Status
+     * @return array/json
+     * @param req
+     * @param res
+     */
     busownerLoginStatus = async (req, res) => {
         try {
 
@@ -1907,6 +1987,81 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     };
+
+    /**
+     * @DESC : get Matched userList
+     * @return array/json
+     * @param req
+     * @param res
+     */
+
+    _getmatchedUserList = async (userIdlist) => {
+        const allUserList = await Users.query()
+            .whereIn('SRU03_USER_MASTER_D', userIdlist)
+            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            .modifyEager('userDetails', (builder) => {
+                builder.select(tripUserDetailsColumns)
+            })
+            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                builder.where((builder) => {
+                    builder
+                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                })
+                    .select(driverExperienceColumns)
+            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                builder.select(driverSpecialityTrainingColumns)
+            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+        return allUserList;
+    }
+
+    /**
+    * @DESC : get partialMatched userList
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    _getpartialmatchedUserList = async (userIdlist) => {
+        const allUserList = await Users.query()
+            .whereIn('SRU03_USER_MASTER_D', userIdlist)
+            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            .modifyEager('userDetails', (builder) => {
+                builder.select(tripUserDetailsColumns)
+            })
+            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                builder.where((builder) => {
+                    builder
+                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                })
+                    .select(driverExperienceColumns)
+            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                builder.select(driverSpecialityTrainingColumns)
+            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+        return allUserList;
+    }
+
+    /**
+    * @DESC : get UnMatched userList
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    _getunmatchedUserList = async () => {
+        const allUserList = await Users.query()
+            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            .modifyEager('userDetails', (builder) => {
+                builder.select(tripUserDetailsColumns)
+            })
+            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                builder.where((builder) => {
+                    builder
+                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                })
+                    .select(driverExperienceColumns)
+            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                builder.select(driverSpecialityTrainingColumns)
+            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+        return allUserList;
+    }
 
 }
 

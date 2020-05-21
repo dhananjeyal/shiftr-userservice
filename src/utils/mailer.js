@@ -138,10 +138,10 @@ export const notifyBusOwner = (user, tripDetails) => {
     return sendMail(user.emailId, "Trip - Details", html)
 };
 
-export const busOwnerNoMatch = (user, tripDetails) => {
+export const busOwnerEmail = (user, tripDetails, message) => {
 
     let html = `<b>Hello ${user.firstName},</b>
-                    <p>Driver not found for your Trip ${tripDetails.tripCode} .</p>
+                    <p>${message} ${tripDetails.tripCode} .</p>
                     <p><b>Trip Details:-</b></p>
                     <p>Company name:- ${tripDetails.companyName}</p>
                     <p>Trip code:- ${tripDetails.tripCode}</p>
@@ -153,10 +153,10 @@ export const busOwnerNoMatch = (user, tripDetails) => {
 };
 
 
-export const superAdminNoMatch = (tripDetails) => {
+export const superAdminEmail = (tripDetails, message) => {
 
     let html = `<b>Hello shiftr,</b>
-                    <p>Driver not found for your Trip ${tripDetails.tripCode} .</p>
+                    <p>${message} ${tripDetails.tripCode} .</p>
                     <p><b>Trip Details:-</b></p>
                     <p>Company name:- ${tripDetails.companyName}</p>
                     <p>Trip code:- ${tripDetails.tripCode}</p>

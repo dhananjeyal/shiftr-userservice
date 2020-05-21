@@ -10,6 +10,7 @@ export let driverUserDetailsColumns = [
     'SRU04_GENDER_D as gender',
     'SRU04_EXPERIENCE_D as experience',
     'SRU04_LICENSE_TYPE_R as licenseType',
+    'SRU04_LICENSE_TYPE_N as licenseName',
     'SRU04_PROFILE_I as profilePicture',
     'SRU04_PROFILE_I as userprofile',
     // 'SRU04_WORKING_WITH_OTHERS as workingWithOthers',
@@ -112,7 +113,8 @@ export let languageColumns = [
 
 export let driverExperienceReference = [
     'SRU20_DRIVEREXP_REFERENCE.SRU20_SPECIALITY_REFERENCE_N as specialityReferenceNumber',
-    'SRU20_PROVINCE_D as provinceId'
+    'SRU20_PROVINCE_D as provinceId',
+    'SRU20_EXPERIENCE_D as experienceId'
 ];
 
 export let omitDriverSpecialityColumns = [

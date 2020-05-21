@@ -39,6 +39,18 @@ export let tripUserDetailsColumns = [
     'SRU04_NOTIFICATION_SETTINGS_F as notificationSettings',
     'SRU04_PROFILE_I as userprofile'
 ];
+
+export let userAddressReports = [
+    'SRU06_CITY_N as location',
+    'SRU16_PROVINCE_D as province'
+];
+
+export let usersColumnsReports = [
+    `SRU03_USER_MASTER_D as userId`,
+    `SRU03_FIRST_N as firstName`,
+    `SRU03_LAST_N as lastName`
+];
+
 export let userAddressColumns = [
     'SRU06_ADDRESS_D as addressId',
     'SRU06_LINE_1_N as addressLine1',
