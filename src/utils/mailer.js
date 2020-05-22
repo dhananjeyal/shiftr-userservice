@@ -118,6 +118,7 @@ export const resetPassword = (user) => {
     return sendMail(user.emailId, "Password reset", html)
 };
 
+// <p>Trip start yard:- ${tripDetails.startYard}</p>
 export const notifyBusOwner = (user, tripDetails) => {
 
     let html = `<b>Hello ${user.firstName},</b>
@@ -129,7 +130,7 @@ export const notifyBusOwner = (user, tripDetails) => {
                     <p>Trip start date:- ${tripDetails.startDate}</p>
                     <p>Trip end date:- ${tripDetails.endDate}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>
-                    <p>Trip start yard:- ${tripDetails.startYard}</p>
+
                     <p><b>Driver Details:-</b></p>
                     <p>Driver name:- ${tripDetails.driverFirstName} ${tripDetails.driverLastName}</p>
                     <p>Driver contact:- ${tripDetails.driverPhoneNumber}</p>
