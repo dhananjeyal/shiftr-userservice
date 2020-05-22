@@ -32,6 +32,7 @@ export let tripUserDetailsColumns = [
     'SRU04_EMAIL_STATUS_D as emailStatus',
     'SRU04_SIGNUP_STATUS_D as signUpStatus',
     `SRU04_LICENSE_TYPE_R as licenseType`,
+    `SRU04_LICENSE_TYPE_N as license`,
     'SRU04_PHONE_N as phoneNumber',
     'SRU04_COMPANY_NAME_N as companyName',
     'SRU04_NUMBER_OF_BUSES_R as NumberofBus',
@@ -104,6 +105,7 @@ export let userListColumns = [
     `${Users.tableName}.SRU03_UPDATED_AT as updatedAt`,
     `${UsersDetails.tableName}.SRU04_PHONE_N as phoneNo`,
     `${UsersDetails.tableName}.SRU04_EXPERIENCE_D as experience`,
+    `${UsersDetails.tableName}.SRU04_LICENSE_TYPE_N as license`,
 ];
 
 export let screeningCanadastatus = [
