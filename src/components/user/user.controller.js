@@ -1368,8 +1368,8 @@ class UserController extends BaseController {
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.where((builder) => {
                             builder
-                                .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
-                                // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                // .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                                 .where(_where)
                                 .orWhere(_orWhere)
                         })
@@ -1392,8 +1392,8 @@ class UserController extends BaseController {
                         builder.
                             where((builder) => {
                                 builder
-                                    // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                                    .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                    // .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
                                     .where(_where)
                             })
                             // where(_where)
@@ -1416,8 +1416,8 @@ class UserController extends BaseController {
                         builder.
                             where((builder) => {
                                 builder
-                                    // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                                    .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                    // .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
                                     .where(_orWhere)
                             })
                             // where(_orWhere)
