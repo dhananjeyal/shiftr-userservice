@@ -1355,9 +1355,22 @@ class UserController extends BaseController {
             const _orWhereSize = Object.keys(_orWhere).length;
             let specialityQuery;
 
+            let dataExist = [];
+            let rowExist;
+            if (_whereSize > 0) {
+                rowExist = await ExperienceDetails.query()
+                    .where(_where)
+                    .select("SRU09_DRIVEREXP_D as driverExpId");
+            } else if (_orWhereSize > 0) {
+                rowExist = await ExperienceDetails.query()
+                    .where(_orWhere)
+                    .select("SRU09_DRIVEREXP_D as driverExpId");
+            }
+
+            dataExist = rowExist[0] ? rowExist[0] : [];
             //Filter By Driver Details
 
-            if (_whereSize > 0 && _orWhereSize > 0) {
+            if (_whereSize > 0 && _orWhereSize > 0 && dataExist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1380,7 +1393,7 @@ class UserController extends BaseController {
                     })
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
-            } else if (_whereSize > 0) {
+            } else if (_whereSize > 0 && dataExist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1404,7 +1417,7 @@ class UserController extends BaseController {
                     })
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
-            } else if (_orWhereSize > 0) {
+            } else if (_orWhereSize > 0 && dataExist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
