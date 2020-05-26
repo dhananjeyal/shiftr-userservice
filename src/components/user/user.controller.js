@@ -1331,15 +1331,17 @@ class UserController extends BaseController {
                 driverIdlist
             } = req.body;
 
-            // const userIdlist = await UserDetails.query()
-            //     .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
-            //     .whereIn('SRU03_USER_MASTER_D', driverIdlist)
-            //     .pluck('SRU03_USER_MASTER_D');
-
-                const userIdlist = await UserDetails.query()
-                .where('SRU04_LICENSE_TYPE_N', driverDetails[0].licenceType)
+            const userIdlist = await UserDetails.query()
+                .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
                 .whereIn('SRU03_USER_MASTER_D', driverIdlist)
                 .pluck('SRU03_USER_MASTER_D');
+
+                console.log("driverLicensetype", driverLicensetype);
+
+                // const userIdlist = await UserDetails.query()
+                // .where('SRU04_LICENSE_TYPE_N', driverDetails[0].licenceType)
+                // .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+                // .pluck('SRU03_USER_MASTER_D');
 
             let _where = {};
             let _orWhere = {};
