@@ -1331,11 +1331,17 @@ class UserController extends BaseController {
                 driverIdlist
             } = req.body;
 
-            const userIdlist = await UserDetails.query()
-                .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
+            // const userIdlist = await UserDetails.query()
+            //     .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
+            //     .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+            //     .pluck('SRU03_USER_MASTER_D');
+
+                const userIdlist = await UserDetails.query()
+                .where('SRU04_LICENSE_TYPE_N', driverDetails[0].licenceType)
                 .whereIn('SRU03_USER_MASTER_D', driverIdlist)
                 .pluck('SRU03_USER_MASTER_D');
 
+                console.log("driverDetails[0].licenceType", driverDetails[0].licenceType);
             let _where = {};
             let _orWhere = {};
 
@@ -1454,9 +1460,9 @@ class UserController extends BaseController {
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
             };
+            console.log("specialityQuery", specialityQuery);
             const matchingUserList = specialityQuery;
 
-            console.log("specialityQuery", specialityQuery);
 
             let allUserList;
             if (userIdlist.length > 0) {
