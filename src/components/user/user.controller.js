@@ -1370,6 +1370,19 @@ class UserController extends BaseController {
             dataExist = rowExist[0] ? rowExist[0] : [];
             //Filter By Driver Details
 
+            console.log("req.body", req.body);
+            console.log("dataExist", dataExist);
+            console.log("_where", _where);
+
+            console.log("_orWhere", _orWhere);
+            console.log("_whereSize", _whereSize);
+
+            console.log("_orWhereSize", _orWhereSize);
+            console.log("userIdlist", userIdlist);
+
+
+
+
             if (_whereSize > 0 && _orWhereSize > 0 && dataExist.length > 0) {
 
                 specialityQuery = await Users.query()
@@ -1443,12 +1456,15 @@ class UserController extends BaseController {
             };
             const matchingUserList = specialityQuery;
 
+            console.log("specialityQuery", specialityQuery);
+
             let allUserList;
             if (userIdlist.length > 0) {
                 allUserList = await this._getmatchedUserList(userIdlist);//call back function
             } else if (driverIdlist && driverIdlist.length > 0) {
                 allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
             }
+            console.log("allUserList", allUserList);
 
 
             if (allUserList && allUserList.length < 0) {
