@@ -1341,7 +1341,6 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', driverIdlist)
                 .pluck('SRU03_USER_MASTER_D');
 
-                console.log("driverDetails[0].licenceType", driverDetails[0].licenceType);
             let _where = {};
             let _orWhere = {};
 
@@ -1359,37 +1358,22 @@ class UserController extends BaseController {
 
             const _whereSize = Object.keys(_where).length;
             const _orWhereSize = Object.keys(_orWhere).length;
-            let specialityQuery;
+            let specialityQuery = [];
 
             let dataExist = [];
-            let rowExist;
             if (_whereSize > 0) {
-                rowExist = await ExperienceDetails.query()
+                dataExist = await ExperienceDetails.query()
                     .where(_where)
                     .select("SRU09_DRIVEREXP_D as driverExpId");
             } else if (_orWhereSize > 0) {
-                rowExist = await ExperienceDetails.query()
+                dataExist = await ExperienceDetails.query()
                     .where(_orWhere)
                     .select("SRU09_DRIVEREXP_D as driverExpId");
             }
 
-            dataExist = rowExist[0] ? rowExist[0] : [];
             //Filter By Driver Details
 
-            console.log("req.body", req.body);
-            console.log("dataExist", dataExist);
-            console.log("_where", _where);
-
-            console.log("_orWhere", _orWhere);
-            console.log("_whereSize", _whereSize);
-
-            console.log("_orWhereSize", _orWhereSize);
-            console.log("userIdlist", userIdlist);
-
-
-
-
-            if (_whereSize > 0 && _orWhereSize > 0 && dataExist.length > 0) {
+            if (_whereSize > 0 && _orWhereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1412,7 +1396,7 @@ class UserController extends BaseController {
                     })
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
-            } else if (_whereSize > 0 && dataExist.length > 0) {
+            } else if (_whereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1436,7 +1420,7 @@ class UserController extends BaseController {
                     })
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
-            } else if (_orWhereSize > 0 && dataExist.length > 0) {
+            } else if (_orWhereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1460,18 +1444,16 @@ class UserController extends BaseController {
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
             };
-            console.log("specialityQuery", specialityQuery);
+
             const matchingUserList = specialityQuery;
 
 
-            let allUserList;
+            let allUserList = [];
             if (userIdlist.length > 0) {
                 allUserList = await this._getmatchedUserList(userIdlist);//call back function
             } else if (driverIdlist && driverIdlist.length > 0) {
                 allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
             }
-            console.log("allUserList", allUserList);
-
 
             if (allUserList && allUserList.length < 0) {
                 allUserList = await this._getunmatchedUserList();//call back function
