@@ -36,7 +36,15 @@ class Users extends BaseModel {
                     from: 'SRU06_ADDRESS.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 },
-            },            
+            },
+            allAddress: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: AddressDetails,
+                join: {
+                    from: 'SRU06_ADDRESS.SRU03_USER_MASTER_D',
+                    to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
+                },
+            },
             experienceDetails: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: ExperienceDetails,
@@ -44,7 +52,7 @@ class Users extends BaseModel {
                     from: 'SRU09_DRIVEREXP.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
-            },            
+            },
             driverspecialityDetails: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: SpecialityDetails,
@@ -52,7 +60,7 @@ class Users extends BaseModel {
                     from: 'SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
-            }, 
+            },
             driverLanguage: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: Language,
@@ -60,7 +68,7 @@ class Users extends BaseModel {
                     from: 'SRU11_DRIVER_LANGUAGE.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
-            },           
+            },
             financialDetails: {
                 relation: BaseModel.HasOneRelation,
                 modelClass: FinancialDetails,
@@ -68,7 +76,7 @@ class Users extends BaseModel {
                     from: 'SRU08_FINANCIAL.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
-            },          
+            },
             documents: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: UserDocument,

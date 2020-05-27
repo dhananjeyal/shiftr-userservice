@@ -1336,6 +1336,13 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', driverIdlist)
                 .pluck('SRU03_USER_MASTER_D');
 
+                console.log("driverLicensetype", driverLicensetype);
+
+                // const userIdlist = await UserDetails.query()
+                // .where('SRU04_LICENSE_TYPE_N', driverDetails[0].licenceType)
+                // .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+                // .pluck('SRU03_USER_MASTER_D');
+
             let _where = {};
             let _orWhere = {};
 
@@ -1353,11 +1360,22 @@ class UserController extends BaseController {
 
             const _whereSize = Object.keys(_where).length;
             const _orWhereSize = Object.keys(_orWhere).length;
-            let specialityQuery;
+            let specialityQuery = [];
+
+            let dataExist = [];
+            if (_whereSize > 0) {
+                dataExist = await ExperienceDetails.query()
+                    .where(_where)
+                    .select("SRU09_DRIVEREXP_D as driverExpId");
+            } else if (_orWhereSize > 0) {
+                dataExist = await ExperienceDetails.query()
+                    .where(_orWhere)
+                    .select("SRU09_DRIVEREXP_D as driverExpId");
+            }
 
             //Filter By Driver Details
 
-            if (_whereSize > 0 && _orWhereSize > 0) {
+            if (_whereSize > 0 && _orWhereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1368,8 +1386,8 @@ class UserController extends BaseController {
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.where((builder) => {
                             builder
-                                .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
-                                // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                // .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                                 .where(_where)
                                 .orWhere(_orWhere)
                         })
@@ -1380,7 +1398,7 @@ class UserController extends BaseController {
                     })
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
-            } else if (_whereSize > 0) {
+            } else if (_whereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1392,8 +1410,8 @@ class UserController extends BaseController {
                         builder.
                             where((builder) => {
                                 builder
-                                    // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                                    .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                    // .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
                                     .where(_where)
                             })
                             // where(_where)
@@ -1404,7 +1422,7 @@ class UserController extends BaseController {
                     })
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
-            } else if (_orWhereSize > 0) {
+            } else if (_orWhereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -1416,8 +1434,8 @@ class UserController extends BaseController {
                         builder.
                             where((builder) => {
                                 builder
-                                    // .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                                    .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
+                                    .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                                    // .join("SRU12_DRIVER_SPECIALITY", 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N', 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N')
                                     .where(_orWhere)
                             })
                             // where(_orWhere)
@@ -1428,15 +1446,16 @@ class UserController extends BaseController {
                     .omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
             };
+
             const matchingUserList = specialityQuery;
 
-            let allUserList;
+
+            let allUserList = [];
             if (userIdlist.length > 0) {
                 allUserList = await this._getmatchedUserList(userIdlist);//call back function
             } else if (driverIdlist && driverIdlist.length > 0) {
                 allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
             }
-
 
             if (allUserList && allUserList.length < 0) {
                 allUserList = await this._getunmatchedUserList();//call back function
@@ -1674,26 +1693,36 @@ class UserController extends BaseController {
         if (req.user.typeId === UserRole.DRIVER_R) {
             const userId = req.user.userId;
             const driver = await DriverController._getAllDriverDetails(req, res, userId);
-            let addressDetail = { ...driver.addressDetails };
+            let addressDetail = driver.allAddress;
+            let provinceDetail = { ...driver.addressDetails }
             let radius = { ...driver.radiusDetails };
 
             let address = {};
 
+            const permanentAddress = addressDetail.filter((address) => address.addressType == AddressType.PERMANENT)[0];
+
+            const financialAddress = addressDetail.filter((address) => address.addressType == AddressType.FINANCIAL)[0];
+
             if (Object.keys(addressDetail).length != booleanType.NO) {
                 address = {
-                    addressId: addressDetail.SRU06_ADDRESS_D,
-                    address1: addressDetail.SRU06_LINE_1_N,
-                    address2: addressDetail.SRU06_LINE_2_N,
-                    userAddress: addressDetail.SRU06_LINE_1_N,
-                    provinceId: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_D : null,
-                    province: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_N : "",
-                    city: addressDetail.SRU06_CITY_N,
-                    postalCode: addressDetail.SRU06_POSTAL_CODE_N,
-                    latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
-                    longitude: addressDetail.SRU06_LOCATION_LONGITUDE_N
+                    addressId: permanentAddress.addressId,
+                    address1: permanentAddress.addressLine1,
+                    address2: permanentAddress.addressLine2,
+                    userAddress: permanentAddress.userAddress,
+                    provinceId: provinceDetail.provinceDetails ? provinceDetail.provinceDetails.SRU16_PROVINCE_D : null,
+                    province: provinceDetail.provinceDetails ? provinceDetail.provinceDetails.SRU16_PROVINCE_N : "",
+                    city: permanentAddress.city,
+                    postalCode: permanentAddress.postalCode,
+                    latitude: permanentAddress.latitude,
+                    longitude: permanentAddress.longitude
                 };
             }
 
+            if (Object.keys(financialAddress).length != booleanType.NO) {
+                driver.financialAddress = financialAddress;
+            }
+
+            delete driver.allAddress
             delete driver.addressDetails
             delete driver.radiusDetails
             driver.userDetails = { ...driver.userDetails, ...address, ...radius }

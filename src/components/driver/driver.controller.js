@@ -19,7 +19,7 @@ import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns ,drivercontactInfoDetailsColumns} from "../user/model/user.columns";
+import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns ,drivercontactInfoDetailsColumns} from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
@@ -771,12 +771,13 @@ class DriverController extends BaseController {
     _getAllDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, contactInfoDetails, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails]')
+                .eager('[userDetails, contactInfoDetails, allAddress, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
-                    // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
                 }).modifyEager('contactInfoDetails', (builder) => {
                     builder.select(drivercontactInfoDetailsColumns)
+                }).modifyEager('allAddress', (builder) => {
+                    builder.select(userAddressWithType)
                 }).modifyEager('addressDetails.provinceDetails', (builder) => {
                     builder.select("*")
                 }).modifyEager('financialDetails', (builder) => {
