@@ -1693,26 +1693,36 @@ class UserController extends BaseController {
         if (req.user.typeId === UserRole.DRIVER_R) {
             const userId = req.user.userId;
             const driver = await DriverController._getAllDriverDetails(req, res, userId);
-            let addressDetail = { ...driver.addressDetails };
+            let addressDetail = driver.allAddress;
+            let provinceDetail = { ...driver.addressDetails }
             let radius = { ...driver.radiusDetails };
 
             let address = {};
 
+            const permanentAddress = addressDetail.filter((address) => address.addressType == AddressType.PERMANENT)[0];
+
+            const financialAddress = addressDetail.filter((address) => address.addressType == AddressType.FINANCIAL)[0];
+
             if (Object.keys(addressDetail).length != booleanType.NO) {
                 address = {
-                    addressId: addressDetail.SRU06_ADDRESS_D,
-                    address1: addressDetail.SRU06_LINE_1_N,
-                    address2: addressDetail.SRU06_LINE_2_N,
-                    userAddress: addressDetail.SRU06_LINE_1_N,
-                    provinceId: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_D : null,
-                    province: addressDetail.provinceDetails ? addressDetail.provinceDetails.SRU16_PROVINCE_N : "",
-                    city: addressDetail.SRU06_CITY_N,
-                    postalCode: addressDetail.SRU06_POSTAL_CODE_N,
-                    latitude: addressDetail.SRU06_LOCATION_LATITUDE_N,
-                    longitude: addressDetail.SRU06_LOCATION_LONGITUDE_N
+                    addressId: permanentAddress.addressId,
+                    address1: permanentAddress.addressLine1,
+                    address2: permanentAddress.addressLine2,
+                    userAddress: permanentAddress.userAddress,
+                    provinceId: provinceDetail.provinceDetails ? provinceDetail.provinceDetails.SRU16_PROVINCE_D : null,
+                    province: provinceDetail.provinceDetails ? provinceDetail.provinceDetails.SRU16_PROVINCE_N : "",
+                    city: permanentAddress.city,
+                    postalCode: permanentAddress.postalCode,
+                    latitude: permanentAddress.latitude,
+                    longitude: permanentAddress.longitude
                 };
             }
 
+            if (Object.keys(financialAddress).length != booleanType.NO) {
+                driver.financialAddress = financialAddress;
+            }
+
+            delete driver.allAddress
             delete driver.addressDetails
             delete driver.radiusDetails
             driver.userDetails = { ...driver.userDetails, ...address, ...radius }

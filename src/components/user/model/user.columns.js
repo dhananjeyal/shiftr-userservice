@@ -62,6 +62,19 @@ export let userAddressColumns = [
     'SRU06_LOCATION_LONGITUDE_N as longitude'
 ];
 
+
+export let userAddressWithType = [
+    'SRU06_ADDRESS_D as addressId',
+    'SRU06_LINE_1_N as addressLine1',
+    'SRU06_LINE_1_N as userAddress',
+    'SRU06_LINE_2_N as addressLine2',
+    'SRU06_POSTAL_CODE_N as postalCode',
+    'SRU06_CITY_N as city',
+    'SRU06_LOCATION_LATITUDE_N as latitude',
+    'SRU06_LOCATION_LONGITUDE_N as longitude',
+    'SRU06_ADDRESS_TYPE_D as addressType'
+];
+
 export let userFinancialColumns = [
     'SRU08_FINANCIAL_D as financialId',
     'SRU08_BANK_N as bankName',
