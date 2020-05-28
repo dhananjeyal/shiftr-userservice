@@ -470,7 +470,8 @@ class DriverController extends BaseController {
                     SRU03_USER_MASTER_D: userId
                 })
                 await AddressDetails.query().delete().where({
-                    SRU03_USER_MASTER_D: userId
+                    SRU03_USER_MASTER_D: userId,
+                    SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL
                 })
 
                 await FinancialDetails.query().insert({
