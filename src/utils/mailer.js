@@ -167,3 +167,20 @@ export const superAdminEmail = (tripDetails, message) => {
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
     return sendMail(`shiftr@joshiinc.com`, "Trip - Details", html)
 };
+
+
+
+export const subscriptionNotification = (payload) => {
+
+    let html = `<b>Hello ${user.firstName},</b>
+                    <p>${message} ${tripDetails.tripCode} .</p>
+                    <p><b>Trip Details:-</b></p>
+                    <p>Company name:- ${tripDetails.companyName}</p>
+                    <p>Trip code:- ${tripDetails.tripCode}</p>
+                    <p>Trip type:- ${tripDetails.type}</p>
+                    <p>Trip start date:- ${tripDetails.startDate}</p>
+                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start time:- ${tripDetails.startTime}</p>`;
+    return sendMail(user.emailId, "Trip - Details", html)
+};
+
