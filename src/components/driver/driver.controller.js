@@ -12,14 +12,15 @@ import {
     phonenumbertype,
     CountryType,
     Typeofdistance,
-    booleanType
+    booleanType,
+    UserRole
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns ,drivercontactInfoDetailsColumns} from "../user/model/user.columns";
+import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns } from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
@@ -103,7 +104,7 @@ class DriverController extends BaseController {
                     SRU19_PHONE_R: data.phoneNumber
                 });
             });
-            
+
             //Insert contact Info
             await ContactInfo.query()
                 .insertGraph(phoneNumbers);
@@ -122,7 +123,7 @@ class DriverController extends BaseController {
             languages.map((data, index) => {
                 languagesKnown.push({
                     SRU03_USER_MASTER_D: ActiveUser.userId,
-                    SRU14_LANGUAGE_D:data.languageId,
+                    SRU14_LANGUAGE_D: data.languageId,
                     SRU11_LANGUAGE_N: data.languageName
                 });
             });
@@ -215,7 +216,7 @@ class DriverController extends BaseController {
             let experienceData = [];
             let specialityData = [];
             let experienceDataReference = [];
-            const { data, licenseType,licenseName } = req.body;
+            const { data, licenseType, licenseName } = req.body;
 
             //Experience Details
             data.map((currExpDetails, index) => {
@@ -255,7 +256,7 @@ class DriverController extends BaseController {
             const experienceResponse = await ExperienceDetails.query().insertGraphAndFetch(experienceData);
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
             const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
-            
+
             const userDetailsResponse = await UserDetails.query()
                 .update({
                     SRU04_LICENSE_TYPE_R: licenseType,
@@ -696,17 +697,50 @@ class DriverController extends BaseController {
      */
     profileUpload = async (req, res) => {
         try {
+            let result = {};
             await UserDetails.query()
                 .patch({
                     SRU04_PROFILE_I: req.body.userprofile
                 }).where({
                     SRU03_USER_MASTER_D: req.user.userId
                 });
-            //get All users List (Driver)
-            const driver = await this._getDriverDetails(req, res, req.user.userId);
-            if (driver) {
-                return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+            if (req.user.typeId == UserRole.DRIVER_R) {
+                //get All users List (Driver)
+                const driver = await this._getDriverDetails(req, res, req.user.userId);
+                if (driver) {
+                    result = driver;
+                }
             }
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.passMessages.updated);
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+    /**
+     * @DESC : Delete Profile Pictures- Mobile APP
+     * @return array/json
+     * @param string/Integer
+     */
+    profileimageDelete = async (req, res) => {
+        try {
+            let result = {};
+            await UserDetails.query()
+                .patch({
+                    SRU04_PROFILE_I: null
+                }).where({
+                    SRU03_USER_MASTER_D: req.user.userId
+                });
+            if (req.user.typeId == UserRole.DRIVER_R) {
+                //get All users List (Driver)
+                const driver = await this._getDriverDetails(req, res, req.user.userId);
+                if (driver) {
+                    result = driver;
+                }
+            }
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.passMessages.updated);
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }

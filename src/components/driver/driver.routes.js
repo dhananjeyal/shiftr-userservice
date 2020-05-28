@@ -16,7 +16,7 @@ function registerRoutes() {
     return (openRouter, apiRouter) => {
 
         /// Driver verification
-        let verify = AuthController.verifyDriver;
+        let verify = AuthController.verifyDriver;        
 
         // Get driver signup details
         apiRouter.route("/user/signup_details").get(verify, UserController.getSignUpDetails);
@@ -33,8 +33,7 @@ function registerRoutes() {
         apiRouter.route("/driver/experience_details").post(verify, CreateExperienceDetails, DriverController.CreateExperienceDetails);
         apiRouter.route("/driver/financial_details").post(verify, financialDetails, DriverController.financialDetails);
         apiRouter.route("/driver/driver_documents").post(verify, driverDocuments, DriverController.driverDocuments);
-        apiRouter.route("/driver/documentUpload").post(verify, documentUpload, DriverController.documentUpload);
-        apiRouter.route("/driver/profileUpload").post(verify, profileUpload, DriverController.profileUpload);
+        apiRouter.route("/driver/documentUpload").post(verify, documentUpload, DriverController.documentUpload);        
         apiRouter.route("/driver/documents").delete(verify, deleteDocument, DriverController.documentDelete);
        
         // apiRouter.route("/driver/driver_profile").get(verify, DriverController.getDriverProfile);
@@ -42,6 +41,10 @@ function registerRoutes() {
                             
         // Get Driver Master
         apiRouter.route("/driver/fetch_master").get(DriverController.getMasterData);
+
+        let verifyAny = AuthController.verifyAny;
+        apiRouter.route("/driver/profilepicture").post(verifyAny, profileUpload, DriverController.profileUpload);
+        apiRouter.route("/driver/profilepicture").delete(verifyAny,DriverController.profileimageDelete);
     };
 }
 
