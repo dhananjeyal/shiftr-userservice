@@ -1457,7 +1457,7 @@ class UserController extends BaseController {
                 allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
             }
 
-            if (allUserList && allUserList.length < 0) {
+            if (allUserList && !allUserList.length) {
                 allUserList = await this._getunmatchedUserList();//call back function
             }
 
