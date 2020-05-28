@@ -2080,6 +2080,9 @@ class UserController extends BaseController {
     _getunmatchedUserList = async () => {
         const allUserList = await Users.query()
             .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+            .where({
+                "SRU03_TYPE_D": UserRole.DRIVER_R
+            })
             .modifyEager('userDetails', (builder) => {
                 builder.select(tripUserDetailsColumns)
             })
