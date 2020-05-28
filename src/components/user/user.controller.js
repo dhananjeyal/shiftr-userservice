@@ -843,7 +843,7 @@ class UserController extends BaseController {
                 }).select(columns).limit(1);
 
             if (result.length) {
-                result = result[0];
+                result = result[0];                
                 // User status check
                 if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
                     let emailStatus = result.userDetails.emailStatus;

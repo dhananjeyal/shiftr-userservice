@@ -492,7 +492,10 @@ class DriverController extends BaseController {
             }
 
             await UserDetails.query()
-                .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED })
+                .update({ 
+                    SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
+                    SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED 
+                })
                 .where('SRU03_USER_MASTER_D', userId);
 
             const driver = await this._getDriverDetails(req, res, userId);
