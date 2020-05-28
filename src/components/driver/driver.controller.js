@@ -13,7 +13,8 @@ import {
     CountryType,
     Typeofdistance,
     booleanType,
-    UserRole
+    UserRole,
+    EmailStatus
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
