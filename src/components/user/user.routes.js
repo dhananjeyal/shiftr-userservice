@@ -38,8 +38,8 @@ function registerRoutes() {
 
         let verifyAny = AuthController.verifyAny;
         apiRouter.route("/user/trip/:userId/contacts").get(verifyAny, UserController.getContactInfo);
-        apiRouter.route("/user/driver/report").post(UserController.driverDetailsReport);
-        apiRouter.route("/user/subscription/confirmation").post(UserController.subscriptionplanNotification);
+        apiRouter.route("/user/driver/report").post(verifyAny,UserController.driverDetailsReport);
+        apiRouter.route("/user/subscription/confirmation").post(verifyAny,UserController.subscriptionplanNotification);
 
         // Required jwt authentication
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);

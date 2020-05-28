@@ -120,7 +120,8 @@ export class EmailContents {
     static TRIP_NO_MATCH = "Driver not found for your Trip";
 }
 
-export class tripTypes {
-    static CHARTER_TRIP = "CHARTER BASED TRIP";
-    static SCHOOL_TRIP = "SCHOOL BASED TRIP";
+export class subscriptionStatus {
+    static ACTIVEUSER = 12;
+    static GUESTUSER = 13;
 }
+
