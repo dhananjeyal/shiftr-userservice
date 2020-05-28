@@ -1718,9 +1718,7 @@ class UserController extends BaseController {
                 };
             }
 
-            if (Object.keys(financialAddress).length != booleanType.NO) {
                 driver.financialAddress = financialAddress;
-            }
 
             delete driver.allAddress
             delete driver.addressDetails
