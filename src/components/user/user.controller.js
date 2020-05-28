@@ -1457,7 +1457,7 @@ class UserController extends BaseController {
                 allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
             }
 
-            if (allUserList && allUserList.length < 0) {
+            if (allUserList && !allUserList.length) {
                 allUserList = await this._getunmatchedUserList();//call back function
             }
 
@@ -1698,27 +1698,32 @@ class UserController extends BaseController {
             let radius = { ...driver.radiusDetails };
 
             let address = {};
+            let financialAddress = {};
+            let permanentAddress = {};
 
-            const permanentAddress = addressDetail.filter((address) => address.addressType == AddressType.PERMANENT)[0];
+            if (addressDetail && addressDetail.length) {
 
-            const financialAddress = addressDetail.filter((address) => address.addressType == AddressType.FINANCIAL)[0];
+                permanentAddress = addressDetail.filter((address) => address.addressType == AddressType.PERMANENT)[0];
 
-            if (Object.keys(addressDetail).length != booleanType.NO) {
-                address = {
-                    addressId: permanentAddress.addressId,
-                    address1: permanentAddress.addressLine1,
-                    address2: permanentAddress.addressLine2,
-                    userAddress: permanentAddress.userAddress,
-                    provinceId: provinceDetail.provinceDetails ? provinceDetail.provinceDetails.SRU16_PROVINCE_D : null,
-                    province: provinceDetail.provinceDetails ? provinceDetail.provinceDetails.SRU16_PROVINCE_N : "",
-                    city: permanentAddress.city,
-                    postalCode: permanentAddress.postalCode,
-                    latitude: permanentAddress.latitude,
-                    longitude: permanentAddress.longitude
-                };
+                financialAddress = addressDetail.filter((address) => address.addressType == AddressType.FINANCIAL)[0];
+
+                if (addressDetail.length != booleanType.NO && permanentAddress && Object.keys(permanentAddress) != booleanType.NO) {
+                    address = {
+                        addressId: permanentAddress.addressId,
+                        address1: permanentAddress.addressLine1,
+                        address2: permanentAddress.addressLine2,
+                        userAddress: permanentAddress.userAddress,
+                        provinceId: provinceDetail.provinceDetails ? provinceDetail.provinceDetails.SRU16_PROVINCE_D : null,
+                        province: provinceDetail.provinceDetails ? provinceDetail.provinceDetails.SRU16_PROVINCE_N : "",
+                        city: permanentAddress.city,
+                        postalCode: permanentAddress.postalCode,
+                        latitude: permanentAddress.latitude,
+                        longitude: permanentAddress.longitude
+                    };
+                }
+
             }
-
-                driver.financialAddress = financialAddress;
+            driver.financialAddress = financialAddress;
 
             delete driver.allAddress
             delete driver.addressDetails
