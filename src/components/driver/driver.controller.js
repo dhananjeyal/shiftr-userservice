@@ -13,7 +13,8 @@ import {
     CountryType,
     Typeofdistance,
     booleanType,
-    UserRole
+    UserRole,
+    EmailStatus
 } from "../../constants";
 import { genHash, genHmac256, mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
@@ -469,7 +470,8 @@ class DriverController extends BaseController {
                     SRU03_USER_MASTER_D: userId
                 })
                 await AddressDetails.query().delete().where({
-                    SRU03_USER_MASTER_D: userId
+                    SRU03_USER_MASTER_D: userId,
+                    SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL
                 })
 
                 await FinancialDetails.query().insert({
@@ -492,7 +494,10 @@ class DriverController extends BaseController {
             }
 
             await UserDetails.query()
-                .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED })
+                .update({ 
+                    SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
+                    SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED 
+                })
                 .where('SRU03_USER_MASTER_D', userId);
 
             const driver = await this._getDriverDetails(req, res, userId);

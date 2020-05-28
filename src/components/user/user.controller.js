@@ -394,12 +394,12 @@ class UserController extends BaseController {
     * @param req
     * @param res
     */
-   driverDetailsReport = async (req, res) => {
-    try {
-        const { driverId } = req.body;
-        
-        const responseData = await Users.query()
-                .whereIn( 'SRU03_USER_MASTER_D', driverId )
+    driverDetailsReport = async (req, res) => {
+        try {
+            const { driverId } = req.body;
+
+            const responseData = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', driverId)
                 .eager(`[addressDetails]`)
                 .modifyEager('addressDetails', (builder) => {
                     builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
@@ -409,11 +409,11 @@ class UserController extends BaseController {
                         .select(userAddressReports)
                 }).select(usersColumnsReports);
 
-        return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
-    } catch (e) {
-        return this.internalServerError(req, res, e);
-    }
-};
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
 
     /**
      * @DESC : Send email notification.
@@ -449,12 +449,12 @@ class UserController extends BaseController {
         }
     }
 
-     /**
-     * @DESC : Send email notification.
-     * @return array/json
-     * @param req
-     * @param res
-     */
+    /**
+    * @DESC : Send email notification.
+    * @return array/json
+    * @param req
+    * @param res
+    */
     sendTripPendingNotication = async (req, res) => {
         try {
             const tripDetails = req.body.busOwnerTripDetails;
@@ -476,8 +476,8 @@ class UserController extends BaseController {
                     endDate: trip.scheduleDetails[0].endDate,
                     startTime: trip.scheduleDetails[0].startTime
                 }
-                
-                await mailer.busOwnerEmail( user[0], tripDetail, EmailContents.TRIP_PENDING );
+
+                await mailer.busOwnerEmail(user[0], tripDetail, EmailContents.TRIP_PENDING);
 
                 await mailer.superAdminEmail(tripDetails, EmailContents.TRIP_PENDING);
             }
@@ -1336,12 +1336,12 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', driverIdlist)
                 .pluck('SRU03_USER_MASTER_D');
 
-                console.log("driverLicensetype", driverLicensetype);
+            console.log("driverLicensetype", driverLicensetype);
 
-                // const userIdlist = await UserDetails.query()
-                // .where('SRU04_LICENSE_TYPE_N', driverDetails[0].licenceType)
-                // .whereIn('SRU03_USER_MASTER_D', driverIdlist)
-                // .pluck('SRU03_USER_MASTER_D');
+            // const userIdlist = await UserDetails.query()
+            // .where('SRU04_LICENSE_TYPE_N', driverDetails[0].licenceType)
+            // .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+            // .pluck('SRU03_USER_MASTER_D');
 
             let _where = {};
             let _orWhere = {};
@@ -1963,7 +1963,7 @@ class UserController extends BaseController {
 
     existingMobilenumber = async (req, res) => {
         try {
-            const { mobileNumber, userId } = req.body;           
+            const { mobileNumber, userId } = req.body;
             let _where;
             if (userId) {
                 _where = {
@@ -2028,22 +2028,26 @@ class UserController extends BaseController {
      */
 
     _getmatchedUserList = async (userIdlist) => {
-        const allUserList = await Users.query()
-            .whereIn('SRU03_USER_MASTER_D', userIdlist)
-            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
-            .modifyEager('userDetails', (builder) => {
-                builder.select(tripUserDetailsColumns)
-            })
-            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                builder.where((builder) => {
-                    builder
-                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+        try {
+            const allUserList = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(tripUserDetailsColumns)
                 })
-                    .select(driverExperienceColumns)
-            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
-                builder.select(driverSpecialityTrainingColumns)
-            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
-        return allUserList;
+                .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                    builder.where((builder) => {
+                        builder
+                            .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    })
+                        .select(driverExperienceColumns)
+                }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                    builder.select(driverSpecialityTrainingColumns)
+                }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+            return allUserList;
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
     }
 
     /**
@@ -2053,22 +2057,26 @@ class UserController extends BaseController {
     * @param res
     */
     _getpartialmatchedUserList = async (userIdlist) => {
-        const allUserList = await Users.query()
-            .whereIn('SRU03_USER_MASTER_D', userIdlist)
-            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
-            .modifyEager('userDetails', (builder) => {
-                builder.select(tripUserDetailsColumns)
-            })
-            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                builder.where((builder) => {
-                    builder
-                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+        try {
+            const allUserList = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(tripUserDetailsColumns)
                 })
-                    .select(driverExperienceColumns)
-            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
-                builder.select(driverSpecialityTrainingColumns)
-            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
-        return allUserList;
+                .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                    builder.where((builder) => {
+                        builder
+                            .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    })
+                        .select(driverExperienceColumns)
+                }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                    builder.select(driverSpecialityTrainingColumns)
+                }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+            return allUserList;
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
     }
 
     /**
@@ -2078,21 +2086,48 @@ class UserController extends BaseController {
     * @param res
     */
     _getunmatchedUserList = async () => {
-        const allUserList = await Users.query()
-            .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
-            .modifyEager('userDetails', (builder) => {
-                builder.select(tripUserDetailsColumns)
-            })
-            .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                builder.where((builder) => {
-                    builder
-                        .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+        try {
+            const allUserList = await Users.query()
+                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                .where({
+                    "SRU03_TYPE_D": UserRole.DRIVER_R
                 })
-                    .select(driverExperienceColumns)
-            }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
-                builder.select(driverSpecialityTrainingColumns)
-            }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
-        return allUserList;
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(tripUserDetailsColumns)
+                })
+                .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                    builder.where((builder) => {
+                        builder
+                            .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    })
+                        .select(driverExperienceColumns)
+                }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                    builder.select(driverSpecialityTrainingColumns)
+                }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+            return allUserList;
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+    /**
+    * @DESC : Subscription plan - Transaction
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    subscriptionplanNotification = async (req,res) => {
+        try {
+
+            console.log(req.body);
+            return false;
+            this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+
+            // TODO: Send the mail
+            return await mailer.subscriptionNotification(req.body);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
     }
 
 }
