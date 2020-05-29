@@ -8,8 +8,13 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, userAddressReports, usersColumnsReports } from "./model/user.columns";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
+import { genHash, mailer } from "../../utils";
+import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
 import NotifyService from "../../services/notifyServices";
+import ExperienceDetails from "../driver/model/driverExperience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
 import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns, omitDriverSpecialityColumns } from "../driver/model/driver.columns";
@@ -384,54 +389,19 @@ class UserController extends BaseController {
         }
     };
 
-     /**
-    * @DESC : Get user busOnwers address
-    * @return array/json
-    * @param req
-    * @param res
-    */
-   busDriverDetailsReport = async (req, res) => {
-    try {
-        this._getAllReports(req, res, UserRole.DRIVER_R);
-    } catch (e) {
-        return this.internalServerError(req, res, e);
-    }
-};
-
     /**
-    * @DESC : Get user busOnwers address
+    * @DESC : Get user address
     * @return array/json
     * @param req
     * @param res
     */
-    busOwnerDetailsReport = async (req, res) => {
+    driverDetailsReport = async (req, res) => {
         try {
-            this._getAllReports(req, res, UserRole.CUSTOMER_R);
-        } catch (e) {
-            return this.internalServerError(req, res, e);
-        }
-    };
+            const { driverId } = req.body;
 
-    /**
-    * @DESC : user report details.
-    * @return array/json
-    * @param req
-    * @param res
-    */
-
-    _getAllReports = async (req, res, userType) => {
-        try {
-
-            let where = {
-                SRU03_TYPE_D: userType
-            };
-
-            const result = await Users.query()
-                .where(where)
-                .eager(`[userDetails, addressDetails]`)
-                .modifyEager('userDetails', (builder) => {
-                    builder.select(reportUserDetails)
-                })
+            const responseData = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', driverId)
+                .eager(`[addressDetails]`)
                 .modifyEager('addressDetails', (builder) => {
                     builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
                         .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
@@ -439,11 +409,12 @@ class UserController extends BaseController {
                         .first()
                         .select(userAddressReports)
                 }).select(usersColumnsReports);
-            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
+
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
-    }
+    };
 
     /**
      * @DESC : Send email notification.
@@ -1517,8 +1488,6 @@ class UserController extends BaseController {
                 userIds
             } = req.body;
 
-            console.log("userIds", userIds)
-
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
@@ -1552,7 +1521,6 @@ class UserController extends BaseController {
                 });
                 return userValue;
             });
-            console.log(results)
 
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
 
