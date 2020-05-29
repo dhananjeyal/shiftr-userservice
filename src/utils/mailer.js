@@ -172,15 +172,16 @@ export const superAdminEmail = (tripDetails, message) => {
 
 export const subscriptionNotification = (payload) => {
 
-    let html = `<b>Hello ${user.firstName},</b>
-                    <p>${message} ${tripDetails.tripCode} .</p>
-                    <p><b>Trip Details:-</b></p>
-                    <p>Company name:- ${tripDetails.companyName}</p>
-                    <p>Trip code:- ${tripDetails.tripCode}</p>
-                    <p>Trip type:- ${tripDetails.type}</p>
-                    <p>Trip start date:- ${tripDetails.startDate}</p>
-                    <p>Trip end date:- ${tripDetails.endDate}</p>
-                    <p>Trip start time:- ${tripDetails.startTime}</p>`;
-    return sendMail(user.emailId, "Trip - Details", html)
+    let html = `<b>Hello ${user.username},</b>
+                    <p>Welcome to shiftR ! Thank you for the subscription.!</p>                   
+                    <p><b>Plan Details:-</b></p>
+                    <p>companyName:- ${payload.companyName}</p>
+                    <p>Plan Type:- ${payload.planType}</p>
+                    <p>Plan Category(Monthly/Yearly):- ${payload.plandurationType}</p>
+                    <p>Plan startdate:- ${payload.startdate}</p>
+                    <p>plan enddate:- ${payload.expirydate}</p>
+                    <p>TotalTrips:- ${payload.totalTrips}</p>
+                    <p>Amount (CAD) $:- ${payload.amount}</p>`;
+    return sendMail(payload.useremail, "ShiftR-Subscription", html)
 };
 
