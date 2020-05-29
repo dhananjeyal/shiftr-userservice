@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, userAddressReports, usersColumnsReports } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, userAddressReports, usersColumnsReports, reportUserDetails } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -388,19 +388,54 @@ class UserController extends BaseController {
         }
     };
 
-    /**
-    * @DESC : Get user address
+     /**
+    * @DESC : Get user busOnwers address
     * @return array/json
     * @param req
     * @param res
     */
-    driverDetailsReport = async (req, res) => {
-        try {
-            const { driverId } = req.body;
+   busDriverDetailsReport = async (req, res) => {
+    try {
+        this._getAllReports(req, res, UserRole.DRIVER_R);
+    } catch (e) {
+        return this.internalServerError(req, res, e);
+    }
+};
 
-            const responseData = await Users.query()
-                .whereIn('SRU03_USER_MASTER_D', driverId)
-                .eager(`[addressDetails]`)
+    /**
+    * @DESC : Get user busOnwers address
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    busOwnerDetailsReport = async (req, res) => {
+        try {
+            this._getAllReports(req, res, UserRole.CUSTOMER_R);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+    /**
+    * @DESC : user report details.
+    * @return array/json
+    * @param req
+    * @param res
+    */
+
+    _getAllReports = async (req, res, userType) => {
+        try {
+
+            let where = {
+                SRU03_TYPE_D: userType
+            };
+
+            const result = await Users.query()
+                .where(where)
+                .eager(`[userDetails, addressDetails]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(reportUserDetails)
+                })
                 .modifyEager('addressDetails', (builder) => {
                     builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
                         .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
@@ -408,12 +443,11 @@ class UserController extends BaseController {
                         .first()
                         .select(userAddressReports)
                 }).select(usersColumnsReports);
-
-            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
-    };
+    }
 
     /**
      * @DESC : Send email notification.

@@ -12,6 +12,12 @@ function registerRoutes() {
         // Create update driver user
        
         apiRouter.route("/user/drivers").get(verify, UserController.getAllDrivers);
+
+        apiRouter.route("/user/driver/report").get(UserController.busDriverDetailsReport);
+
+        apiRouter.route("/user/busowner/report").get(UserController.busOwnerDetailsReport);
+
+
         apiRouter.route("/user/get_driver/:userId").get(verify, DriverController.getDriverDetails);
 
         // Update user's signup status
