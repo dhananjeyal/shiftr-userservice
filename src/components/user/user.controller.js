@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, userAddressReports, usersColumnsReports } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes,subscriptionStatus } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -148,7 +148,7 @@ class UserController extends BaseController {
                 SRU04_PHONE_N: req.body.phoneNo,
                 SRU04_EMAIL_STATUS_D: EmailStatus.PENDING,
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
-                SRU04_ACTIVE_SUBSCRIPTION_PLAN_F:subscriptionStatus.GUESTUSER
+                SRU04_ACTIVE_SUBSCRIPTION_PLAN_F: subscriptionStatus.GUESTUSER
             });
 
             const phoneNumbers = [];
@@ -847,6 +847,7 @@ class UserController extends BaseController {
                 result = result[0];
                 // User status check
                 if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
+                    
                     let emailStatus = result.userDetails.emailStatus;
                     if (result.status === UserStatus.FIRST_TIME) {
                         result.changedPassword = false
@@ -2117,16 +2118,16 @@ class UserController extends BaseController {
     * @param req
     * @param res
     */
-    subscriptionplanNotification = async (req,res) => {
+    subscriptionplanNotification = async (req, res) => {
         try {
 
             //Activate- subscription user
             await UserDetails.query().patch({
-                SRU04_ACTIVE_SUBSCRIPTION_PLAN_F:subscriptionStatus.ACTIVEUSER
+                SRU04_ACTIVE_SUBSCRIPTION_PLAN_F: subscriptionStatus.ACTIVEUSER
             }).where({
                 SRU03_USER_MASTER_D: req.user.userId
             });
-           
+
             this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
 
             // TODO: Send the mail
