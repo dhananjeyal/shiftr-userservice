@@ -13,9 +13,7 @@ function registerRoutes() {
        
         apiRouter.route("/user/drivers").get(verify, UserController.getAllDrivers);
 
-        apiRouter.route("/user/driver/report").get(UserController.busDriverDetailsReport);
-
-        apiRouter.route("/user/busowner/report").get(UserController.busOwnerDetailsReport);
+        
 
 
         apiRouter.route("/user/get_driver/:userId").get(verify, DriverController.getDriverDetails);
@@ -42,6 +40,10 @@ function registerRoutes() {
         let verifyAny = AuthController.verifyAny;
         // Create update user
         apiRouter.route("/user/update_profile").put(verifyAny, updateProfile, UserController.updateProfile);
+
+        apiRouter.route("/user/driver/report").get(verifyAny, UserController.busDriverDetailsReport);
+
+        apiRouter.route("/user/busowner/report").get(verifyAny, UserController.busOwnerDetailsReport);
     };
 }
 
