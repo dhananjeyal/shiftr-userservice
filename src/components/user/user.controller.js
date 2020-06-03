@@ -389,19 +389,19 @@ class UserController extends BaseController {
         }
     };
 
-     /**
-    * @DESC : Get user busOnwers address
-    * @return array/json
-    * @param req
-    * @param res
-    */
-   busDriverDetailsReport = async (req, res) => {
-    try {
-        this._getAllReports(req, res, UserRole.DRIVER_R);
-    } catch (e) {
-        return this.internalServerError(req, res, e);
-    }
-};
+    /**
+   * @DESC : Get user busOnwers address
+   * @return array/json
+   * @param req
+   * @param res
+   */
+    busDriverDetailsReport = async (req, res) => {
+        try {
+            this._getAllReports(req, res, UserRole.DRIVER_R);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
 
     /**
     * @DESC : Get user busOnwers address
@@ -881,7 +881,7 @@ class UserController extends BaseController {
                 result = result[0];
                 // User status check
                 if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
-                    
+
                     let emailStatus = result.userDetails.emailStatus;
                     if (result.status === UserStatus.FIRST_TIME) {
                         result.changedPassword = false
@@ -2169,6 +2169,45 @@ class UserController extends BaseController {
 
             // TODO: Send the mail
             return await mailer.subscriptionNotification(req.body);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+    /**
+    * @DESC : Subscription plan - Reminder Notification
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    sendReminderNotication = async (req, res) => {
+        try {
+            const { notificationPayload, reminderUserIds } = req.body;
+            const alluserDetails = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', reminderUserIds)
+                .eager(`[userDetails]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(tripUserDetailsColumns)
+                }).select(usersColumns);
+
+            this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+
+           //Mail - Queue     
+            for (const data of notificationPayload) {
+                const index = alluserDetails.findIndex(user => user.userId === data.subscriptionuserId);
+                if (-1 !== index) {
+                    const userdata = alluserDetails[index];
+                    await mailer.subscriptionReminder({
+                        useremail: userdata.emailId,
+                        username: userdata.firstName,
+                        companyName: userdata.userDetails.companyName,
+                        startdate: data.startdate,
+                        expirydate: data.expirydate,
+                        totalTrips: data.totalTrips
+                    });
+                }
+            }
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
