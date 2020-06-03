@@ -427,8 +427,8 @@ class UserController extends BaseController {
     _getAllReports = async (req, res, userType) => {
         try {
 
-            const page = parseInt(req.query.page || 1);
-            const chunk = parseInt(req.query.chunk || 10);
+            const page = req.body.pagination.page;
+            const chunk = req.body.pagination.chunk;
 
             let where = {
                 SRU03_TYPE_D: userType,

@@ -41,9 +41,9 @@ function registerRoutes() {
         // Create update user
         apiRouter.route("/user/update_profile").put(verifyAny, updateProfile, UserController.updateProfile);
 
-        apiRouter.route("/user/driver/report").get(verifyAny, UserController.busDriverDetailsReport);
+        apiRouter.route("/user/driver/report").post(verifyAny, UserController.busDriverDetailsReport);
 
-        apiRouter.route("/user/busowner/report").get(verifyAny, UserController.busOwnerDetailsReport);
+        apiRouter.route("/user/busowner/report").post(verifyAny, UserController.busOwnerDetailsReport);
     };
 }
 
