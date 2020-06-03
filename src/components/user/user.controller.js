@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, userAddressReports, usersColumnsReports } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -17,7 +17,7 @@ import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/driverExperience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
-import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns, omitDriverSpecialityColumns } from "../driver/model/driver.columns";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns, omitDriverSpecialityColumns, reportsDriverExperienceColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
@@ -427,23 +427,57 @@ class UserController extends BaseController {
     _getAllReports = async (req, res, userType) => {
         try {
 
+            const page = req.body.pagination.page;
+            const chunk = req.body.pagination.chunk;
+
             let where = {
-                SRU03_TYPE_D: userType
+                SRU03_TYPE_D: userType,
+                "SRU03_USER_MASTER.SRU03_DELETED_F": null,
+                "SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D": SignUpStatus.COMPLETED
             };
 
-            const result = await Users.query()
-                .where(where)
-                .eager(`[userDetails, addressDetails]`)
-                .modifyEager('userDetails', (builder) => {
-                    builder.select(reportUserDetails)
-                })
-                .modifyEager('addressDetails', (builder) => {
-                    builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
-                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
-                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.RESIDENTIAL })
-                        .first()
-                        .select(userAddressReports)
-                }).select(usersColumnsReports);
+            let userQuery = Users.query().where(where).join(UserDetails.tableName,
+                `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
+                `${Users.tableName}.SRU03_USER_MASTER_D`
+            );
+
+            let columnList = adminReportListColumns;
+
+            if (userType === UserRole.DRIVER_R) {
+                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .where({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                    .groupBy(`${AddressDetails.tableName}.SRU03_USER_MASTER_D`);
+
+                userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
+
+
+                columnList = [...columnList, ...userAddressColumns, ...reportsDriverExperienceColumns];
+            }
+
+            if (userType === UserRole.CUSTOMER_R) {
+
+                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    // .where({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                    .groupBy(`${AddressDetails.tableName}.SRU03_USER_MASTER_D`);
+
+                columnList = [...columnList, ...userAddressColumns];
+            }
+
+            userQuery = await userQuery.select(columnList).page(page - 1, chunk);
+
+            const pageMetaData = {
+                chunk: chunk,
+                total: userQuery.total,
+                page: page,
+                totalPages: Math.ceil(userQuery.total / chunk)
+            };
+
+            const result = {
+                list: userQuery.results,
+                pageMetaData
+            };
+
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -832,8 +866,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                    expiresIn: 3600 // Will expire in next 1 hour
-                                })
+                                        expiresIn: 3600 // Will expire in next 1 hour
+                                    })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
