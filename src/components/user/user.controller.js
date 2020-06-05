@@ -432,8 +432,10 @@ class UserController extends BaseController {
 
             let { startDate, endDate } = req.body.date;
 
-            startDate = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
-            endDate = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
+            const threeMonthsBefore = moment(Date.now()).subtract(3, 'months').format('YYYY-MM-DD HH:mm:ss')
+
+            startDate = startDate ? moment(startDate).format('YYYY-MM-DD HH:mm:ss') : threeMonthsBefore;
+            endDate = endDate ? moment(endDate).format('YYYY-MM-DD HH:mm:ss') : moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
             let where = {
                 SRU03_TYPE_D: userType,
