@@ -874,8 +874,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                        expiresIn: 3600 // Will expire in next 1 hour
-                                    })
+                                    expiresIn: 3600 // Will expire in next 1 hour
+                                })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -2216,6 +2216,117 @@ class UserController extends BaseController {
         }
     }
 
+    /**
+    * @DESC : Subscription plan - Reminder Notification
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    sendReminderNotication = async (req, res) => {
+        try {
+            const { notificationPayload, reminderUserIds } = req.body;
+            const alluserDetails = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', reminderUserIds)
+                .eager(`[userDetails]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(tripUserDetailsColumns)
+                }).select(usersColumns);
+
+            this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+
+            //Mail - Queue     
+            for (const data of notificationPayload) {
+                const index = alluserDetails.findIndex(user => user.userId === data.subscriptionuserId);
+                if (-1 !== index) {
+                    const userdata = alluserDetails[index];
+                    await mailer.subscriptionReminder({
+                        useremail: userdata.emailId,
+                        username: userdata.firstName,
+                        companyName: userdata.userDetails.companyName,
+                        startdate: data.startdate,
+                        expirydate: data.expirydate,
+                        totalTrips: data.totalTrips
+                    });
+                }
+            }
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+    /**
+    * @DESC : Subscription plan - Renewals Notification
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    sendRenewalsNotication = async (req, res) => {
+        try {
+            const { expiredUserIds, activeplanuserIds, expiredplanUsers,activatedplanUsers} = req.body;            
+
+            if (expiredUserIds.length > booleanType.NO) {
+                const expireduserData = await this._subuscriptionrenewaluserList(req, res, expiredUserIds);
+                //Mail - Queue     
+                for (const data of expiredplanUsers) {
+                    const index = expireduserData.findIndex(user => user.userId === data.subscriptionuserId);
+                    if (-1 !== index) {
+                        const userdata = expireduserData[index];
+                        await mailer.subscriptionExpired({
+                            useremail: userdata.emailId,
+                            username: userdata.firstName,
+                            companyName: userdata.userDetails.companyName,
+                            startdate: data.startdate,
+                            expirydate: data.expirydate,
+                            totalTrips: data.totalTrips
+                        });
+                    }
+                }
+            }
+
+            if (activeplanuserIds.length > booleanType.NO) {
+                const activateduserData = await this._subuscriptionrenewaluserList(req, res, activeplanuserIds);
+                //Mail - Queue     
+                for (const data of activatedplanUsers) {
+                    const index = activateduserData.findIndex(user => user.userId === data.subscriptionuserId);
+                    if (-1 !== index) {
+                        const userdata = activateduserData[index];
+                        await mailer.subscriptionActivated({
+                            useremail: userdata.emailId,
+                            username: userdata.firstName,
+                            companyName: userdata.userDetails.companyName,
+                            startdate: data.startdate,
+                            expirydate: data.expirydate,
+                            totalTrips: data.totalTrips
+                        });
+                    }
+                }
+            }
+            this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+    /**
+    * @DESC : Subscription plan - Renewals userList
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    _subuscriptionrenewaluserList = async (req, res, userIds) => {
+        try {
+            const alluserDetails = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', userIds)
+                .eager(`[userDetails]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(tripUserDetailsColumns)
+                }).select(usersColumns);
+            return alluserDetails;
+        } catch (e) {
+
+        }
+    }
 }
 
 export default new UserController();

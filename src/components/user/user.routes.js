@@ -18,6 +18,8 @@ function registerRoutes() {
         // Email verification
         openRouter.route("/api/user/verify_email").get(UserController.verifyUser);
         openRouter.route("/api/user/email/trip_pending").post(UserController.sendTripPendingNotication);
+        openRouter.route("/api/user/subscription/reminder").post(UserController.sendReminderNotication);
+        openRouter.route("/api/user/subscription/renewals").post(UserController.sendRenewalsNotication);
 
         let verifySuperAdminOrAdmin = AuthController.verifySuperAdminOrAdmin;
         //Existing Email verification
