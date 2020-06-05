@@ -430,16 +430,24 @@ class UserController extends BaseController {
             const page = req.body.pagination.page;
             const chunk = req.body.pagination.chunk;
 
+            let { startDate, endDate } = req.body.date;
+
+            startDate = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
+            endDate = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
+
             let where = {
                 SRU03_TYPE_D: userType,
                 "SRU03_USER_MASTER.SRU03_DELETED_F": null,
                 "SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D": SignUpStatus.COMPLETED
             };
 
-            let userQuery = Users.query().where(where).join(UserDetails.tableName,
-                `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
-                `${Users.tableName}.SRU03_USER_MASTER_D`
-            );
+            let userQuery = Users.query().where(where)
+                .where(`SRU03_CREATED_AT`, '>=', startDate)
+                .where(`SRU03_CREATED_AT`, '<=', endDate)
+                .join(UserDetails.tableName,
+                    `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
+                    `${Users.tableName}.SRU03_USER_MASTER_D`
+                );
 
             let columnList = adminReportListColumns;
 
