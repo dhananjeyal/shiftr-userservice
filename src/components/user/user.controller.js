@@ -767,12 +767,15 @@ class UserController extends BaseController {
                             const indexFile = path.resolve('./public/templates/emails/verified.html');
 
                             if (result.userDetails.emailStatus === EmailStatus.PENDING) {
-                                // await UserDetails.query().patch({
-                                //     SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
-                                // }).where({
-                                //     SRU03_USER_MASTER_D: payload.userId
-                                // });
 
+                                if (result.typeId != UserRole.DRIVER_R) {
+                                    await UserDetails.query().patch({
+                                        SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
+                                    }).where({
+                                        SRU03_USER_MASTER_D: payload.userId
+                                    });
+                                }
+                                
                                 let notifyData = {
                                     title: this.messageTypes.passMessages.title,
                                     message: this.messageTypes.passMessages.emailVerified,
@@ -2265,7 +2268,7 @@ class UserController extends BaseController {
     */
     sendRenewalsNotication = async (req, res) => {
         try {
-            const { expiredUserIds, activeplanuserIds, expiredplanUsers,activatedplanUsers} = req.body;            
+            const { expiredUserIds, activeplanuserIds, expiredplanUsers, activatedplanUsers } = req.body;
 
             if (expiredUserIds.length > booleanType.NO) {
                 const expireduserData = await this._subuscriptionrenewaluserList(req, res, expiredUserIds);
