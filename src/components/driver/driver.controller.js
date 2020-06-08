@@ -258,11 +258,21 @@ class DriverController extends BaseController {
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
             const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
 
+
+            let signupStatus;
+            if (rowExists.length <= booleanType.NO) {
+                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+            } else if (rowExists.length >= booleanType.YES) {
+                signupStatus = SignUpStatus.COMPLETED;
+            } else {
+                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+            }
+
             const userDetailsResponse = await UserDetails.query()
                 .update({
                     SRU04_LICENSE_TYPE_R: licenseType,
                     SRU04_LICENSE_TYPE_N: licenseName,
-                    SRU04_SIGNUP_STATUS_D: SignUpStatus.DRIVER_DOCUMENTS
+                    SRU04_SIGNUP_STATUS_D: signupStatus
                 })
                 .where('SRU03_USER_MASTER_D', user.userId);
 
@@ -660,9 +670,7 @@ class DriverController extends BaseController {
             } else {
                 signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
             }
-            console.log("signupStatus", signupStatus);
-            console.log("rowExists.length", rowExists.length);
-            console.log("userId", userId);
+          
             //Update signup status
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: signupStatus })
