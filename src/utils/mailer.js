@@ -225,3 +225,18 @@ export const subscriptionActivated = (payload) => {
                     <p>TotalTrips:- ${payload.totalTrips}</p>`;
     return sendMail(payload.useremail, "ShiftR-Reminder-Subscription", html)
 };
+
+
+
+export const subscriptionDeactiveNotification = (payload) => {
+
+    let html = `<b>Hello ${payload.username},</b>
+                    <p>Welcome to shiftR ! your subscription Deactivated successfully.!</p>                   
+                    <p><b>Plan Details:-</b></p>
+                    <p>companyName:- ${payload.companyName}</p>
+                    <p>Plan startdate:- ${payload.startdate}</p>
+                    <p>plan enddate:- ${payload.expirydate}</p>
+                    <p>TotalTrips:- ${payload.totalTrips}</p>
+                    <p>RemainingTrips:- ${payload.remainingTrips}</p>`;
+    return sendMail(payload.useremail, "ShiftR-Deactive-Subscription", html)
+};
