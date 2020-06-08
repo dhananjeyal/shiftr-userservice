@@ -646,7 +646,7 @@ class DriverController extends BaseController {
                 }
             );
 
-            const rowExists = await FinancialDetails.query()
+            let rowExists = await FinancialDetails.query()
                 .select("SRU03_USER_MASTER_D as userId")
                 .where({
                     SRU03_USER_MASTER_D: userId
@@ -660,7 +660,9 @@ class DriverController extends BaseController {
             } else {
                 signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
             }
-
+            console.log("signupStatus", signupStatus);
+            console.log("rowExists.length", rowExists.length);
+            console.log("userId", userId);
             //Update signup status
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: signupStatus })
