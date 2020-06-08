@@ -258,6 +258,12 @@ class DriverController extends BaseController {
             const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
             const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
 
+            //check - financial exists
+            let rowExists = await FinancialDetails.query()
+            .select("SRU03_USER_MASTER_D as userId")
+            .where({
+                SRU03_USER_MASTER_D: user.userId
+            });
 
             let signupStatus;
             if (rowExists.length <= booleanType.NO) {
