@@ -8,8 +8,8 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, userAddressReports, usersColumnsReports } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes } from "../../constants";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns } from "./model/user.columns";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -17,7 +17,7 @@ import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/driverExperience.model";
 import FinancialDetails from "../driver/model/financial.model";
 import AddressDetails from "../user/model/address.model";
-import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns, omitDriverSpecialityColumns } from "../driver/model/driver.columns";
+import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityColumns, contactInfoColumns, driverSpecialityTrainingColumns, driverLanguageColumns, omitDriverSpecialityColumns, reportsDriverExperienceColumns } from "../driver/model/driver.columns";
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
@@ -148,6 +148,7 @@ class UserController extends BaseController {
                 SRU04_PHONE_N: req.body.phoneNo,
                 SRU04_EMAIL_STATUS_D: EmailStatus.PENDING,
                 SRU04_SIGNUP_STATUS_D: signUpStatus,
+                SRU04_ACTIVE_SUBSCRIPTION_PLAN_F: subscriptionStatus.GUESTUSER
             });
 
             const phoneNumbers = [];
@@ -389,31 +390,109 @@ class UserController extends BaseController {
     };
 
     /**
-    * @DESC : Get user address
-    * @return array/json
-    * @param req
-    * @param res
-    */
-    driverDetailsReport = async (req, res) => {
+   * @DESC : Get user busOnwers address
+   * @return array/json
+   * @param req
+   * @param res
+   */
+    busDriverDetailsReport = async (req, res) => {
         try {
-            const { driverId } = req.body;
-
-            const responseData = await Users.query()
-                .whereIn('SRU03_USER_MASTER_D', driverId)
-                .eager(`[addressDetails]`)
-                .modifyEager('addressDetails', (builder) => {
-                    builder.where({ SRU06_ADDRESS_TYPE_D: AddressType.FINANCIAL })
-                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
-                        .orWhere({ SRU06_ADDRESS_TYPE_D: AddressType.RESIDENTIAL })
-                        .first()
-                        .select(userAddressReports)
-                }).select(usersColumnsReports);
-
-            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
+            this._getAllReports(req, res, UserRole.DRIVER_R);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
     };
+
+    /**
+    * @DESC : Get user busOnwers address
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    busOwnerDetailsReport = async (req, res) => {
+        try {
+            this._getAllReports(req, res, UserRole.CUSTOMER_R);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+    /**
+    * @DESC : user report details.
+    * @return array/json
+    * @param req
+    * @param res
+    */
+
+    _getAllReports = async (req, res, userType) => {
+        try {
+
+            const page = req.body.pagination.page;
+            const chunk = req.body.pagination.chunk;
+
+            let { startDate, endDate } = req.body.date;
+
+            const threeMonthsBefore = moment(Date.now()).subtract(3, 'months').format('YYYY-MM-DD HH:mm:ss')
+
+            startDate = startDate ? moment(startDate).format('YYYY-MM-DD HH:mm:ss') : threeMonthsBefore;
+            endDate = endDate ? moment(endDate).format('YYYY-MM-DD HH:mm:ss') : moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+
+            let where = {
+                SRU03_TYPE_D: userType,
+                "SRU03_USER_MASTER.SRU03_DELETED_F": null,
+                "SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D": SignUpStatus.COMPLETED
+            };
+
+            let userQuery = Users.query().where(where)
+                .where(`SRU03_CREATED_AT`, '>=', startDate)
+                .where(`SRU03_CREATED_AT`, '<=', endDate)
+                .join(UserDetails.tableName,
+                    `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
+                    `${Users.tableName}.SRU03_USER_MASTER_D`
+                );
+
+            let columnList = adminReportListColumns;
+
+            if (userType === UserRole.DRIVER_R) {
+                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .where({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                    .groupBy(`${AddressDetails.tableName}.SRU03_USER_MASTER_D`);
+
+                userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
+
+
+                columnList = [...columnList, ...userAddressColumns, ...reportsDriverExperienceColumns];
+            }
+
+            if (userType === UserRole.CUSTOMER_R) {
+
+                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    // .where({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                    .groupBy(`${AddressDetails.tableName}.SRU03_USER_MASTER_D`);
+
+                columnList = [...columnList, ...userAddressColumns];
+            }
+
+            userQuery = await userQuery.select(columnList).page(page - 1, chunk);
+
+            const pageMetaData = {
+                chunk: chunk,
+                total: userQuery.total,
+                page: page,
+                totalPages: Math.ceil(userQuery.total / chunk)
+            };
+
+            const result = {
+                list: userQuery.results,
+                pageMetaData
+            };
+
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
 
     /**
      * @DESC : Send email notification.
@@ -688,11 +767,11 @@ class UserController extends BaseController {
                             const indexFile = path.resolve('./public/templates/emails/verified.html');
 
                             if (result.userDetails.emailStatus === EmailStatus.PENDING) {
-                                await UserDetails.query().patch({
-                                    SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
-                                }).where({
-                                    SRU03_USER_MASTER_D: payload.userId
-                                });
+                                // await UserDetails.query().patch({
+                                //     SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
+                                // }).where({
+                                //     SRU03_USER_MASTER_D: payload.userId
+                                // });
 
                                 let notifyData = {
                                     title: this.messageTypes.passMessages.title,
@@ -846,6 +925,7 @@ class UserController extends BaseController {
                 result = result[0];
                 // User status check
                 if (result.status === UserStatus.ACTIVE || result.status === UserStatus.FIRST_TIME) {
+
                     let emailStatus = result.userDetails.emailStatus;
                     if (result.status === UserStatus.FIRST_TIME) {
                         result.changedPassword = false
@@ -1486,6 +1566,8 @@ class UserController extends BaseController {
                 userIds
             } = req.body;
 
+            console.log("userIds", userIds)
+
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
@@ -1519,6 +1601,7 @@ class UserController extends BaseController {
                 });
                 return userValue;
             });
+            console.log(results)
 
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
 
@@ -2116,11 +2199,16 @@ class UserController extends BaseController {
     * @param req
     * @param res
     */
-    subscriptionplanNotification = async (req,res) => {
+    subscriptionplanNotification = async (req, res) => {
         try {
 
-            console.log(req.body);
-            return false;
+            //Activate- subscription user
+            await UserDetails.query().patch({
+                SRU04_ACTIVE_SUBSCRIPTION_PLAN_F: subscriptionStatus.ACTIVEUSER
+            }).where({
+                SRU03_USER_MASTER_D: req.user.userId
+            });
+
             this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
 
             // TODO: Send the mail
@@ -2130,6 +2218,117 @@ class UserController extends BaseController {
         }
     }
 
+    /**
+    * @DESC : Subscription plan - Reminder Notification
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    sendReminderNotication = async (req, res) => {
+        try {
+            const { notificationPayload, reminderUserIds } = req.body;
+            const alluserDetails = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', reminderUserIds)
+                .eager(`[userDetails]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(tripUserDetailsColumns)
+                }).select(usersColumns);
+
+            this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+
+            //Mail - Queue     
+            for (const data of notificationPayload) {
+                const index = alluserDetails.findIndex(user => user.userId === data.subscriptionuserId);
+                if (-1 !== index) {
+                    const userdata = alluserDetails[index];
+                    await mailer.subscriptionReminder({
+                        useremail: userdata.emailId,
+                        username: userdata.firstName,
+                        companyName: userdata.userDetails.companyName,
+                        startdate: data.startdate,
+                        expirydate: data.expirydate,
+                        totalTrips: data.totalTrips
+                    });
+                }
+            }
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+    /**
+    * @DESC : Subscription plan - Renewals Notification
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    sendRenewalsNotication = async (req, res) => {
+        try {
+            const { expiredUserIds, activeplanuserIds, expiredplanUsers,activatedplanUsers} = req.body;            
+
+            if (expiredUserIds.length > booleanType.NO) {
+                const expireduserData = await this._subuscriptionrenewaluserList(req, res, expiredUserIds);
+                //Mail - Queue     
+                for (const data of expiredplanUsers) {
+                    const index = expireduserData.findIndex(user => user.userId === data.subscriptionuserId);
+                    if (-1 !== index) {
+                        const userdata = expireduserData[index];
+                        await mailer.subscriptionExpired({
+                            useremail: userdata.emailId,
+                            username: userdata.firstName,
+                            companyName: userdata.userDetails.companyName,
+                            startdate: data.startdate,
+                            expirydate: data.expirydate,
+                            totalTrips: data.totalTrips
+                        });
+                    }
+                }
+            }
+
+            if (activeplanuserIds.length > booleanType.NO) {
+                const activateduserData = await this._subuscriptionrenewaluserList(req, res, activeplanuserIds);
+                //Mail - Queue     
+                for (const data of activatedplanUsers) {
+                    const index = activateduserData.findIndex(user => user.userId === data.subscriptionuserId);
+                    if (-1 !== index) {
+                        const userdata = activateduserData[index];
+                        await mailer.subscriptionActivated({
+                            useremail: userdata.emailId,
+                            username: userdata.firstName,
+                            companyName: userdata.userDetails.companyName,
+                            startdate: data.startdate,
+                            expirydate: data.expirydate,
+                            totalTrips: data.totalTrips
+                        });
+                    }
+                }
+            }
+            this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+    /**
+    * @DESC : Subscription plan - Renewals userList
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    _subuscriptionrenewaluserList = async (req, res, userIds) => {
+        try {
+            const alluserDetails = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', userIds)
+                .eager(`[userDetails]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(tripUserDetailsColumns)
+                }).select(usersColumns);
+            return alluserDetails;
+        } catch (e) {
+
+        }
+    }
 }
 
 export default new UserController();

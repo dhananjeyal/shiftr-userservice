@@ -18,6 +18,8 @@ function registerRoutes() {
         // Email verification
         openRouter.route("/api/user/verify_email").get(UserController.verifyUser);
         openRouter.route("/api/user/email/trip_pending").post(UserController.sendTripPendingNotication);
+        openRouter.route("/api/user/subscription/reminder").post(UserController.sendReminderNotication);
+        openRouter.route("/api/user/subscription/renewals").post(UserController.sendRenewalsNotication);
 
         let verifySuperAdminOrAdmin = AuthController.verifySuperAdminOrAdmin;
         //Existing Email verification
@@ -38,8 +40,7 @@ function registerRoutes() {
 
         let verifyAny = AuthController.verifyAny;
         apiRouter.route("/user/trip/:userId/contacts").get(verifyAny, UserController.getContactInfo);
-        apiRouter.route("/user/driver/report").post(UserController.driverDetailsReport);
-        apiRouter.route("/user/subscription/confirmation").post(UserController.subscriptionplanNotification);
+        apiRouter.route("/user/subscription/confirmation").post(verifyAny,UserController.subscriptionplanNotification);
 
         // Required jwt authentication
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);

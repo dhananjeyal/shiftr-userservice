@@ -110,6 +110,14 @@ export let adminListColumns = [
     `${UsersDetails.tableName}.SRU04_PHONE_N as phoneNo`,
 ];
 
+export let adminReportListColumns = [
+    ...adminListColumns,
+    `${Users.tableName}.SRU03_CREATED_AT as registeredOn`,
+    `${UsersDetails.tableName}.SRU04_COMPANY_NAME_N as companyName`,
+    `${UsersDetails.tableName}.SRU04_LICENSE_TYPE_N as licenseName`,
+    `${UsersDetails.tableName}.SRU04_ACTIVE_SUBSCRIPTION_PLAN_F as subscriptionStatus`
+];
+
 export let userListColumns = [
     `${Users.tableName}.SRU03_USER_MASTER_D as userId`,
     `${Users.tableName}.SRU03_FIRST_N as firstName`,
