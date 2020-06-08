@@ -652,10 +652,15 @@ class DriverController extends BaseController {
                     SRU03_USER_MASTER_D: userId
                 });
 
-            let signupStatus = SignUpStatus.FINANCIAL_DETAILS;
+            let signupStatus;
             if (rowExists.length <= booleanType.NO) {
                 signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+            } else if (rowExists.length >= booleanType.YES) {
+                signupStatus = SignUpStatus.COMPLETED;
+            } else {
+                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
             }
+
             //Update signup status
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: signupStatus })
