@@ -2351,13 +2351,13 @@ class UserController extends BaseController {
 
             const payload = await this._subuscriptionrenewaluserList(req, res, [subscriptionDetails.subscriptionuserId]);
             
-            userdata.useremail = payload[0].userId;
+            userdata.useremail = payload[0].emailId;
             userdata.username = payload[0].firstName;
             userdata.companyName = payload[0].userDetails.companyName;
             this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
-
+           
             // TODO: Send the mail
-            return await mailer.subscriptionDeactiveNotification(payload);
+            return await mailer.subscriptionDeactiveNotification(userdata);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }

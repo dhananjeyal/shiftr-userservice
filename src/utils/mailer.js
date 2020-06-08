@@ -234,8 +234,8 @@ export const subscriptionDeactiveNotification = (payload) => {
                     <p>Welcome to shiftR ! your subscription Deactivated successfully.!</p>                   
                     <p><b>Plan Details:-</b></p>
                     <p>companyName:- ${payload.companyName}</p>
-                    <p>Plan startdate:- ${payload.startdate}</p>
-                    <p>plan enddate:- ${payload.expirydate}</p>
+                    <p>Plan startdate:- ${payload.startDate}</p>
+                    <p>plan enddate:- ${payload.endDate}</p>
                     <p>TotalTrips:- ${payload.totalTrips}</p>
                     <p>RemainingTrips:- ${payload.remainingTrips}</p>`;
     return sendMail(payload.useremail, "ShiftR-Deactive-Subscription", html)
