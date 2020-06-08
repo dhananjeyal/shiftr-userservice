@@ -494,9 +494,9 @@ class DriverController extends BaseController {
             }
 
             await UserDetails.query()
-                .update({ 
+                .update({
                     SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
-                    SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED 
+                    SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED
                 })
                 .where('SRU03_USER_MASTER_D', userId);
 
@@ -646,9 +646,19 @@ class DriverController extends BaseController {
                 }
             );
 
+            const rowExists = await FinancialDetails.query()
+                .select("SRU03_USER_MASTER_D as userId")
+                .where({
+                    SRU03_USER_MASTER_D: userId
+                });
+
+            let signupStatus = SignUpStatus.FINANCIAL_DETAILS;
+            if (rowExists.length <= booleanType.NO) {
+                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+            }
             //Update signup status
             await UserDetails.query()
-                .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.FINANCIAL_DETAILS })
+                .update({ SRU04_SIGNUP_STATUS_D: signupStatus })
                 .where('SRU03_USER_MASTER_D', userId);
 
             //Response data
