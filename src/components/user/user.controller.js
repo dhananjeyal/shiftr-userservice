@@ -768,13 +768,13 @@ class UserController extends BaseController {
 
                             if (result.userDetails.emailStatus === EmailStatus.PENDING) {
 
-                                if (result.typeId != UserRole.DRIVER_R) {
+                                // if (result.typeId != UserRole.DRIVER_R) {
                                     await UserDetails.query().patch({
                                         SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
                                     }).where({
                                         SRU03_USER_MASTER_D: payload.userId
                                     });
-                                }
+                                // }
                                 
                                 let notifyData = {
                                     title: this.messageTypes.passMessages.title,
