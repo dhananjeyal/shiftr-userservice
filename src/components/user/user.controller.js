@@ -767,11 +767,14 @@ class UserController extends BaseController {
                             const indexFile = path.resolve('./public/templates/emails/verified.html');
 
                             if (result.userDetails.emailStatus === EmailStatus.PENDING) {
-                                // await UserDetails.query().patch({
-                                //     SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
-                                // }).where({
-                                //     SRU03_USER_MASTER_D: payload.userId
-                                // });
+
+                                // if (result.typeId != UserRole.DRIVER_R) {
+                                await UserDetails.query().patch({
+                                    SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
+                                }).where({
+                                    SRU03_USER_MASTER_D: payload.userId
+                                });
+                                // }
 
                                 let notifyData = {
                                     title: this.messageTypes.passMessages.title,
@@ -2265,7 +2268,7 @@ class UserController extends BaseController {
     */
     sendRenewalsNotication = async (req, res) => {
         try {
-            const { expiredUserIds, activeplanuserIds, expiredplanUsers,activatedplanUsers} = req.body;            
+            const { expiredUserIds, activeplanuserIds, expiredplanUsers, activatedplanUsers } = req.body;
 
             if (expiredUserIds.length > booleanType.NO) {
                 const expireduserData = await this._subuscriptionrenewaluserList(req, res, expiredUserIds);
@@ -2329,6 +2332,40 @@ class UserController extends BaseController {
 
         }
     }
+
+    /**
+       * @DESC : Subscription plan - Transaction
+       * @return array/json
+       * @param req
+       * @param res
+       */
+    subscriptionDeactive = async (req, res) => {
+        try {
+            const { subscriptionDetails } = req.body;
+            const userdata = {
+                startDate: subscriptionDetails.subscriptionStartDate,
+                endDate: subscriptionDetails.subscriptionEndDate,
+                totalTrips: subscriptionDetails.totalTrips,
+                remainingTrips: subscriptionDetails.remainingTrips
+            };
+
+            const payload = await this._subuscriptionrenewaluserList(req, res, [subscriptionDetails.subscriptionuserId]);
+            
+            userdata.useremail = payload[0].emailId;
+            userdata.username = payload[0].firstName;
+            userdata.companyName = payload[0].userDetails.companyName;
+            this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+           
+            // TODO: Send the mail
+            return await mailer.subscriptionDeactiveNotification(userdata);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
+
+
+
 }
 
 export default new UserController();
