@@ -636,53 +636,39 @@ class UserController extends BaseController {
                 let verifyType = true;
 
                 // Verify the user type for Driver and Customer
-                // if (resultType === UserRole.CUSTOMER_R || resultType === UserRole.DRIVER_R) {
-                //     verifyType = parseInt(req.headers['user-type']) === resultType;
-                // }
-
-                // if (resultType === UserRole.DRIVER_R) {
-                //     verifyType = parseInt(req.headers['user-type']) === resultType;
-                // }
-
-                if (parseInt(req.headers['user-type']) === resultType) {
-                    if (verifyType) {
-
-                        // Password check
-                        let compareResult = await bcrypt.compare(req.body.password, result.password);
-                        if (compareResult) {
-
-                            // Generate JWT token
-                            const token = jwt.sign({
-                                userId: result.userId,
-                                type: 'login'
-                            }, process.env.JWT_SECRET
-                                // , { expiresIn: 86400 }
-                            );
-
-                            result.token = `Bearer ${token}`;
-
-                            // delete result.userDetails;
-                            delete result.password;
-                            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
-                        } else {
-                            return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
-                                message: this.messageTypes.authMessages.userInvalidCredentials
-                            }));
-                        }
-                    }
-                } else {
-                    return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
-                        message: this.messageTypes.authMessages.userNotFound
-                    }));
+                if (resultType === UserRole.CUSTOMER_R ||
+                    resultType === UserRole.DRIVER_R) {
+                    verifyType = parseInt(req.headers['user-type']) === resultType;
                 }
 
-            } else {
-                return this.errors(req, res, this.status.HTTP_FORBIDDEN, this.exceptions.unauthorizedErr(req, {
-                    message: this.messageTypes.authMessages.userSuspended
-                }));
+                if (verifyType) {
+                    // Password check
+                    let compareResult = await bcrypt.compare(req.body.password, result.password);
+                    if (compareResult) {
+
+                        // Generate JWT token
+                        const token = jwt.sign({
+                            userId: result.userId,
+                            type: 'login'
+                        }, process.env.JWT_SECRET
+                            // , { expiresIn: 86400 }
+                        );
+
+                        result.token = `Bearer ${token}`;
+
+                        // delete result.userDetails;
+                        delete result.password;
+                                                
+                        return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
+                    } else {
+                        return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+                            message: this.messageTypes.authMessages.userInvalidCredentials
+                        }));
+                    }
+                }
             }
 
-            return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
+            this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
                 message: this.messageTypes.authMessages.userNotFound
             }));
 
@@ -690,7 +676,6 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     };
-
 
     /**y
      * @DESC : Forget password
@@ -2350,12 +2335,12 @@ class UserController extends BaseController {
             };
 
             const payload = await this._subuscriptionrenewaluserList(req, res, [subscriptionDetails.subscriptionuserId]);
-            
+
             userdata.useremail = payload[0].emailId;
             userdata.username = payload[0].firstName;
             userdata.companyName = payload[0].userDetails.companyName;
             this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
-           
+
             // TODO: Send the mail
             return await mailer.subscriptionDeactiveNotification(userdata);
         } catch (e) {
@@ -2363,7 +2348,25 @@ class UserController extends BaseController {
         }
     }
 
+    /**
+     * @DESC : Driver- Trips Accepatance Ratio
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    tripsAccepatanceRatio = async (req, res) => {
+        try {
 
+            await UserDetails.query()
+                .where('SRU03_USER_MASTER_D', req.user.userId)
+                .update({ 'SRU04_ACCEPTANCE_RATIO_R': req.body.acceptanceRatio });
+
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
 
 
 }
