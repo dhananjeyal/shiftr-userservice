@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -21,6 +21,7 @@ import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityCol
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
+import Contactus from "./model/contactus.model";
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -642,6 +643,14 @@ class UserController extends BaseController {
                 }
 
                 if (verifyType) {
+
+                    //support-contact [superAdmin]
+                    if (resultType == UserRole.SUPER_ADMIN_R) {
+                        result.supportContact = await Contactus.query()
+                            .where('SRU03_TYPE_D', UserRole.CUSTOMER_R)
+                            .select(supportContactus)
+                    }
+
                     // Password check
                     let compareResult = await bcrypt.compare(req.body.password, result.password);
                     if (compareResult) {
@@ -658,7 +667,9 @@ class UserController extends BaseController {
 
                         // delete result.userDetails;
                         delete result.password;
-                                                
+
+
+
                         return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
                     } else {
                         return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
