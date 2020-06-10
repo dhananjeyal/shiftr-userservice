@@ -2350,12 +2350,12 @@ class UserController extends BaseController {
             };
 
             const payload = await this._subuscriptionrenewaluserList(req, res, [subscriptionDetails.subscriptionuserId]);
-            
+
             userdata.useremail = payload[0].emailId;
             userdata.username = payload[0].firstName;
             userdata.companyName = payload[0].userDetails.companyName;
             this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
-           
+
             // TODO: Send the mail
             return await mailer.subscriptionDeactiveNotification(userdata);
         } catch (e) {
@@ -2363,7 +2363,25 @@ class UserController extends BaseController {
         }
     }
 
+    /**
+     * @DESC : Driver- Trips Accepatance Ratio
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    tripsAccepatanceRatio = async (req, res) => {
+        try {
 
+            await UserDetails.query()
+                .where('SRU03_USER_MASTER_D', req.user.userId)
+                .update({ 'SRU04_ACCEPTANCE_RATIO_R': req.body.acceptanceRatio });
+
+            return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful)
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
 
 
 }
