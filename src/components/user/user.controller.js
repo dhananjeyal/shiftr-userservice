@@ -1865,7 +1865,11 @@ class UserController extends BaseController {
                 firstName,
                 lastName,
                 phoneNo,
-                password
+                password,
+                supportEmail,
+                supportContactNumber,
+                contactusId,
+                supportType
             } = req.body;
 
             let requestModel = {
@@ -1896,6 +1900,18 @@ class UserController extends BaseController {
                 await UserDetails.query().patch(requestModel).where({
                     SRU03_USER_MASTER_D: userId
                 });
+
+                //update support contact
+                // await Contactus.query()
+                //     .patch({
+                //         SRU21_EMAIL_N: supportEmail,
+                //         SRU21_PHONE_R: supportContactNumber
+                //     })
+                //     .where({
+                //         SRU21_CONTACTUS_D: contactusId,
+                //         SRU03_TYPE_D: supportType
+                //     });
+
 
                 return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.passMessages.userUpdated);
             }
