@@ -1,4 +1,4 @@
-import {UserRole, UserStatus} from "../constants";
+import { UserRole, UserStatus } from "../constants";
 
 const nodemailer = require("nodemailer");
 
@@ -28,11 +28,12 @@ export const sendMail = async (to, subject, html) => {
 };
 
 export const signUp = (firstName, email, link) => {
-    let html = `<b>Hello ${firstName}</b>
+    let userName = firstName.charAt(0).toUpperCase() + brandName.slice(1);
+    let html = `<b>Hello ${userName}</b>
                 <p>Congratulations.! you have successfully signed up for your account.</p>
                 <p>Let's add some more details to verify your account.</p>
                 <a href="${link}">Verify your account</a>
-                <p>Best regards</p>`;
+                <p>Best Regards</p>`;
     return sendMail(email, "Verification Email", html)
 };
 
