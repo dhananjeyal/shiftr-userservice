@@ -647,7 +647,7 @@ class UserController extends BaseController {
                     //support-contact [superAdmin]
                     if (resultType == UserRole.SUPER_ADMIN_R) {
                         result.supportContact = await Contactus.query()
-                            .where('SRU03_TYPE_D', UserRole.CUSTOMER_R)
+                            .where('SRU03_TYPE_D', UserRole.SUPER_ADMIN_R)
                             .select(supportContactus)
                     }
 
@@ -2395,6 +2395,26 @@ class UserController extends BaseController {
         }
     };
 
+    
+    /**
+     * @DESC : Driver- Trips Accepatance Ratio
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    supportContactList = async (req, res) => {
+        try {
+
+            const responseData = await Contactus.query()
+                            .where('SRU03_TYPE_D', UserRole.SUPER_ADMIN_R)
+                            .select(supportContactus);
+
+            return this.success(req, res, this.status.HTTP_OK,responseData, this.messageTypes.successMessages.successful)
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
 
 }
 
