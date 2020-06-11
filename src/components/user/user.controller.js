@@ -923,7 +923,9 @@ class UserController extends BaseController {
                     // First time user?
                     if (emailStatus === EmailStatus.FIRST_TIME) {
                         result.userDetails.emailStatus = EmailStatus.VERIFIED;
-                        result.firstTimeLogin = true;
+                        if (result.typeId == UserRole.DRIVER_R && emailStatus == EmailStatus.FIRST_TIME && result.userDetails.signUpStatus == SignUpStatus.COMPLETED) {
+                            result.firstTimeLogin = true;
+                        } 
                         emailStatus = EmailStatus.VERIFIED;
 
                         // Update email status to verified
@@ -1864,7 +1866,7 @@ class UserController extends BaseController {
                 password,
                 contactusId,
                 supportEmail,
-                supportContactNumber,                
+                supportContactNumber,
                 supportType
             } = req.body;
 

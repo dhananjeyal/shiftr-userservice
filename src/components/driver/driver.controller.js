@@ -449,7 +449,8 @@ class DriverController extends BaseController {
             const {
                 firstName,
                 emailId,
-                userId
+                userId,
+                userDetails
             } = req.user;
 
             // Insert financial details
@@ -509,19 +510,21 @@ class DriverController extends BaseController {
                 });
             }
 
-            await UserDetails.query()
-                .update({
-                    SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
-                    SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED
-                })
-                .where('SRU03_USER_MASTER_D', userId);
+          if (userDetails.signUpStatus != SignUpStatus.COMPLETED) {
+                await UserDetails.query()
+                    .update({
+                        SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
+                        SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED
+                    }).where('SRU03_USER_MASTER_D', userId);
+            }
 
             const driver = await this._getDriverDetails(req, res, userId);
 
-            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated); return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
+            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated); 
+            // return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
 
             // TODO: Send the mail
-            return await mailer.signUp(
+            return await mailer.DriversignUpCompleted(
                 firstName,
                 emailId
             );
