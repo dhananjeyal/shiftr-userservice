@@ -43,7 +43,7 @@ function registerRoutes() {
         apiRouter.route("/user/trip/:userId/contacts").get(verifyAny, UserController.getContactInfo);
         apiRouter.route("/user/subscription/confirmation").post(verifyAny,UserController.subscriptionplanNotification);
         apiRouter.route("/user/trips/accepatnaceratio").post(verifyAny,UserController.tripsAccepatanceRatio);
-        apiRouter.route("/user/supportcontact/list").post(verifyAny,UserController.supportContactList);
+        apiRouter.route("/user/supportcontact/list").get(verifyAny,UserController.supportContactList);
 
         // Required jwt authentication
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);
