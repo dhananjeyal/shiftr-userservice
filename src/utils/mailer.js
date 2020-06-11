@@ -28,7 +28,7 @@ export const sendMail = async (to, subject, html) => {
 };
 
 export const signUp = (firstName, email, link) => {
-    let userName = firstName.charAt(0).toUpperCase() + brandName.slice(1);
+    let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
     let html = `<b>Hello ${userName}</b>
                 <p>Congratulations.! you have successfully signed up for your account.</p>
                 <p>Let's add some more details to verify your account.</p>
