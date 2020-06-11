@@ -643,14 +643,6 @@ class UserController extends BaseController {
                 }
 
                 if (verifyType) {
-
-                    //support-contact [superAdmin]
-                    if (resultType == UserRole.SUPER_ADMIN_R) {
-                        result.supportContact = await Contactus.query()
-                            .where('SRU03_TYPE_D', UserRole.SUPER_ADMIN_R)
-                            .select(supportContactus)
-                    }
-
                     // Password check
                     let compareResult = await bcrypt.compare(req.body.password, result.password);
                     if (compareResult) {
@@ -667,9 +659,6 @@ class UserController extends BaseController {
 
                         // delete result.userDetails;
                         delete result.password;
-
-
-
                         return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
                     } else {
                         return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
@@ -1209,6 +1198,13 @@ class UserController extends BaseController {
         contactinfo.push(req.user.contactInfoDetails);
         req.user.contactinfo = contactinfo;
         delete req.user.contactInfoDetails;//Delete Existing Contact object
+
+        //support-contact [superAdmin]
+        if (req.user.typeId == UserRole.SUPER_ADMIN_R) {
+            req.user.supportContact = await Contactus.query()
+                .where('SRU03_TYPE_D', UserRole.SUPER_ADMIN_R)
+                .select(supportContactus)
+        }
 
         this.success(req, res, this.status.HTTP_OK, req.user, this.messageTypes.authMessages.userValidToken);
     };
@@ -1866,9 +1862,9 @@ class UserController extends BaseController {
                 lastName,
                 phoneNo,
                 password,
-                supportEmail,
-                supportContactNumber,
                 contactusId,
+                supportEmail,
+                supportContactNumber,                
                 supportType
             } = req.body;
 
@@ -1901,16 +1897,16 @@ class UserController extends BaseController {
                     SRU03_USER_MASTER_D: userId
                 });
 
-                //update support contact
-                // await Contactus.query()
-                //     .patch({
-                //         SRU21_EMAIL_N: supportEmail,
-                //         SRU21_PHONE_R: supportContactNumber
-                //     })
-                //     .where({
-                //         SRU21_CONTACTUS_D: contactusId,
-                //         SRU03_TYPE_D: supportType
-                //     });
+                // update support contact
+                await Contactus.query()
+                    .patch({
+                        SRU21_EMAIL_N: supportEmail,
+                        SRU21_PHONE_R: supportContactNumber
+                    })
+                    .where({
+                        SRU21_CONTACTUS_D: contactusId,
+                        SRU03_TYPE_D: supportType
+                    });
 
 
                 return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.passMessages.userUpdated);
@@ -2395,7 +2391,7 @@ class UserController extends BaseController {
         }
     };
 
-    
+
     /**
      * @DESC : Driver- Trips Accepatance Ratio
      * @return array/json
@@ -2406,10 +2402,10 @@ class UserController extends BaseController {
         try {
 
             const responseData = await Contactus.query()
-                            .where('SRU03_TYPE_D', UserRole.SUPER_ADMIN_R)
-                            .select(supportContactus);
+                .where('SRU03_TYPE_D', UserRole.SUPER_ADMIN_R)
+                .select(supportContactus);
 
-            return this.success(req, res, this.status.HTTP_OK,responseData, this.messageTypes.successMessages.successful)
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.successful)
 
         } catch (e) {
             return this.internalServerError(req, res, e);
