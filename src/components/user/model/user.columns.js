@@ -171,3 +171,10 @@ export let userDetailsPhoneAndExp = [
     `SRU04_PHONE_N as phoneNo`,
     `SRU04_EXPERIENCE_D as experience`
 ]
+
+export let supportContactus = [
+    `SRU21_CONTACTUS_D as contactusId`,
+    `SRU21_EMAIL_N as supportEmail`,
+    `SRU21_PHONE_R as supportContactNumber`,
+    `SRU03_TYPE_D as supportcontactType`
+]

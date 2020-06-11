@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -21,6 +21,7 @@ import { driverFinancialColumns, driverExperienceColumns, driverExpSpecialityCol
 import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
+import Contactus from "./model/contactus.model";
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -658,7 +659,6 @@ class UserController extends BaseController {
 
                         // delete result.userDetails;
                         delete result.password;
-                                                
                         return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
                     } else {
                         return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
@@ -1198,6 +1198,13 @@ class UserController extends BaseController {
         contactinfo.push(req.user.contactInfoDetails);
         req.user.contactinfo = contactinfo;
         delete req.user.contactInfoDetails;//Delete Existing Contact object
+
+        //support-contact [superAdmin]
+        if (req.user.typeId == UserRole.SUPER_ADMIN_R) {
+            req.user.supportContact = await Contactus.query()
+                .where('SRU03_TYPE_D', UserRole.SUPER_ADMIN_R)
+                .select(supportContactus)
+        }
 
         this.success(req, res, this.status.HTTP_OK, req.user, this.messageTypes.authMessages.userValidToken);
     };
@@ -1854,7 +1861,11 @@ class UserController extends BaseController {
                 firstName,
                 lastName,
                 phoneNo,
-                password
+                password,
+                contactusId,
+                supportEmail,
+                supportContactNumber,                
+                supportType
             } = req.body;
 
             let requestModel = {
@@ -1885,6 +1896,18 @@ class UserController extends BaseController {
                 await UserDetails.query().patch(requestModel).where({
                     SRU03_USER_MASTER_D: userId
                 });
+
+                // update support contact
+                await Contactus.query()
+                    .patch({
+                        SRU21_EMAIL_N: supportEmail,
+                        SRU21_PHONE_R: supportContactNumber
+                    })
+                    .where({
+                        SRU21_CONTACTUS_D: contactusId,
+                        SRU03_TYPE_D: supportType
+                    });
+
 
                 return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.passMessages.userUpdated);
             }
@@ -2368,6 +2391,26 @@ class UserController extends BaseController {
         }
     };
 
+
+    /**
+     * @DESC : Driver- Trips Accepatance Ratio
+     * @return array/json
+     * @param req
+     * @param res
+     */
+    supportContactList = async (req, res) => {
+        try {
+
+            const responseData = await Contactus.query()
+                .where('SRU03_TYPE_D', UserRole.SUPER_ADMIN_R)
+                .select(supportContactus);
+
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.successful)
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
 
 }
 
