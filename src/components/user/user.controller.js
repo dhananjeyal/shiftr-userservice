@@ -1847,8 +1847,7 @@ class UserController extends BaseController {
 
             delete driver.experienceDetails;//Remove Existing object
             delete driver.driverspecialityDetails; // Remove Existing Object
-            delete driver.driverlicensesList; // Remove Existing Object
-
+            
             driver.driverDetails = DriverDetails;
 
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
