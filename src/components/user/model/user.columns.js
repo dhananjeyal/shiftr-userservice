@@ -180,8 +180,8 @@ export let supportContactus = [
 ]
 
 export let driverLicenseList = [
-    `SRU22_DRIVER_LICENSE_D as licenseId`,
+    `SRU22_DRIVER_LICENSE_D as licenseTypeId`,
     `SRU03_USER_MASTER_D as driverId`,
-    `SRU22_LICENSE_TYPE_R as licenseTypeId`,
-    `SRU22_LICENSE_TYPE_N as licenseTypeName`
+    `SRU22_LICENSE_TYPE_R as licenseId`,
+    `SRU22_LICENSE_TYPE_N as licenseType`
 ]
