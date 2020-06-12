@@ -1845,9 +1845,6 @@ class UserController extends BaseController {
                 });
             }
 
-            let licenseList = { licenseList: driver.driverlicensesList };
-            DriverDetails.push(licenseList);
-
             delete driver.experienceDetails;//Remove Existing object
             delete driver.driverspecialityDetails; // Remove Existing Object
             delete driver.driverlicensesList; // Remove Existing Object
