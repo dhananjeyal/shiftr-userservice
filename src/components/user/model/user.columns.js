@@ -178,3 +178,10 @@ export let supportContactus = [
     `SRU21_PHONE_R as supportContactNumber`,
     `SRU03_TYPE_D as supportcontactType`
 ]
+
+export let driverLicenseList = [
+    `SRU22_DRIVER_LICENSE_D as licenseTypeId`,
+    `SRU03_USER_MASTER_D as driverId`,
+    `SRU22_LICENSE_TYPE_R as licenseId`,
+    `SRU22_LICENSE_TYPE_N as licenseType`
+]

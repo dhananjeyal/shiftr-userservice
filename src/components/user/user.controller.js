@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -22,6 +22,7 @@ import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
 import Contactus from "./model/contactus.model";
+
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
 
@@ -923,7 +924,9 @@ class UserController extends BaseController {
                     // First time user?
                     if (emailStatus === EmailStatus.FIRST_TIME) {
                         result.userDetails.emailStatus = EmailStatus.VERIFIED;
-                        result.firstTimeLogin = true;
+                        if (result.typeId == UserRole.DRIVER_R && emailStatus == EmailStatus.FIRST_TIME && result.userDetails.signUpStatus == SignUpStatus.COMPLETED) {
+                            result.firstTimeLogin = true;
+                        }
                         emailStatus = EmailStatus.VERIFIED;
 
                         // Update email status to verified
@@ -1406,10 +1409,16 @@ class UserController extends BaseController {
                 driverIdlist
             } = req.body;
 
-            const userIdlist = await UserDetails.query()
-                .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
+            const userIdlist = await DriverLicenses.query()
+                .where('SRU22_LICENSE_TYPE_R', driverLicensetype)
                 .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+                .groupBy('SRU03_USER_MASTER_D')
                 .pluck('SRU03_USER_MASTER_D');
+
+            // const userIdlist = await UserDetails.query()
+            //     .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
+            //     .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+            //     .pluck('SRU03_USER_MASTER_D');
 
             console.log("driverLicensetype", driverLicensetype);
 
@@ -1838,7 +1847,7 @@ class UserController extends BaseController {
 
             delete driver.experienceDetails;//Remove Existing object
             delete driver.driverspecialityDetails; // Remove Existing Object
-
+            
             driver.driverDetails = DriverDetails;
 
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
@@ -1864,7 +1873,7 @@ class UserController extends BaseController {
                 password,
                 contactusId,
                 supportEmail,
-                supportContactNumber,                
+                supportContactNumber,
                 supportType
             } = req.body;
 
