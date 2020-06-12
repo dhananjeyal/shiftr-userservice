@@ -173,7 +173,7 @@ export const superAdminEmail = (tripDetails, message) => {
 
 export const subscriptionNotification = (payload) => {
 
-    let html = `<b>Hello ${user.username},</b>
+    let html = `<b>Hello ${payload.username},</b>
                     <p>Welcome to shiftR ! Thank you for the subscription.!</p>                   
                     <p><b>Plan Details:-</b></p>
                     <p>companyName:- ${payload.companyName}</p>
