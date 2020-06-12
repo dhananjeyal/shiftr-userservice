@@ -535,7 +535,7 @@ class DriverController extends BaseController {
 
             const driver = await this._getDriverDetails(req, res, userId);
 
-            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated); 
+            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.updatedSuccessfully); 
             // return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
 
             // TODO: Send the mail

@@ -11,5 +11,6 @@ module.exports = {
     activateUser: "You are an active user now",
     deactivateUser: "You account has been deactivated now!",
     completeSignup: "Your Signup has been completed !Thank You for the signup!",
-    title: "ShiftR"
+    title: "ShiftR",
+    updatedSuccessfully : "Updated successfully"
 };
