@@ -284,8 +284,8 @@ class DriverController extends BaseController {
             licenseList.map((val,index)=>{
                 driverLicenselist.push({
                     SRU03_USER_MASTER_D:user.userId,
-                    SRU22_LICENSE_TYPE_R:val.licenseTypeId,
-                    SRU22_LICENSE_TYPE_N:val.licenseName,
+                    SRU22_LICENSE_TYPE_R:val.licenseId,
+                    SRU22_LICENSE_TYPE_N:val.licenseType,
                 });
             });
 
