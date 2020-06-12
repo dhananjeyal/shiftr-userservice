@@ -8,6 +8,7 @@ import ContactInfo from '../../driver/model/contactInfo.model';
 import SpecialityDetails from '../../driver/model/driverspeciality.model';
 import Language from '../../driver/model/language.model';
 import Radious from '../../driver/model/radious.model';
+import DriverLicenses from './driverLicenses.model';
 
 class Users extends BaseModel {
 
@@ -98,6 +99,14 @@ class Users extends BaseModel {
                 modelClass: Radious,
                 join: {
                     from: 'SRU10_RADIOUS.SRU03_USER_MASTER_D',
+                    to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
+                }
+            },
+            driverlicensesList: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: DriverLicenses,
+                join: {
+                    from: 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D',
                     to: 'SRU03_USER_MASTER.SRU03_USER_MASTER_D'
                 }
             }

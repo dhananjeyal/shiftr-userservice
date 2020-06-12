@@ -21,7 +21,7 @@ import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns } from "../user/model/user.columns";
+import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns ,driverLicenseList} from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
@@ -36,6 +36,7 @@ import Radious from "./model/radious.model";
 import ContactInfo from "./model/contactInfo.model";
 import Validyear from "./model/validyear.model";
 import Province from '../masterdetails/model/province.model'
+import DriverLicenses from "../user/model/driverLicenses.model";
 import { provinceColumns } from '../masterdetails/model/location.columns';
 import NotifyService from "../../services/notifyServices";
 import BoardingService from "../../services/boardingServices";
@@ -217,7 +218,7 @@ class DriverController extends BaseController {
             let experienceData = [];
             let specialityData = [];
             let experienceDataReference = [];
-            const { data, licenseType, licenseName } = req.body;
+            const { data, licenseList } = req.body;
 
             //Experience Details
             data.map((currExpDetails, index) => {
@@ -274,10 +275,24 @@ class DriverController extends BaseController {
                 signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
             }
 
+            //Delete - Existing License
+            await DriverLicenses.query()
+            .where('SRU03_USER_MASTER_D', user.userId)
+            .delete();
+
+            const driverLicenselist  =[];
+            licenseList.map((val,index)=>{
+                driverLicenselist.push({
+                    SRU03_USER_MASTER_D:user.userId,
+                    SRU22_LICENSE_TYPE_R:val.licenseTypeId,
+                    SRU22_LICENSE_TYPE_N:val.licenseName,
+                });
+            });
+
+            const driverLicenseDetails = await DriverLicenses.query().insertGraph(driverLicenselist);
+
             const userDetailsResponse = await UserDetails.query()
-                .update({
-                    SRU04_LICENSE_TYPE_R: licenseType,
-                    SRU04_LICENSE_TYPE_N: licenseName,
+                .update({                    
                     SRU04_SIGNUP_STATUS_D: signupStatus
                 })
                 .where('SRU03_USER_MASTER_D', user.userId);
@@ -796,7 +811,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents]')
+                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents,driverlicensesList]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -815,6 +830,8 @@ class DriverController extends BaseController {
                     builder.select(driverLanguageColumns)
                 }).modifyEager('radiusDetails', (builder) => {
                     builder.select(radiusColumns)
+                }).modifyEager('driverlicensesList', (builder) => {
+                    builder.select(driverLicenseList)
                 }).select(columns);
 
             if (driver) {
@@ -844,7 +861,7 @@ class DriverController extends BaseController {
     _getAllDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, contactInfoDetails, allAddress, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails]')
+                .eager('[userDetails, contactInfoDetails, allAddress, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails,driverlicensesList]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                 }).modifyEager('contactInfoDetails', (builder) => {
@@ -866,6 +883,8 @@ class DriverController extends BaseController {
                     builder.select(radiusDetailsColumns)
                 }).modifyEager('experienceDetails.experienceReferenceDetails', (builder) => {
                     builder.select(driverExperienceReference)
+                }).modifyEager('driverlicensesList', (builder) => {
+                    builder.select(driverLicenseList)
                 }).select(columns);
 
             if (driver) {

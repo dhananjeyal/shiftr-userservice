@@ -65,7 +65,7 @@ const schemas = {
     }),
 
     CreateExperienceDetails: Joi.object().keys({
-        licenseType: Joi.number().valid(licenseType.CANADA, licenseType.USA, licenseType.BOTH).required(),
+        // licenseType: Joi.number().valid(licenseType.CANADA, licenseType.USA, licenseType.BOTH).required(),
         data: Joi.array().items(CreateExperienceSchema).min(1)
     }),
 
