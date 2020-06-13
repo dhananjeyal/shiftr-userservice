@@ -45,13 +45,19 @@ class Response {
     });
   }
   // triggering a joi error response
-  joierrors(req, res, err) {
+  joierrors(req, res, err, customMessage = false) {
     // console.log(err)
     let error = err.details.reduce((prev, curr) => {
       prev[curr.path[0]] = curr.message.replace(/"/g, "");
       return prev;
     }, {});
-    let message = messageTypes.errorMessages.badRequest;
+
+    if (customMessage) {
+      let message = messageTypes.errorMessages.invaliddata;
+    } else{
+      let message = messageTypes.errorMessages.badRequest;
+    }
+
     let status = responseStatus.HTTP_UNPROCESSABLE_ENTITY;
     req.appLogger.error(
       `URL : ${req.protocol}://${req.get("host")}${

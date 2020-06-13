@@ -220,7 +220,7 @@ export const travelsSignup = (req, res, next) => {
     }, option).then(() => {
         next();
     }).catch(err => {
-        Response.joierrors(req, res, err);
+        Response.joierrors(req, res, err,true);
     });
 };
 
