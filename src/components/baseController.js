@@ -1,5 +1,4 @@
 import * as StatusCodes from '../facades/response'
-
 const Exceptions = require('../exceptions/Handler');
 import * as MessageTypes from '../responses/types'
 import {errors, success} from '../responses/response'
