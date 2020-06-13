@@ -130,6 +130,7 @@ export let userListColumns = [
     `${UsersDetails.tableName}.SRU04_PHONE_N as phoneNo`,
     `${UsersDetails.tableName}.SRU04_EXPERIENCE_D as experience`,
     `${UsersDetails.tableName}.SRU04_LICENSE_TYPE_N as license`,
+    `${UsersDetails.tableName}.SRU04_ACCEPTANCE_RATIO_R as acceptanceRatio`
 ];
 
 export let screeningCanadastatus = [

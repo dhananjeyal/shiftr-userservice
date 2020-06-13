@@ -1601,12 +1601,20 @@ class UserController extends BaseController {
                 .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
                 .select(userListColumns);
 
+            const driverLicenses = await DriverLicenses.query()
+                .whereIn('SRU03_USER_MASTER_D', userids)
+                .select(driverLicenseList);
+
             const results = await userQuery.map((userValue) => {
                 specialityQuery.find((specialityValue) => {
                     if (userValue.userId === specialityValue.driveruserId) {
                         userValue.SpecialityDetails = specialityValue;
                     }
                 });
+                const index = driverLicenses.findIndex(user => user.driverId === userValue.userId);
+                if (-1 !== index) {
+                    userValue.driverLicenses = driverLicenses;
+                }
                 return userValue;
             });
             console.log(results)
