@@ -22,6 +22,7 @@ import SpecialityDetails from "../driver/model/driverspeciality.model";
 import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
 import Contactus from "./model/contactus.model";
+import DriverLicenses from "./model/driverLicenses.model";
 
 
 let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
@@ -865,8 +866,8 @@ class UserController extends BaseController {
                                     userId: result.userId,
                                     type: 'resetPassword'
                                 }, process.env.JWT_SECRET, {
-                                    expiresIn: 3600 // Will expire in next 1 hour
-                                })
+                                        expiresIn: 3600 // Will expire in next 1 hour
+                                    })
                             };
 
                             return this.success(req, res, this.status.HTTP_OK, response,
@@ -1463,7 +1464,7 @@ class UserController extends BaseController {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
-                    .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                    .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
                         builder.select(tripUserDetailsColumns)
                     })
@@ -1479,14 +1480,15 @@ class UserController extends BaseController {
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder.select(driverSpecialityTrainingColumns)
-                    })
-                    .omit(SpecialityDetails, omitDriverSpecialityColumns)
+                    }).modifyEager('driverlicensesList', (builder) => {
+                        builder.select(driverLicenseList)
+                    }).omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
             } else if (_whereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
-                    .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                    .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
                         builder.select(tripUserDetailsColumns)
                     })
@@ -1503,14 +1505,15 @@ class UserController extends BaseController {
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder
                             .select(driverSpecialityTrainingColumns)
-                    })
-                    .omit(SpecialityDetails, omitDriverSpecialityColumns)
+                    }).modifyEager('driverlicensesList', (builder) => {
+                        builder.select(driverLicenseList)
+                    }).omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
             } else if (_orWhereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
-                    .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                    .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
                         builder.select(tripUserDetailsColumns)
                     })
@@ -1526,8 +1529,9 @@ class UserController extends BaseController {
                             .select(driverExperienceColumns)
                     }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                         builder.select(driverSpecialityTrainingColumns)
-                    })
-                    .omit(SpecialityDetails, omitDriverSpecialityColumns)
+                    }).modifyEager('driverlicensesList', (builder) => {
+                        builder.select(driverLicenseList)
+                    }).omit(SpecialityDetails, omitDriverSpecialityColumns)
                     .select(usersColumns);
             };
 
@@ -1847,7 +1851,7 @@ class UserController extends BaseController {
 
             delete driver.experienceDetails;//Remove Existing object
             delete driver.driverspecialityDetails; // Remove Existing Object
-            
+
             driver.driverDetails = DriverDetails;
 
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
@@ -2134,7 +2138,7 @@ class UserController extends BaseController {
         try {
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
-                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
                 })
@@ -2146,6 +2150,8 @@ class UserController extends BaseController {
                         .select(driverExperienceColumns)
                 }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                     builder.select(driverSpecialityTrainingColumns)
+                }).modifyEager('driverlicensesList', (builder) => {
+                    builder.select(driverLicenseList)
                 }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
             return allUserList;
         } catch (e) {
@@ -2163,7 +2169,7 @@ class UserController extends BaseController {
         try {
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
-                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
                 })
@@ -2175,6 +2181,8 @@ class UserController extends BaseController {
                         .select(driverExperienceColumns)
                 }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                     builder.select(driverSpecialityTrainingColumns)
+                }).modifyEager('driverlicensesList', (builder) => {
+                    builder.select(driverLicenseList)
                 }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
             return allUserList;
         } catch (e) {
@@ -2191,7 +2199,7 @@ class UserController extends BaseController {
     _getunmatchedUserList = async () => {
         try {
             const allUserList = await Users.query()
-                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails]]`)
+                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .where({
                     "SRU03_TYPE_D": UserRole.DRIVER_R
                 })
@@ -2206,6 +2214,8 @@ class UserController extends BaseController {
                         .select(driverExperienceColumns)
                 }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
                     builder.select(driverSpecialityTrainingColumns)
+                }).modifyEager('driverlicensesList', (builder) => {
+                    builder.select(driverLicenseList)
                 }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
             return allUserList;
         } catch (e) {

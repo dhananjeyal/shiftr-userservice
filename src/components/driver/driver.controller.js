@@ -861,7 +861,7 @@ class DriverController extends BaseController {
     _getAllDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, contactInfoDetails, allAddress, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails,driverlicensesList]')
+                .eager('[userDetails, contactInfoDetails, allAddress, addressDetails.provinceDetails, driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents, experienceDetails.experienceReferenceDetails, driverlicensesList]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                 }).modifyEager('contactInfoDetails', (builder) => {
