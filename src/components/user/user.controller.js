@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -1605,19 +1605,27 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(driverLicenseList);
 
+            const driverFinancialDetails = await FinancialDetails.query()
+                .whereIn('SRU03_USER_MASTER_D', userids)
+                .select(financialDetails);
+
             const results = await userQuery.map((userValue) => {
                 specialityQuery.find((specialityValue) => {
                     if (userValue.userId === specialityValue.driveruserId) {
                         userValue.SpecialityDetails = specialityValue;
                     }
                 });
+                driverFinancialDetails.find(((financialDetails) => {
+                    if (userValue.userId === financialDetails.driveruserId) {
+                        userValue.financialDetails = financialDetails;
+                    }
+                }))
                 const index = driverLicenses.findIndex(user => user.driverId === userValue.userId);
                 if (-1 !== index) {
                     userValue.driverLicenses = driverLicenses;
                 }
                 return userValue;
             });
-            console.log(results)
 
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
 

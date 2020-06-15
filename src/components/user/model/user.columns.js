@@ -90,6 +90,16 @@ export let userFinancialColumns = [
     "SRU08_UPDATED_D as updatedBy",
 ];
 
+
+export let financialDetails = [
+    "SRU03_USER_MASTER_D as driveruserId",
+    'SRU08_FINANCIAL_D as financialId',
+    'SRU08_BANK_N as bankName',
+    'SRU08_ACCOUNT_N as accountNumber',
+    'SRU08_INSTITUTION_N as institutionNumber',
+    'SRU08_TRANSIT_N as transitNumber'
+];
+
 export let userDocumentColumns = [
     'SRU05_DOCUMENT_D as documentId',
     'SRU05_NAME as name',
