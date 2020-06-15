@@ -1792,13 +1792,7 @@ class UserController extends BaseController {
         if (req.user.typeId === UserRole.DRIVER_R) {
             const userId = req.user.userId;
             const driver = await DriverController._getAllDriverDetails(req, res, userId);
-            
-            //Decrypt -data
-            driver.financialDetails.bankName = decrypt(driver.financialDetails.bankName);
-            driver.financialDetails.accountNumber= decrypt(driver.financialDetails.accountNumber);
-            driver.financialDetails.institutionNumber= decrypt(driver.financialDetails.institutionNumber);
-            driver.financialDetails.transitNumber= decrypt(driver.financialDetails.transitNumber);
-
+                        
             let addressDetail = driver.allAddress;
             let provinceDetail = { ...driver.addressDetails }
             let radius = { ...driver.radiusDetails };
