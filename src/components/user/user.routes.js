@@ -44,8 +44,7 @@ function registerRoutes() {
         apiRouter.route("/user/subscription/confirmation").post(verifyAny,UserController.subscriptionplanNotification);
         apiRouter.route("/user/trips/accepatnaceratio").post(verifyAny,UserController.tripsAccepatanceRatio);
         apiRouter.route("/user/supportcontact/list").get(verifyAny,UserController.supportContactList);
-        // apiRouter.route("/user/encryptiontest").get(verifyAny,UserController._dataEncryptDecrypt);
-
+        
         // Required jwt authentication
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);
         apiRouter.route("/user/verify_token").get(UserController.verifyToken);
