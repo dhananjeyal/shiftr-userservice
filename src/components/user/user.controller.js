@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -2327,7 +2327,7 @@ class UserController extends BaseController {
                             companyName: userdata.userDetails.companyName,
                             startdate: data.startdate,
                             expirydate: data.expirydate,
-                            totalTrips: data.totalTrips
+                            totalTrips: data.totalTripType == booleanType.NO ? data.totalTrips : plandurationTypetext.UNLIMITED
                         });
                     }
                 }
@@ -2346,7 +2346,7 @@ class UserController extends BaseController {
                             companyName: userdata.userDetails.companyName,
                             startdate: data.startdate,
                             expirydate: data.expirydate,
-                            totalTrips: data.totalTrips
+                            totalTrips: data.totalTripType == booleanType.NO ? data.totalTrips : plandurationTypetext.UNLIMITED
                         });
                     }
                 }
@@ -2389,7 +2389,7 @@ class UserController extends BaseController {
             const userdata = {
                 startDate: subscriptionDetails.subscriptionStartDate,
                 endDate: subscriptionDetails.subscriptionEndDate,
-                totalTrips: subscriptionDetails.totalTrips,
+                totalTrips: subscriptionDetails.totalTrips != booleanType.NO ? subscriptionDetails.totalTrips : plandurationTypetext.UNLIMITED,
                 remainingTrips: subscriptionDetails.remainingTrips
             };
 
