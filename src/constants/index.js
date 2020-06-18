@@ -125,3 +125,9 @@ export class subscriptionStatus {
     static GUESTUSER = 13;
 }
 
+export class plandurationTypetext {
+    static DAYS = "DAYS";
+    static MONTHS = "MONTHS";
+    static YEARS = "YEARS";
+    static UNLIMITED = "UNLIMITED"
+}
