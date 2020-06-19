@@ -29,11 +29,20 @@ export const sendMail = async (to, subject, html) => {
 
 export const signUp = (firstName, email, link) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-    let html = `<b>Hello ${userName}</b>
-                <p>Congratulations.! you have successfully signed up for your account.</p>
-                <p>Let's add some more details to verify your account.</p>
+    let html = `<b>Welcome to Shiftr</b>
+                <b>${userName}</b>
+                <p>Thank you for signing up to Shiftr Platform. Inorder to complete the registration process we need to verify your details which includes personal, driving  and financial details.</p>
+                <p>While personal details are required for verification purpose,financial details will solely be use for making payments to your account.</p>
+                <b>Next Step</b>
+                <p>After you submit the application with all the required details we will be reviewing your application and verifying your details.</p>
+                <p>Verification is a two step process:</p>
+                <p>Step 1: Document verification</p>
+                <p>Step 2: Inperson meeting with our panel.</p>
+                <p>On successful review.you'll receive an appoval email to your registered email address.</p>
+                <p>If you have any questions or concerns please feel to write to us</p>
                 <a href="${link}">Verify your account</a>
-                <p>Best Regards</p>`;
+                <p>Regards</p>
+                <p>Shiftr Support</p>`;
     return sendMail(email, "Verification Email", html)
 };
 
@@ -45,31 +54,41 @@ export const busownerSignUp = (firstName, email, link) => {
                 <p>Please note that inorder to use this platform you need to have a vaild WSB Clearance certificate,which we might ask you to present for verification at any time.</p>
                 <p>Click on below link to verify your account and complete the registeration process.</p>
                 <a href="${link}">Verify your account</a>
+                <p>Regards,</p>;
                 <p>Shiftr Support</p>`;
     return sendMail(email, "Verification Email", html)
 };
 
 
 export const DriversignUpCompleted = (firstName, email) => {
-    let html = `<b>Hello ${firstName}</b>
+    let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+    let html = `<b>Hello ${userName}</b>
                 <p>Thank you for submitting the documents for verification.</p>
                 <p><b>Current status :</b>document submitted for verification.</p>
                 <p>Once your documents are verified you will be notified.</p>
-                <p>Best regards</p>`;
+                <p>Thanks</p>
+                <p>Regards,</p>
+                <p>Shiftr Support</p>`;
     return sendMail(email, "Signup Confirmation Email", html)
 };
 
 
 
 export const emailVerified = (user) => {
-    let html = `<b>Hello ${user.firstName}</b>
+    let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
+    let html = `<b>Congratulations !!! ${userName}</b>
                     <p>You're email is successfully verified. You can now login to continue..</p>
-                    <p>Best regards</p>`;
+                    <p>Regards</p>
+                    <p>Shiftr Support</p>`;
 
     if (user.typeId === UserRole.DRIVER_R) {
-        html = `<b>Hello ${user.firstName}</b>
-                    <p>The email verification process is done now you are just a few steps away to use the platform please log in and complete the entire sign up process.</p>
-                    <p>Best regards</p>`;
+        html = `<b>Congratulations !!! ${userName}</b>
+                    <p>Your verification has successfully completed.You are welcomed to join our platform as a Driver.</p>
+                    <b>Next Step</b>
+                    <p>Please login to the Shiftr mobile application to optimise your settings to start recieving trip.</p>
+                    <p>If you have any questions or concerns please feel to write to us.</p>
+                    <p>Regards</p>
+                    <p>Shiftr Support</p>`;
     }
     return sendMail(user.emailId, "Email verified", html)
 };
@@ -101,15 +120,18 @@ export const accountCreated = (user, link) => {
 };
 
 export const activateDeactivate = (user) => {
-    let html = `<b>Hello ${user.firstName}</b>
+    let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
+    let html = `<b>Hello ${userName}</b>
                     <p>Your account has been activated please you can now log in to the account.</p>
                     <p>Best regards</p>`;
     let subject = "Account activated";
 
     if (user.status === UserStatus.INACTIVE) {
-        html = `<b>Hello ${user.firstName}</b>
-                    <p>Your account has been suspended please contact the admin for further clarification.</p>
-                    <p>Best regards</p>`;
+        html = `<b>${userName}</b>
+                <p>Your Shiftr account has been suspended by Admin.</p>
+                <p>If you have any questions or concerns please feel to write to us.</p>
+                    <p>Regards</p>
+                    <p>Shiftr Support</p>`;
         subject = "Account suspended";
     }
 
@@ -117,18 +139,22 @@ export const activateDeactivate = (user) => {
 };
 
 export const forgetPassword = (user, link) => {
-    let html = `<b>Hi ${user.firstName},</b>
-                    <p>You can reset your password by using the below link within 24 hours.</p>
-                    <a href="${link}">Reset Password</a>
-                    <p>Please ignore this email, if you haven't made this request. You can continue to use your current password.</p>
-                    <p>Best regards</p>`;
+    let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
+    let html = `<b>Hello ${userName},</b>
+                    <p>Click on the single-use link /password below to access your account. Please remember to change your password.</p>
+                    <p>It should be “8 characters minimum, 1 small - 1 capital - 1 special 1 number” you can log in the admin dashboard using this credential.</p>
+                    <a href="${link}">Reset Password</a>                  
+                    <p>Regards</p>
+                    <p>Shiftr Support</p>`;
     return sendMail(user.emailId, "Forget password", html)
 };
 
 export const resetPassword = (user) => {
-    let html = `<b>Hello ${user.firstName},</b>
+    let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
+    let html = `<b>Hello ${userName},</b>
                     <p>You have successfully reset your password you can now log in to the app with your new credential.</p>
-                    <p>Best regards</p>`;
+                    <p>Regards</p>
+                    <p>Shiftr Support</p>`;
     return sendMail(user.emailId, "Password reset", html)
 };
 
