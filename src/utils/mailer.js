@@ -15,7 +15,7 @@ export const sendMail = async (to, subject, html) => {
             pass: "joshiinc123"
         }
     }, {
-        from: 'shiftR <shiftr@joshiinc.com>'
+        from: 'shiftr <shiftr@joshiinc.com>'
     });
 
     const mailOptions = {
@@ -36,6 +36,19 @@ export const signUp = (firstName, email, link) => {
                 <p>Best Regards</p>`;
     return sendMail(email, "Verification Email", html)
 };
+
+export const busownerSignUp = (firstName, email, link) => {
+    let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+    let html = `<b>Welcome to Shiftr</b>
+                <b>${userName}</b>
+                <p>Thank you for signing up to Shiftr Platform.</p>
+                <p>Please note that inorder to use this platform you need to have a vaild WSB Clearance certificate,which we might ask you to present for verification at any time.</p>
+                <p>Click on below link to verify your account and complete the registeration process.</p>
+                <a href="${link}">Verify your account</a>
+                <p>Shiftr Support</p>`;
+    return sendMail(email, "Verification Email", html)
+};
+
 
 export const DriversignUpCompleted = (firstName, email) => {
     let html = `<b>Hello ${firstName}</b>

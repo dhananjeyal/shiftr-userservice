@@ -711,7 +711,7 @@ class DriverController extends BaseController {
                 documentPath: attachment
             }
 
-            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.passMessages.updated);
+            return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.passMessages.documentUpload);
 
         } catch (e) {
             return this.internalServerError(req, res, e);

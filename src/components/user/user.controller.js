@@ -198,7 +198,7 @@ class UserController extends BaseController {
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             //TODO: Send the mail
-            return await mailer.signUp(
+            return await mailer.busownerSignUp(
                 insertResult.firstName,
                 insertResult.emailId,
                 insertResult.verifyEmailLink

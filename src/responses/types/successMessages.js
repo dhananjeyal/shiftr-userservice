@@ -6,5 +6,6 @@ module.exports = {
     deleted: "Deleted Successfully!",
     forgetPassword: "Password reset link has been sent!",    
     resetPassword: "Your password has been successfully changed",
-    mailSent: "Your E-mail sent successfully"
+    mailSent: "Your E-mail sent successfully",
+    documentUpload: "document successfully updated"
 };
