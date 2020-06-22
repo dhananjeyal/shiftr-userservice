@@ -207,7 +207,7 @@ export const superAdminEmail = (tripDetails, message) => {
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
     return sendMail(`shiftr@joshiinc.com`, "Trip - Details", html)
 };
-
+ 
 
 
 export const subscriptionNotification = (payload) => {
