@@ -64,7 +64,7 @@ export const DriversignUpCompleted = (firstName, email) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
     let html = `<b>Hello ${userName}</b>
                 <p>Thank you for submitting the documents for verification.</p>
-                <p><b>Current status :</b>document submitted for verification.</p>
+                <p><b>Current status :</b>Documents submitted for verification.</p>
                 <p>Once your documents are verified you will be notified.</p>
                 <p>Thanks</p>
                 <p>Regards,</p>
