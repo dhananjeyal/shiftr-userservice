@@ -102,10 +102,17 @@ class UserController extends BaseController {
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             // TODO: Send the mail
-            return await mailer.signUp(
+             await mailer.signUp(
                 insertResult.firstName,
                 insertResult.emailId,
                 insertResult.verifyEmailLink
+            );
+
+            //Admin Notification
+            return await mailer.adminSignupnotification(
+                insertResult.firstName,
+                insertResult.emailId,
+                userType
             );
 
         } catch (e) {
@@ -198,10 +205,17 @@ class UserController extends BaseController {
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             //TODO: Send the mail
-            return await mailer.busownerSignUp(
+             await mailer.busownerSignUp(
                 insertResult.firstName,
                 insertResult.emailId,
                 insertResult.verifyEmailLink
+            );
+
+             //Admin Notification
+             return await mailer.adminSignupnotification(
+                insertResult.firstName,
+                insertResult.emailId,
+                userType
             );
 
         } catch (e) {

@@ -280,3 +280,24 @@ export const subscriptionDeactiveNotification = (payload) => {
                     <p>RemainingTrips:- ${payload.remainingTrips}</p>`;
     return sendMail(payload.useremail, "ShiftR-Deactive-Subscription", html)
 };
+
+
+export const adminSignupnotification = (name,emailid,userType) => {
+
+    let html;
+    if(userType == UserRole.DRIVER_R) {
+        html= `<b>Hello ShiftR,</b>
+        <p>New Driver has regiter our platform! Please check the and proceed further process!</p>                   
+        <p><b>Driver Details:-</b></p>
+        <p>Name:- ${name}</p>
+        <p>Email-Id:- ${emailid}</p>`;
+    }else{
+        html= `<b>Hello ShiftR,</b>
+        <p>New Busowner has regiter our platform! Please check the and proceed further process!</p>                   
+        <p><b>Busowner Details:-</b></p>
+        <p>CompanyName:- ${name}</p>
+        <p>Email-Id:- ${emailid}</p>`;
+    }
+    
+    return sendMail("shiftr@joshiinc.com", "ShiftR-Signup-Alert", html)
+};
