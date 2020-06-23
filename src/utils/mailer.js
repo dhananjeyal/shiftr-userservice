@@ -195,7 +195,6 @@ export const busOwnerEmail = (user, tripDetails, message) => {
 
 
 export const superAdminEmail = (tripDetails, message) => {
-
     let html = `<b>Hello shiftr,</b>
                     <p>${message} ${tripDetails.tripCode} .</p>
                     <p><b>Trip Details:-</b></p>
@@ -205,7 +204,7 @@ export const superAdminEmail = (tripDetails, message) => {
                     <p>Trip start date:- ${tripDetails.startDate}</p>
                     <p>Trip end date:- ${tripDetails.endDate}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
-    return sendMail(`shiftr@joshiinc.com`, "Trip - Details", html)
+    return sendMail(`shiftr@joshiinc.com`, `Trip-${tripDetails.tripStatus}`, html)
 };
  
 
