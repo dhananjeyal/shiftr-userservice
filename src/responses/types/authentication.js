@@ -5,7 +5,7 @@ module.exports = {
     userValidToken: "Token is valid.",
     userNotVerified: "Unverified user.",
     userVerified: "Verified user.",
-    userSuspended: "Currently suspended.",
+    userSuspended: "Account has been suspended.",
     userNotFound: "User does not exist.",
     userIllegalAccess: "User does not have enough permission.",
     get: "Listed Successfully!!",

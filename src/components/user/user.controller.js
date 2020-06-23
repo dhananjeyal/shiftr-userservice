@@ -102,7 +102,7 @@ class UserController extends BaseController {
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             // TODO: Send the mail
-             await mailer.signUp(
+            await mailer.signUp(
                 insertResult.firstName,
                 insertResult.emailId,
                 insertResult.verifyEmailLink
@@ -205,14 +205,14 @@ class UserController extends BaseController {
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             //TODO: Send the mail
-             await mailer.busownerSignUp(
+            await mailer.busownerSignUp(
                 insertResult.firstName,
                 insertResult.emailId,
                 insertResult.verifyEmailLink
             );
 
-             //Admin Notification
-             return await mailer.adminSignupnotification(
+            //Admin Notification
+            return await mailer.adminSignupnotification(
                 insertResult.firstName,
                 insertResult.emailId,
                 userType
@@ -648,7 +648,7 @@ class UserController extends BaseController {
         try {
             let result = await this._getVerificationStatus(req, res, false);
 
-            if (result) {
+            if (result && result.status != UserStatus.INACTIVE) {
                 let resultType = result.typeId;
                 let verifyType = true;
 
@@ -683,9 +683,16 @@ class UserController extends BaseController {
                     }
                 }
             }
+            
+            let customMsg;
+            if (result.status == UserStatus.INACTIVE) {
+                customMsg = this.messageTypes.authMessages.userSuspended
+            } else {
+                customMsg = this.messageTypes.authMessages.userNotFound
+            }
 
             this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
-                message: this.messageTypes.authMessages.userNotFound
+                message: customMsg
             }));
 
         } catch (e) {
@@ -965,8 +972,9 @@ class UserController extends BaseController {
                         }
                     }
                 } else {
+
                     if (sendResponse || result.status == UserStatus.INACTIVE) {
-                        return false;
+                        return result;
                     }
                 }
             } else {
@@ -1479,8 +1487,8 @@ class UserController extends BaseController {
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
-                        builder.where('SRU04_SIGNUP_STATUS_D',SignUpStatus.COMPLETED)
-                        .select(tripUserDetailsColumns)
+                        builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                            .select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.where((builder) => {
@@ -1504,8 +1512,8 @@ class UserController extends BaseController {
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
-                        builder.where('SRU04_SIGNUP_STATUS_D',SignUpStatus.COMPLETED)
-                        .select(tripUserDetailsColumns)
+                        builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                            .select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.
@@ -1530,8 +1538,8 @@ class UserController extends BaseController {
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
-                        builder.where('SRU04_SIGNUP_STATUS_D',SignUpStatus.COMPLETED)
-                        .select(tripUserDetailsColumns)
+                        builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                            .select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                         builder.
@@ -1816,7 +1824,7 @@ class UserController extends BaseController {
         if (req.user.typeId === UserRole.DRIVER_R) {
             const userId = req.user.userId;
             const driver = await DriverController._getAllDriverDetails(req, res, userId);
-                        
+
             let addressDetail = driver.allAddress;
             let provinceDetail = { ...driver.addressDetails }
             let radius = { ...driver.radiusDetails };
@@ -2173,8 +2181,8 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D',SignUpStatus.COMPLETED)
-                    .select(tripUserDetailsColumns)
+                    builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                        .select(tripUserDetailsColumns)
                 })
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                     builder.where((builder) => {
@@ -2205,8 +2213,8 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D',SignUpStatus.COMPLETED)
-                    .select(tripUserDetailsColumns)
+                    builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                        .select(tripUserDetailsColumns)
                 })
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                     builder.where((builder) => {
@@ -2239,8 +2247,8 @@ class UserController extends BaseController {
                     "SRU03_TYPE_D": UserRole.DRIVER_R
                 })
                 .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D',SignUpStatus.COMPLETED)
-                    .select(tripUserDetailsColumns)
+                    builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                        .select(tripUserDetailsColumns)
                 })
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                     builder.where((builder) => {
