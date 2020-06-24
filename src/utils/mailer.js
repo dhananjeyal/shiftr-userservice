@@ -1,6 +1,7 @@
 import { UserRole, UserStatus } from "../constants";
 
 const nodemailer = require("nodemailer");
+import moment from 'moment';
 
 export const sendMail = async (to, subject, html) => {
     const transport = nodemailer.createTransport({
@@ -167,8 +168,8 @@ export const notifyBusOwner = (user, tripDetails) => {
                     <p>Company name:- ${tripDetails.companyName}</p>
                     <p>Trip code:- ${tripDetails.tripCode}</p>
                     <p>Trip type:- ${tripDetails.type}</p>
-                    <p>Trip start date:- ${tripDetails.startDate}</p>
-                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start date:- ${moment(tripDetails.startDate).format('DD/MM/YYYY')}</p>
+                    <p>Trip end date:- ${moment(tripDetails.endDate).format('DD/MM/YYYY')}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>
 
                     <p><b>Driver Details:-</b></p>
@@ -187,8 +188,8 @@ export const busOwnerEmail = (user, tripDetails, message) => {
                     <p>Company name:- ${tripDetails.companyName}</p>
                     <p>Trip code:- ${tripDetails.tripCode}</p>
                     <p>Trip type:- ${tripDetails.type}</p>
-                    <p>Trip start date:- ${tripDetails.startDate}</p>
-                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start date:- ${moment(tripDetails.startDate).format('DD/MM/YYYY')}</p>
+                    <p>Trip end date:- ${moment(tripDetails.endDate).format('DD/MM/YYYY')}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
     return sendMail(user.emailId, "Trip - Details", html)
 };
@@ -201,8 +202,8 @@ export const superAdminEmail = (tripDetails, message) => {
                     <p>Company name:- ${tripDetails.companyName}</p>
                     <p>Trip code:- ${tripDetails.tripCode}</p>
                     <p>Trip type:- ${tripDetails.type}</p>
-                    <p>Trip start date:- ${tripDetails.startDate}</p>
-                    <p>Trip end date:- ${tripDetails.endDate}</p>
+                    <p>Trip start date:- ${moment(tripDetails.startDate).format('DD/MM/YYYY')}</p>
+                    <p>Trip end date:- ${moment(tripDetails.endDate).format('DD/MM/YYYY')}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
     return sendMail(`shiftr@joshiinc.com`, `Trip-${tripDetails.tripStatus}`, html)
 };
