@@ -1487,7 +1487,7 @@ class UserController extends BaseController {
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
-                        builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                        builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                             .select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
@@ -1512,7 +1512,7 @@ class UserController extends BaseController {
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
-                        builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                        builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                             .select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
@@ -1538,7 +1538,7 @@ class UserController extends BaseController {
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
-                        builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                        builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                             .select(tripUserDetailsColumns)
                     })
                     .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
@@ -2181,7 +2181,7 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                    builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                         .select(tripUserDetailsColumns)
                 })
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
@@ -2213,7 +2213,7 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                    builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                         .select(tripUserDetailsColumns)
                 })
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
@@ -2247,7 +2247,7 @@ class UserController extends BaseController {
                     "SRU03_TYPE_D": UserRole.DRIVER_R
                 })
                 .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D', SignUpStatus.COMPLETED)
+                    builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                         .select(tripUserDetailsColumns)
                 })
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {

@@ -162,12 +162,20 @@ class DriverController extends BaseController {
                 SRU03_CREATED_D: ActiveUser.userId
             });
 
-
+            //status - Check
+            let signupStatus;
+            if (UserDetailsResponse.signUpStatus == SignUpStatus.PERSONAL_DETAILS) {
+                signupStatus = SignUpStatus.VEHICLE_DETAILS;
+             } else {
+                signupStatus = UserDetailsResponse.signUpStatus;
+            }
+            
             if (UserDetailsResponse) {
                 await UserDetails.query()
                     .patch({
                         SRU04_UNIT: unit || UserDetailsResponse.unit,
-                        SRU04_PROFILE_I: userprofile || UserDetailsResponse.userprofile
+                        SRU04_PROFILE_I: userprofile || UserDetailsResponse.userprofile,
+                        SRU04_SIGNUP_STATUS_D:signupStatus
                     }).where({
                         SRU03_USER_MASTER_D: ActiveUser.userId
                     });
