@@ -682,7 +682,7 @@ class UserController extends BaseController {
                             userId: result.userId,
                             for: "BEAMS"
                         }));
-                        
+
                         result.beamstoken = pushertoken;
 
                         return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
@@ -1580,7 +1580,7 @@ class UserController extends BaseController {
             }
 
             if (allUserList && !allUserList.length) {
-                allUserList = await this._getunmatchedUserList();//call back function
+                allUserList = await this._getunmatchedUserList(req, res);//call back function
             }
 
             let result = {
@@ -2249,7 +2249,7 @@ class UserController extends BaseController {
     * @param req
     * @param res
     */
-    _getunmatchedUserList = async () => {
+    _getunmatchedUserList = async (req, res) => {
         try {
             const allUserList = await Users.query()
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
