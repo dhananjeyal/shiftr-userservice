@@ -49,6 +49,9 @@ function registerRoutes() {
         apiRouter.route("/user/reset_password").post(resetPassword, UserController.resetPassword);
         apiRouter.route("/user/verify_token").get(UserController.verifyToken);
 
+        //Test -Driver List
+        apiRouter.route("/user/driverListTest").get(verifyAny,UserController._TestgetunmatchedUserList);
+
         openRouter.route("/test_mail").get((req, res) => {
             mailer.sendMail("karanmandalxyz@gmail.com", "Test mail", "Hello World!").then((response) => {
                 res.status(200).send(response);

@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext,DocumentStatus } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -1579,7 +1579,7 @@ class UserController extends BaseController {
                 allUserList = await this._getpartialmatchedUserList(req, res, driverIdlist);//call back function
             }
 
-            if (allUserList && !allUserList.length) {                
+            if (allUserList && !allUserList.length) {
                 allUserList = await this._getunmatchedUserList(req, res);//call back function
             }
 
@@ -2251,7 +2251,7 @@ class UserController extends BaseController {
     */
     _getunmatchedUserList = async (req, res) => {
         try {
-            
+
             const allUserList = await Users.query()
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .where({
@@ -2277,6 +2277,47 @@ class UserController extends BaseController {
             return this.internalServerError(req, res, e);
         }
     }
+
+    /**
+* @DESC : TODO - Trip Driver List Test
+* @return array/json
+* @param req
+* @param res
+*/
+    _TestgetunmatchedUserList = async (req, res) => {
+        try {
+            const userIdlist = await UserDetails.query()
+                .where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+                .pluck('SRU03_USER_MASTER_D');
+
+            const allUserList = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
+                .where({
+                    "SRU03_TYPE_D": UserRole.DRIVER_R
+                })
+                .modifyEager('userDetails', (builder) => {
+                    builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+                        .select(tripUserDetailsColumns)
+                })
+                .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
+                    builder.where((builder) => {
+                        builder
+                            .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                    })
+                        .select(driverExperienceColumns)
+                }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
+                    builder.select(driverSpecialityTrainingColumns)
+                }).modifyEager('driverlicensesList', (builder) => {
+                    builder.select(driverLicenseList)
+                }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+
+            return this.success(req, res, this.status.HTTP_OK, allUserList, this.messageTypes.passMessages.successful);
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    }
+
 
     /**
     * @DESC : Subscription plan - Transaction
