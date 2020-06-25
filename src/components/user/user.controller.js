@@ -1574,9 +1574,9 @@ class UserController extends BaseController {
 
             let allUserList = [];
             if (userIdlist.length > 0) {
-                allUserList = await this._getmatchedUserList(userIdlist);//call back function
+                allUserList = await this._getmatchedUserList(req, res,userIdlist);//call back function
             } else if (driverIdlist && driverIdlist.length > 0) {
-                allUserList = await this._getpartialmatchedUserList(driverIdlist);//call back function
+                allUserList = await this._getpartialmatchedUserList(req, res,driverIdlist);//call back function
             }
 
             if (allUserList && !allUserList.length) {
@@ -2185,7 +2185,7 @@ class UserController extends BaseController {
      * @param res
      */
 
-    _getmatchedUserList = async (userIdlist) => {
+    _getmatchedUserList = async (req, res,userIdlist) => {
         try {
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -2217,7 +2217,7 @@ class UserController extends BaseController {
     * @param req
     * @param res
     */
-    _getpartialmatchedUserList = async (userIdlist) => {
+    _getpartialmatchedUserList = async (req, res,userIdlist) => {
         try {
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
