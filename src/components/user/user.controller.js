@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext,DocumentStatus } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -1447,8 +1447,6 @@ class UserController extends BaseController {
                 .groupBy('SRU03_USER_MASTER_D')
                 .pluck('SRU03_USER_MASTER_D');
 
-                console.log(userIdlist);
-                return false;
             // const userIdlist = await UserDetails.query()
             //     .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
             //     .whereIn('SRU03_USER_MASTER_D', driverIdlist)
@@ -1581,8 +1579,7 @@ class UserController extends BaseController {
                 allUserList = await this._getpartialmatchedUserList(req, res, driverIdlist);//call back function
             }
 
-            if (allUserList && !allUserList.length) {
-                console.log("inside -call-id list empty");
+            if (allUserList && !allUserList.length) {                
                 allUserList = await this._getunmatchedUserList(req, res);//call back function
             }
 
@@ -2254,7 +2251,7 @@ class UserController extends BaseController {
     */
     _getunmatchedUserList = async (req, res) => {
         try {
-            console.log("inside call back ----call-id list empty");
+            
             const allUserList = await Users.query()
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .where({
@@ -2275,9 +2272,6 @@ class UserController extends BaseController {
                 }).modifyEager('driverlicensesList', (builder) => {
                     builder.select(driverLicenseList)
                 }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
-
-                console.log("Result----",allUserList);
-
             return allUserList;
         } catch (e) {
             return this.internalServerError(req, res, e);
