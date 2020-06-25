@@ -675,6 +675,16 @@ class UserController extends BaseController {
 
                         // delete result.userDetails;
                         delete result.password;
+
+                        //Pusher-Beems Token
+                        const pushertoken = encrypt(JSON.stringify({
+                            emailId: result.emailId,
+                            userId: result.userId,
+                            for: "BEAMS"
+                        }));
+                        
+                        result.beamstoken = pushertoken;
+
                         return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.authMessages.userLoggedIn);
                     } else {
                         return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.invalidLogin(req, {
