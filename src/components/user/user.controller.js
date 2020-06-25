@@ -693,7 +693,7 @@ class UserController extends BaseController {
                     }
                 }
             }
-            
+
             let customMsg;
             if (result.status == UserStatus.INACTIVE) {
                 customMsg = this.messageTypes.authMessages.userSuspended
@@ -1447,11 +1447,6 @@ class UserController extends BaseController {
                 .groupBy('SRU03_USER_MASTER_D')
                 .pluck('SRU03_USER_MASTER_D');
 
-console.log(userIdlist);
-console.log(req.body);
-return false;
-
-
             // const userIdlist = await UserDetails.query()
             //     .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
             //     .whereIn('SRU03_USER_MASTER_D', driverIdlist)
@@ -1579,12 +1574,13 @@ return false;
 
             let allUserList = [];
             if (userIdlist.length > 0) {
-                allUserList = await this._getmatchedUserList(req, res,userIdlist);//call back function
+                allUserList = await this._getmatchedUserList(req, res, userIdlist);//call back function
             } else if (driverIdlist && driverIdlist.length > 0) {
-                allUserList = await this._getpartialmatchedUserList(req, res,driverIdlist);//call back function
+                allUserList = await this._getpartialmatchedUserList(req, res, driverIdlist);//call back function
             }
 
             if (allUserList && !allUserList.length) {
+                console.log("inside -call-id list empty");
                 allUserList = await this._getunmatchedUserList(req, res);//call back function
             }
 
@@ -2190,7 +2186,7 @@ return false;
      * @param res
      */
 
-    _getmatchedUserList = async (req, res,userIdlist) => {
+    _getmatchedUserList = async (req, res, userIdlist) => {
         try {
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -2222,7 +2218,7 @@ return false;
     * @param req
     * @param res
     */
-    _getpartialmatchedUserList = async (req, res,userIdlist) => {
+    _getpartialmatchedUserList = async (req, res, userIdlist) => {
         try {
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -2256,6 +2252,7 @@ return false;
     */
     _getunmatchedUserList = async (req, res) => {
         try {
+            console.log("inside call back ----call-id list empty");
             const allUserList = await Users.query()
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .where({
@@ -2276,6 +2273,9 @@ return false;
                 }).modifyEager('driverlicensesList', (builder) => {
                     builder.select(driverLicenseList)
                 }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+
+                console.log("Result----",allUserList);
+
             return allUserList;
         } catch (e) {
             return this.internalServerError(req, res, e);
