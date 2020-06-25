@@ -1447,6 +1447,8 @@ class UserController extends BaseController {
                 .groupBy('SRU03_USER_MASTER_D')
                 .pluck('SRU03_USER_MASTER_D');
 
+                console.log(userIdlist);
+                return false;
             // const userIdlist = await UserDetails.query()
             //     .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
             //     .whereIn('SRU03_USER_MASTER_D', driverIdlist)
