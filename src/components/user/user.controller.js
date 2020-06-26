@@ -1904,7 +1904,7 @@ class UserController extends BaseController {
             delete driver.driverspecialityDetails; // Remove Existing Object
 
             driver.driverDetails = DriverDetails;
-
+            driver.encryptionsecretkey = "glladlsadlkjs76324634632hgdhgdygewfdewiu";
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
         } else {
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
