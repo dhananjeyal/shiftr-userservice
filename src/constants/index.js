@@ -131,3 +131,7 @@ export class plandurationTypetext {
     static YEARS = "YEARS";
     static UNLIMITED = "UNLIMITED"
 }
+export class encryptionSecret {
+    static SALTKEY = "06fe746c4d7174b827e5599eac0e26f2";
+}
+

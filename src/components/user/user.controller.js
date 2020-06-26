@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus,encryptionSecret } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -1904,7 +1904,7 @@ class UserController extends BaseController {
             delete driver.driverspecialityDetails; // Remove Existing Object
 
             driver.driverDetails = DriverDetails;
-            driver.encryptionsecretkey = "glladlsadlkjs76324634632hgdhgdygewfdewiu";
+            driver.encryptionsecretkey = encryptionSecret.SALTKEY;//Encryption key
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
         } else {
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
