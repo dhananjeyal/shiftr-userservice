@@ -51,6 +51,7 @@ function registerRoutes() {
 
         //Test -Driver List
         apiRouter.route("/user/driverListTest").get(verifyAny,UserController._TestgetunmatchedUserList);
+        apiRouter.route("/user/secretkey").post(verifyAny,UserController.encryptionkeygenerate);
 
         openRouter.route("/test_mail").get((req, res) => {
             mailer.sendMail("karanmandalxyz@gmail.com", "Test mail", "Hello World!").then((response) => {

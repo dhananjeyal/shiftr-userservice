@@ -1447,14 +1447,14 @@ class UserController extends BaseController {
             //     .groupBy('SRU03_USER_MASTER_D')
             //     .pluck('SRU03_USER_MASTER_D');
 
-                const userIdlist = await DriverLicenses.query()
+            const userIdlist = await DriverLicenses.query()
                 .join('SRU04_USER_DETAIL', 'SRU04_USER_DETAIL.SRU03_USER_MASTER_D', 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
                 .where('SRU22_DRIVER_LICENSE.SRU22_LICENSE_TYPE_R', driverLicensetype)
                 .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverIdlist)
                 .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                 .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
                 .pluck('SRU03_USER_MASTER_D');
-                
+
             console.log("driverLicensetype", driverLicensetype);
 
             let _where = {};
@@ -2218,11 +2218,11 @@ class UserController extends BaseController {
         try {
 
             const userIdlist = await DriverLicenses.query()
-            .join('SRU04_USER_DETAIL', 'SRU04_USER_DETAIL.SRU03_USER_MASTER_D', 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')            
-            .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverIdlist)
-            .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
-            .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
-            .pluck('SRU03_USER_MASTER_D');
+                .join('SRU04_USER_DETAIL', 'SRU04_USER_DETAIL.SRU03_USER_MASTER_D', 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
+                .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverIdlist)
+                .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+                .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
+                .pluck('SRU03_USER_MASTER_D');
 
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
@@ -2303,7 +2303,7 @@ class UserController extends BaseController {
                 .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                 .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
                 .pluck('SRU03_USER_MASTER_D');
-            
+
             // const userIdlist = await UserDetails.query()
             //     .where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
             //     .pluck('SRU03_USER_MASTER_D');
@@ -2545,6 +2545,32 @@ class UserController extends BaseController {
         }
     };
 
+    /**
+    * @DESC : Financial encryptionkey generate
+    * @return array/json
+    * @param req
+    * @param res
+    */
+    encryptionkeygenerate = async (req, res) => {
+        try {
+            const { userId } = req.user;
+            const result = {};
+            const responseData = await Users.query()
+                .where('SRU03_USER_MASTER_D', userId)
+                .select('SRU03_PASSWORD_N as password');
+
+            let compareResult = await bcrypt.compare(req.body.password, responseData[0].password);
+            if (compareResult) {                
+                    result.secretKey= encryptionSecret.SALTKEY//Encryption key
+                return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.successful);
+            } else {
+                return this.errors(req, res, this.status.HTTP_BAD_REQUEST,this.messageTypes.errorMessages.unauthorized);
+            }
+
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
 }
 
 export default new UserController();
