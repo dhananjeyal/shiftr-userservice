@@ -117,6 +117,7 @@ export class Typeofdistance {
 
 export class EmailContents {
     static TRIP_PENDING = "Trip is not accepted by any drivers";
+    static TRIP_NOT_STARTED = "Trip is not started by the drivers";
     static TRIP_NO_MATCH = "Driver not found for your Trip";
 }
 
@@ -130,4 +131,18 @@ export class plandurationTypetext {
     static MONTHS = "MONTHS";
     static YEARS = "YEARS";
     static UNLIMITED = "UNLIMITED"
+}
+
+export class TripStatus {
+    static TRIP_CREATED = 8;
+    static TRIP_SAVED = 9;
+    static TRIP_PENDING = 10;
+    static TRIP_ACCEPTED = 11;
+    static TRIP_IN_PROGRESS = 12;
+    static TRIP_CANCELLED = 13;
+    static TRIP_COMPLETED = 14;
+    static TRIP_IGNORED = 15;
+    static START_TRIP = 23;
+    static ACTIVE_TRIP = 24;
+    static NOT_STARTED = 25;
 }
