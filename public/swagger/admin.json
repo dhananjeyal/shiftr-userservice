@@ -8,15 +8,15 @@
     },
     "servers": [
         {
-            "url": "http://192.168.10.106:2013/api",
+            "url": "http://192.168.1.5:2097/api",
             "description": "Development server"
         },
         {
-            "url": "http://192.168.10.106:2012/api",
+            "url": "http://180.151.69.138:2097/api",
             "description": "Integration server"
         },
         {
-            "url": "http://180.151.69.138:2081/api",
+            "url": "http://35.182.24.82:2009/api",
             "description": "Staging server"
         }
     ],
