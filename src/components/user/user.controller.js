@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus, encryptionSecret } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -1447,23 +1447,21 @@ class UserController extends BaseController {
                 driverIdlist
             } = req.body;
 
-            const userIdlist = await DriverLicenses.query()
-                .where('SRU22_LICENSE_TYPE_R', driverLicensetype)
-                .whereIn('SRU03_USER_MASTER_D', driverIdlist)
-                .groupBy('SRU03_USER_MASTER_D')
-                .pluck('SRU03_USER_MASTER_D');
-
-            // const userIdlist = await UserDetails.query()
-            //     .where('SRU04_LICENSE_TYPE_R', driverLicensetype)
+            // const userIdlist = await DriverLicenses.query()
+            //     .where('SRU22_LICENSE_TYPE_R', driverLicensetype)
             //     .whereIn('SRU03_USER_MASTER_D', driverIdlist)
+            //     .groupBy('SRU03_USER_MASTER_D')
             //     .pluck('SRU03_USER_MASTER_D');
 
+                const userIdlist = await DriverLicenses.query()
+                .join('SRU04_USER_DETAIL', 'SRU04_USER_DETAIL.SRU03_USER_MASTER_D', 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
+                .where('SRU22_DRIVER_LICENSE.SRU22_LICENSE_TYPE_R', driverLicensetype)
+                .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverIdlist)
+                .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+                .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
+                .pluck('SRU03_USER_MASTER_D');
+                
             console.log("driverLicensetype", driverLicensetype);
-
-            // const userIdlist = await UserDetails.query()
-            // .where('SRU04_LICENSE_TYPE_N', driverDetails[0].licenceType)
-            // .whereIn('SRU03_USER_MASTER_D', driverIdlist)
-            // .pluck('SRU03_USER_MASTER_D');
 
             let _where = {};
             let _orWhere = {};
@@ -1910,7 +1908,7 @@ class UserController extends BaseController {
             delete driver.driverspecialityDetails; // Remove Existing Object
 
             driver.driverDetails = DriverDetails;
-
+            driver.encryptionsecretkey = encryptionSecret.SALTKEY;//Encryption key
             return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.successMessages.successful);
         } else {
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.successful);
@@ -2197,8 +2195,7 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
-                        .select(tripUserDetailsColumns)
+                    builder.select(tripUserDetailsColumns)
                 })
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                     builder.where((builder) => {
@@ -2223,14 +2220,21 @@ class UserController extends BaseController {
     * @param req
     * @param res
     */
-    _getpartialmatchedUserList = async (req, res, userIdlist) => {
+    _getpartialmatchedUserList = async (req, res, driverIdlist) => {
         try {
+
+            const userIdlist = await DriverLicenses.query()
+            .join('SRU04_USER_DETAIL', 'SRU04_USER_DETAIL.SRU03_USER_MASTER_D', 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')            
+            .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverIdlist)
+            .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+            .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
+            .pluck('SRU03_USER_MASTER_D');
+
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
-                        .select(tripUserDetailsColumns)
+                    builder.select(tripUserDetailsColumns)
                 })
                 .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
                     builder.where((builder) => {
@@ -2257,8 +2261,12 @@ class UserController extends BaseController {
     */
     _getunmatchedUserList = async (req, res) => {
         try {
+            const userIdlist = await UserDetails.query()
+                .where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+                .pluck('SRU03_USER_MASTER_D');
 
             const allUserList = await Users.query()
+                .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .where({
                     "SRU03_TYPE_D": UserRole.DRIVER_R
@@ -2292,9 +2300,19 @@ class UserController extends BaseController {
 */
     _TestgetunmatchedUserList = async (req, res) => {
         try {
-            const userIdlist = await UserDetails.query()
-                .where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+            const driverLicensetype = 1;
+            const driverIdlist = ["1974", "1887"];
+            const userIdlist = await DriverLicenses.query()
+                .join('SRU04_USER_DETAIL', 'SRU04_USER_DETAIL.SRU03_USER_MASTER_D', 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
+                .where('SRU22_DRIVER_LICENSE.SRU22_LICENSE_TYPE_R', driverLicensetype)
+                .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverIdlist)
+                .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+                .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
                 .pluck('SRU03_USER_MASTER_D');
+            
+            // const userIdlist = await UserDetails.query()
+            //     .where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
+            //     .pluck('SRU03_USER_MASTER_D');
 
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)

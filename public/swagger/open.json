@@ -8,17 +8,18 @@
     },
     "servers": [
         {
-            "url": "http://192.168.10.106:2013/or1.0/v1",
+            "url": "http://192.168.1.5:2097/or1.0/v1",
             "description": "Development server"
         },
         {
-            "url": "http://192.168.10.106:2012/or1.0/v1",
+            "url": "http://180.151.69.138:2097/or1.0/v1",
             "description": "Integration server"
         },
         {
-            "url": "http://180.151.69.138:2081/or1.0/v1",
+            "url": "http://35.182.24.82:2009/or1.0/v1",
             "description": "Staging server"
         }
+
     ],
     "consumes": [
         "application/json"

@@ -146,3 +146,7 @@ export class TripStatus {
     static ACTIVE_TRIP = 24;
     static NOT_STARTED = 25;
 }
+export class encryptionSecret {
+    static SALTKEY = "06fe746c4d7174b827e5599eac0e26f2";
+}
+
