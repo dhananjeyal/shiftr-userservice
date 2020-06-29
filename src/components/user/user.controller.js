@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, encryptionSecret } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus, encryptionSecret } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import VehicleDetails from "../driver/model/vehicle.model";
@@ -554,6 +554,7 @@ class UserController extends BaseController {
     sendTripPendingNotication = async (req, res) => {
         try {
             const tripDetails = req.body.busOwnerTripDetails;
+            const emailType = req.body.emailType;
 
             const userIds = tripDetails.map(userId => userId.busownerId);
 
@@ -573,9 +574,14 @@ class UserController extends BaseController {
                     startTime: trip.scheduleDetails[0].startTime
                 }
 
-                await mailer.busOwnerEmail(user[0], tripDetail, EmailContents.TRIP_PENDING);
+                if(emailType == TripStatus.TRIP_PENDING) {
 
-                await mailer.superAdminEmail(tripDetails, EmailContents.TRIP_PENDING);
+                    await mailer.busOwnerEmail(user[0], tripDetail, EmailContents.TRIP_PENDING);
+    
+                    await mailer.superAdminEmail(tripDetails, EmailContents.TRIP_PENDING);
+                } else if (emailType == TripStatus.NOT_STARTED) {
+                    await mailer.busOwnerEmail(user[0], tripDetail, EmailContents.TRIP_NOT_STARTED);
+                }
             }
 
             return this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.successMessages.mailSent);
