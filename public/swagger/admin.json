@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "version": "1.0",
-        "title": "PICKUPS USER SERVICE",
+        "title": "USER SERVICE",
         "description": "Only Admin or Super admin can consume following APIs.\nEvery API requires valid JWT authentication header.",
         "contact": {}
     },
