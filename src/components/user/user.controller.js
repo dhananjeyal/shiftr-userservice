@@ -769,7 +769,6 @@ class UserController extends BaseController {
     verifyUser = async (req, res) => {
         try {
             const token = req.query.token;
-
             if (token) {
                 let decrypted = decrypt(token);
                 if (decrypted) {
