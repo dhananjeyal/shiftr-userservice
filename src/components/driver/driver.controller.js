@@ -479,9 +479,13 @@ class DriverController extends BaseController {
             // Insert financial details
             const {
                 bankName,
+                bankNameIv,
                 accountNumber,
+                accountNumberIv,
                 institutionNumber,
+                institutionNumberIv,
                 transitNumber,
+                transitNumberIv,
                 address,
                 latitude,
                 longitude,
@@ -520,10 +524,14 @@ class DriverController extends BaseController {
                 await FinancialDetails.query().insert({
                     SRU03_USER_MASTER_D: userId,
                     SRU08_BANK_N: bankName,
+                    SRU08_BANK_IV_N:bankNameIv,
                     SRU08_ACCOUNT_N: accountNumber,
+                    SRU08_ACCOUNT_IV_N:accountNumberIv,
                     SRU08_INSTITUTION_N: institutionNumber,
+                    SRU08_INSTITUTION_IV_N: institutionNumberIv,
                     SRU08_TRANSIT_N: transitNumber,
-                    SRU08_CREATED_D: userId,
+                    SRU08_TRANSIT_IV_N: transitNumberIv,
+                    SRU08_CREATED_D: userId
                 });
 
                 await AddressDetails.query().insert({
