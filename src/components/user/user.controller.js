@@ -2551,7 +2551,7 @@ class UserController extends BaseController {
     };
 
     /**
-    * @DESC : Financial encryptionkey generate
+    * @DESC : Financial encryptionkey generate [Admin/Busowner]
     * @return array/json
     * @param req
     * @param res
