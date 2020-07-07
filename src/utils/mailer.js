@@ -142,9 +142,12 @@ export const activateDeactivate = (user) => {
 export const forgetPassword = (user, link) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
     let html = `<b>Hello ${userName},</b>
-                    <p>Click on the single-use link /password below to access your account. Please remember to change your password.</p>
-                    <p>It should be “8 characters minimum, 1 small - 1 capital - 1 special 1 number” you can log in to the Application using this credential.</p>
-                    <a href="${link}">Reset Password</a>                  
+    <p>A request has been received to change the password for your Shiftr account. Please use the below
+    single-use link password below to access your account.</p>
+    <a href="${link}">Reset Password</a> 
+    <p>Please remember to change your password as soon as you log in. Your new password should be '8 characters minimum: (1) small  (1) capital (1) special (1) number</p>
+    <p>Click on the single-use link /password below to access your account. Please remember to change your password.</p>
+                                   
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
     return sendMail(user.emailId, "Forget password", html)
@@ -207,7 +210,7 @@ export const superAdminEmail = (tripDetails, message) => {
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
     return sendMail(`shiftr@joshiinc.com`, `Trip-${tripDetails.tripStatus}`, html)
 };
- 
+
 
 
 export const subscriptionNotification = (payload) => {
@@ -282,22 +285,22 @@ export const subscriptionDeactiveNotification = (payload) => {
 };
 
 
-export const adminSignupnotification = (name,emailid,userType) => {
+export const adminSignupnotification = (name, emailid, userType) => {
 
     let html;
-    if(userType == UserRole.DRIVER_R) {
-        html= `<b>Hello ShiftR,</b>
+    if (userType == UserRole.DRIVER_R) {
+        html = `<b>Hello ShiftR,</b>
         <p>New Driver has regiter our platform! Please check the and proceed further process!</p>                   
         <p><b>Driver Details:-</b></p>
         <p>Name:- ${name}</p>
         <p>Email-Id:- ${emailid}</p>`;
-    }else{
-        html= `<b>Hello ShiftR,</b>
+    } else {
+        html = `<b>Hello ShiftR,</b>
         <p>New Busowner has regiter our platform! Please check the and proceed further process!</p>                   
         <p><b>Busowner Details:-</b></p>
         <p>CompanyName:- ${name}</p>
         <p>Email-Id:- ${emailid}</p>`;
     }
-    
+
     return sendMail("shiftr@joshiinc.com", "ShiftR-Signup-Alert", html)
 };
