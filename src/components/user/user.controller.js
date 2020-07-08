@@ -1235,9 +1235,9 @@ class UserController extends BaseController {
             req.user.changedPassword = true
         }
 
-        const contactinfo = [];
-        contactinfo.push(req.user.contactInfoDetails);
-        req.user.contactinfo = contactinfo;
+        // const contactinfo = [];
+        // contactinfo.push(req.user.contactInfoDetails);
+        req.user.contactinfo = req.user.contactInfoDetails;
         delete req.user.contactInfoDetails;//Delete Existing Contact object
 
         //support-contact [superAdmin]
