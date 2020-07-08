@@ -180,7 +180,7 @@ export const notifyBusOwner = (user, tripDetails) => {
                     <p>Driver contact:- ${tripDetails.driverPhoneNumber}</p>
                     <p>Driver address:- ${tripDetails.driverAddress}</p>
                     <p>Best regards</p>`;
-    return sendMail(user.emailId, "Trip - Details", html)
+    return sendMail(user.emailId, `Trip-${tripDetails.tripStatus}`, html)
 };
 
 export const busOwnerEmail = (user, tripDetails, message) => {
@@ -194,7 +194,7 @@ export const busOwnerEmail = (user, tripDetails, message) => {
                     <p>Trip start date:- ${moment(tripDetails.startDate).format('DD/MM/YYYY')}</p>
                     <p>Trip end date:- ${moment(tripDetails.endDate).format('DD/MM/YYYY')}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
-    return sendMail(user.emailId, "Trip - Details", html)
+    return sendMail(user.emailId, `Trip-${tripDetails.tripStatus}`, html)
 };
 
 
