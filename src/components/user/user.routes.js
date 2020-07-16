@@ -21,7 +21,7 @@ function registerRoutes() {
         openRouter.route("/api/user/subscription/reminder").post(UserController.sendReminderNotication);
         openRouter.route("/api/user/subscription/renewals").post(UserController.sendRenewalsNotication);
         openRouter.route("/api/user/subscription/deactive").post(UserController.subscriptionDeactive);
-        openRouter.route("/api/user/supportcontact/list").get(verifyAny,UserController.supportContactList);
+        openRouter.route("/api/user/supportcontact/list").get(UserController.supportContactList);
         let verifySuperAdminOrAdmin = AuthController.verifySuperAdminOrAdmin;
         //Existing Email verification
         apiRouter.route("/user/existing_email/:emailId").get(verifySuperAdminOrAdmin, existingEmail, UserController.existingEmail);
