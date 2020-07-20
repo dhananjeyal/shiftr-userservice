@@ -111,10 +111,11 @@ export const accountCreated = (user, link) => {
                     <p>Username / email address: ${user.emailId}</p>
                     <p>Temporary password: ${user.password}</p>
                     <hr>
-                    <p>OR</p>
-                    <p>Set a new password using below shown link:</p>
-                    <a href="${link}">Set new password</a>
-                    <p>Best regards</p>`;
+                    <p>Best Regards</p>`;
+                   // `<p>OR</p>
+                    //<p>Set a new password using below shown link:</p>
+                    //<a href="${link}">Set new password</a>
+                    //<p>Best regards</p>`;
     }
 
     return sendMail(user.emailId, "Account created", html)
