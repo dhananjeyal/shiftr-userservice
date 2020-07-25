@@ -1644,7 +1644,7 @@ class UserController extends BaseController {
             userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                 .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
                 
-            let allcolumnList = [...userListColumns,...contactInfoColumns];
+            let allcolumnList = [...userListColumns, ...contactInfoColumns];
 
             userQuery = await userQuery.select(allcolumnList);
 
