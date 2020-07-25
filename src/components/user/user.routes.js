@@ -50,7 +50,7 @@ function registerRoutes() {
         apiRouter.route("/user/verify_token").get(UserController.verifyToken);
 
         //Test -Driver List
-        apiRouter.route("/user/driverListTest").get(verifyAny,UserController._TestgetunmatchedUserList);
+        apiRouter.route("/user/driverListTest").post(verifyAny,UserController._TestgetunmatchedUserList);
         apiRouter.route("/user/secretkey").post(verifyAny,UserController.encryptionkeygenerate);
 
         openRouter.route("/test_mail").get((req, res) => {
