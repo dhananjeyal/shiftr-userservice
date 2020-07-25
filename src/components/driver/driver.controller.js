@@ -21,7 +21,7 @@ import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns ,driverLicenseList} from "../user/model/user.columns";
+import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns, driverLicenseList } from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
@@ -166,16 +166,16 @@ class DriverController extends BaseController {
             let signupStatus;
             if (UserDetailsResponse.signUpStatus == SignUpStatus.PERSONAL_DETAILS) {
                 signupStatus = SignUpStatus.VEHICLE_DETAILS;
-             } else {
+            } else {
                 signupStatus = UserDetailsResponse.signUpStatus;
             }
-            
+
             if (UserDetailsResponse) {
                 await UserDetails.query()
                     .patch({
                         SRU04_UNIT: unit || UserDetailsResponse.unit,
                         SRU04_PROFILE_I: userprofile || UserDetailsResponse.userprofile,
-                        SRU04_SIGNUP_STATUS_D:signupStatus
+                        SRU04_SIGNUP_STATUS_D: signupStatus
                     }).where({
                         SRU03_USER_MASTER_D: ActiveUser.userId
                     });
@@ -269,10 +269,10 @@ class DriverController extends BaseController {
 
             //check - financial exists
             let rowExists = await FinancialDetails.query()
-            .select("SRU03_USER_MASTER_D as userId")
-            .where({
-                SRU03_USER_MASTER_D: user.userId
-            });
+                .select("SRU03_USER_MASTER_D as userId")
+                .where({
+                    SRU03_USER_MASTER_D: user.userId
+                });
 
             let signupStatus;
             if (rowExists.length <= booleanType.NO) {
@@ -285,22 +285,22 @@ class DriverController extends BaseController {
 
             //Delete - Existing License
             await DriverLicenses.query()
-            .where('SRU03_USER_MASTER_D', user.userId)
-            .delete();
+                .where('SRU03_USER_MASTER_D', user.userId)
+                .delete();
 
-            const driverLicenselist  =[];
-            licenseList.map((val,index)=>{
+            const driverLicenselist = [];
+            licenseList.map((val, index) => {
                 driverLicenselist.push({
-                    SRU03_USER_MASTER_D:user.userId,
-                    SRU22_LICENSE_TYPE_R:val.licenseId,
-                    SRU22_LICENSE_TYPE_N:val.licenseType,
+                    SRU03_USER_MASTER_D: user.userId,
+                    SRU22_LICENSE_TYPE_R: val.licenseId,
+                    SRU22_LICENSE_TYPE_N: val.licenseType,
                 });
             });
 
             const driverLicenseDetails = await DriverLicenses.query().insertGraph(driverLicenselist);
 
             const userDetailsResponse = await UserDetails.query()
-                .update({                    
+                .update({
                     SRU04_SIGNUP_STATUS_D: signupStatus
                 })
                 .where('SRU03_USER_MASTER_D', user.userId);
@@ -524,9 +524,9 @@ class DriverController extends BaseController {
                 await FinancialDetails.query().insert({
                     SRU03_USER_MASTER_D: userId,
                     SRU08_BANK_N: bankName,
-                    SRU08_BANK_IV_N:bankNameIv,
+                    SRU08_BANK_IV_N: bankNameIv,
                     SRU08_ACCOUNT_N: accountNumber,
-                    SRU08_ACCOUNT_IV_N:accountNumberIv,
+                    SRU08_ACCOUNT_IV_N: accountNumberIv,
                     SRU08_INSTITUTION_N: institutionNumber,
                     SRU08_INSTITUTION_IV_N: institutionNumberIv,
                     SRU08_TRANSIT_N: transitNumber,
@@ -544,7 +544,7 @@ class DriverController extends BaseController {
                 });
             }
 
-          if (userDetails.signUpStatus != SignUpStatus.COMPLETED) {
+            if (userDetails.signUpStatus != SignUpStatus.COMPLETED) {
                 await UserDetails.query()
                     .update({
                         SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
@@ -554,7 +554,7 @@ class DriverController extends BaseController {
 
             const driver = await this._getDriverDetails(req, res, userId);
 
-            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.updatedSuccessfully); 
+            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.updatedSuccessfully);
             // return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
 
             // TODO: Send the mail
@@ -713,7 +713,7 @@ class DriverController extends BaseController {
             } else {
                 signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
             }
-          
+
             //Update signup status
             await UserDetails.query()
                 .update({ SRU04_SIGNUP_STATUS_D: signupStatus })
@@ -830,7 +830,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents,driverlicensesList]')
+                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents,driverlicensesList,contactInfoDetails]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -851,6 +851,8 @@ class DriverController extends BaseController {
                     builder.select(radiusColumns)
                 }).modifyEager('driverlicensesList', (builder) => {
                     builder.select(driverLicenseList)
+                }).modifyEager('contactInfoDetails', (builder) => {
+                    builder.select(contactInfoColumns)
                 }).select(columns);
 
             if (driver) {
