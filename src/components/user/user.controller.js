@@ -1633,21 +1633,19 @@ class UserController extends BaseController {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
 
+            let allcolumnList = [...userListColumns, ...contactInfoColumns];
+
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
             )
+                .join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`)
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
-                .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile");
-            // .select(userListColumns);
+                .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
+            .select(allcolumnList);
 
-            userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
-                
-            let allcolumnList = [...userListColumns, ...contactInfoColumns];
-
-            userQuery = await userQuery.select(allcolumnList);
-console.log('Test',userQuery);
+            console.log('Test', userQuery);
             const driverLicenses = await DriverLicenses.query()
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(driverLicenseList);
