@@ -1632,9 +1632,8 @@ class UserController extends BaseController {
             let where = {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
-
-            let allcolumnList = [...userListColumns, ...contactInfoColumns];
-
+            
+            const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
@@ -1643,7 +1642,7 @@ class UserController extends BaseController {
                 .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`)
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
                 .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
-            .select(allcolumnList);
+                .select(allUsercolumnList);
 
             console.log('Test', userQuery);
             const driverLicenses = await DriverLicenses.query()
@@ -1660,11 +1659,13 @@ class UserController extends BaseController {
                         userValue.SpecialityDetails = specialityValue;
                     }
                 });
+
                 driverFinancialDetails.find(((financialDetails) => {
                     if (userValue.userId === financialDetails.driveruserId) {
                         userValue.financialDetails = financialDetails;
                     }
                 }))
+
                 const index = driverLicenses.findIndex(user => user.driverId === userValue.userId);
                 if (-1 !== index) {
                     userValue.driverLicenses = driverLicenses;
@@ -2307,41 +2308,67 @@ class UserController extends BaseController {
 */
     _TestgetunmatchedUserList = async (req, res) => {
         try {
-            const driverLicensetype = 1;
-            const driverIdlist = ["1974", "1887"];
-            const userIdlist = await DriverLicenses.query()
-                .join('SRU04_USER_DETAIL', 'SRU04_USER_DETAIL.SRU03_USER_MASTER_D', 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
-                .where('SRU22_DRIVER_LICENSE.SRU22_LICENSE_TYPE_R', driverLicensetype)
-                .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverIdlist)
-                .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
-                .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
-                .pluck('SRU03_USER_MASTER_D');
+            
+            const userIds = ["2008"];
+           
+            const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
-            // const userIdlist = await UserDetails.query()
-            //     .where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
-            //     .pluck('SRU03_USER_MASTER_D');
+            //Filter By Driver Details
 
-            const allUserList = await Users.query()
-                .whereIn('SRU03_USER_MASTER_D', userIdlist)
-                .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
-                .where({
-                    "SRU03_TYPE_D": UserRole.DRIVER_R
-                })
-                .modifyEager('userDetails', (builder) => {
-                    builder.where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
-                        .select(tripUserDetailsColumns)
-                })
-                .modifyEager('driverspecialityDetails.[specialityExpDetails]', (builder) => {
-                    builder.where((builder) => {
-                        builder
-                            .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
-                    })
-                        .select(driverExperienceColumns)
-                }).modifyEager('driverspecialityDetails.[SpecialityTrainingDetails]', (builder) => {
-                    builder.select(driverSpecialityTrainingColumns)
-                }).modifyEager('driverlicensesList', (builder) => {
-                    builder.select(driverLicenseList)
-                }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+            let specialityQuery = await SpecialityDetails.query()
+                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                .whereIn('SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D', userIds)
+                .select(columnList);
+
+            let userids = specialityQuery.map((value) => {
+                return value.driveruserId
+            });
+
+            let where = {
+                "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
+            };
+            
+            const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
+            let userQuery = await Users.query().where(where).join(UserDetails.tableName,
+                `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
+                `${Users.tableName}.SRU03_USER_MASTER_D`,
+            )
+                .join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`)
+                .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
+                .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
+                .select(allUsercolumnList);
+
+            
+            const driverLicenses = await DriverLicenses.query()
+                .whereIn('SRU03_USER_MASTER_D', userids)
+                .select(driverLicenseList);
+
+            const driverFinancialDetails = await FinancialDetails.query()
+                .whereIn('SRU03_USER_MASTER_D', userids)
+                .select(financialDetails);
+
+            const results = await userQuery.map((userValue) => {
+                specialityQuery.find((specialityValue) => {
+                    if (userValue.userId === specialityValue.driveruserId) {
+                        userValue.SpecialityDetails = specialityValue;
+                    }
+                });
+
+                driverFinancialDetails.find(((financialDetails) => {
+                    if (userValue.userId === financialDetails.driveruserId) {
+                        userValue.financialDetails = financialDetails;
+                    }
+                }))
+
+                const index = driverLicenses.findIndex(user => user.driverId === userValue.userId);
+                if (-1 !== index) {
+                    userValue.driverLicenses = driverLicenses;
+                }
+                return userValue;
+            });
+
+            return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
 
             return this.success(req, res, this.status.HTTP_OK, allUserList, this.messageTypes.passMessages.successful);
         } catch (e) {
