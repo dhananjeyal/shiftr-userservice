@@ -21,7 +21,7 @@ import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
-import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns, driverLicenseList,contactInfoColumns } from "../user/model/user.columns";
+import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns, driverLicenseList } from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
 import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
@@ -830,7 +830,7 @@ class DriverController extends BaseController {
     _getDriverDetails = async (req, res, userId) => {
         try {
             let driver = await Users.query().findById(userId)
-                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails, documents,driverlicensesList,contactInfoDetails]')
+                .eager('[userDetails, addressDetails, experienceDetails,driverspecialityDetails, driverLanguage, financialDetails,radiusDetails,documents,driverlicensesList,contactInfoDetails]')
                 .modifyEager('userDetails', (builder) => {
                     builder.select(driverUserDetailsColumns)
                     // builder.select(raw(`CONCAT("${profilePath}", SRU04_PROFILE_I) as userprofile`))
@@ -852,7 +852,7 @@ class DriverController extends BaseController {
                 }).modifyEager('driverlicensesList', (builder) => {
                     builder.select(driverLicenseList)
                 }).modifyEager('contactInfoDetails', (builder) => {
-                    builder.select(contactInfoColumns)
+                    builder.select(contactInfoDetailsColumns)
                 }).select(columns);
 
             if (driver) {
