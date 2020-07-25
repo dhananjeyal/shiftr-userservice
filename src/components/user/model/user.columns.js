@@ -130,6 +130,7 @@ export let adminReportListColumns = [
     ...adminListColumns,
     `${Users.tableName}.SRU03_CREATED_AT as registeredOn`,
     `${UsersDetails.tableName}.SRU04_COMPANY_NAME_N as companyName`,
+    `${UsersDetails.tableName}.SRU04_SIGNUP_STATUS_D as signUpStatus`,
     `${UsersDetails.tableName}.SRU04_LICENSE_TYPE_N as licenseName`,
     `${UsersDetails.tableName}.SRU04_ACTIVE_SUBSCRIPTION_PLAN_F as subscriptionStatus`,
     `${UsersDetails.tableName}.SRU04_ACCEPTANCE_RATIO_R as acceptanceRatio`
