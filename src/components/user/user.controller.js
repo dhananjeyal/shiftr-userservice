@@ -1643,7 +1643,7 @@ class UserController extends BaseController {
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
                 .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
                 .select(allUsercolumnList);
-
+                
             const driverLicenses = await DriverLicenses.query()
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(driverLicenseList);
@@ -2327,8 +2327,6 @@ class UserController extends BaseController {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
             
-            console.log(userids);
-            return false;
             const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
