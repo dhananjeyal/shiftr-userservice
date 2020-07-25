@@ -456,9 +456,9 @@ class UserController extends BaseController {
 
             let where = {
                 SRU03_TYPE_D: userType,
-                "SRU03_USER_MASTER.SRU03_DELETED_F": null,
-                "SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D": SignUpStatus.COMPLETED
+                "SRU03_USER_MASTER.SRU03_DELETED_F": null
             };
+            // "SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D": SignUpStatus.COMPLETED
 
             let userQuery = Users.query().where(where)
                 .where(`SRU03_CREATED_AT`, '>=', startDate)
