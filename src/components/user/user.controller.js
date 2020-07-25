@@ -574,10 +574,10 @@ class UserController extends BaseController {
                     startTime: trip.scheduleDetails[0].startTime
                 }
 
-                if(emailType == TripStatus.TRIP_PENDING) {
+                if (emailType == TripStatus.TRIP_PENDING) {
 
                     await mailer.busOwnerEmail(user[0], tripDetail, EmailContents.TRIP_PENDING);
-    
+
                     await mailer.superAdminEmail(tripDetails, EmailContents.TRIP_PENDING);
                 } else if (emailType == TripStatus.NOT_STARTED) {
                     await mailer.busOwnerEmail(user[0], tripDetail, EmailContents.TRIP_NOT_STARTED);
@@ -1376,10 +1376,10 @@ class UserController extends BaseController {
                 userQuery = userQuery.join(Language.tableName, `${Language.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
 
-                    userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
 
-                columnList = [...columnList, ...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverLanguageColumns,...contactInfoColumns];
+                columnList = [...columnList, ...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverLanguageColumns, ...contactInfoColumns];
             }
 
             if (userType === UserRole.CUSTOMER_R) {
@@ -1638,8 +1638,15 @@ class UserController extends BaseController {
                 `${Users.tableName}.SRU03_USER_MASTER_D`,
             )
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
-                .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
-                .select(userListColumns);
+                .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile");
+            // .select(userListColumns);
+
+            userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
+                
+            let allcolumnList = [...userListColumns,...contactInfoColumns];
+
+            userQuery = await userQuery.select(allcolumnList);
 
             const driverLicenses = await DriverLicenses.query()
                 .whereIn('SRU03_USER_MASTER_D', userids)
@@ -2568,11 +2575,11 @@ class UserController extends BaseController {
                 .select('SRU03_PASSWORD_N as password');
 
             let compareResult = await bcrypt.compare(req.body.password, responseData[0].password);
-            if (compareResult) {                
-                    result.secretKey= encryptionSecret.SALTKEY//Encryption key
+            if (compareResult) {
+                result.secretKey = encryptionSecret.SALTKEY//Encryption key
                 return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.successful);
             } else {
-                return this.errors(req, res, this.status.HTTP_BAD_REQUEST,this.messageTypes.errorMessages.unauthorized);
+                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.messageTypes.errorMessages.unauthorized);
             }
 
         } catch (e) {
