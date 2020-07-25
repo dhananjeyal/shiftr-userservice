@@ -2368,8 +2368,7 @@ class UserController extends BaseController {
             });
 
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
-
-            return this.success(req, res, this.status.HTTP_OK, allUserList, this.messageTypes.passMessages.successful);
+            
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
