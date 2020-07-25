@@ -1647,7 +1647,7 @@ class UserController extends BaseController {
             let allcolumnList = [...userListColumns, ...contactInfoColumns];
 
             userQuery = await userQuery.select(allcolumnList);
-
+console.log(userQuery);
             const driverLicenses = await DriverLicenses.query()
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(driverLicenseList);
