@@ -110,7 +110,7 @@ export const accountCreated = (user, link) => {
                     <p>ShiftR admin has created an account for you, you can log in the admin dashboard using following credential:</p>
                     <p>Username / email address: ${user.emailId}</p>
                     <p>Temporary password: ${user.password}</p>
-                    <a href="${process.env.ADMINEMAILLINK}">Set new password</a>
+                    <a href="${process.env.ADMINEMAILLINK}">Admin login click here</a>
                     <hr>
                     <p>Best Regards</p>`;
                    // `<p>OR</p>
