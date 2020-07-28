@@ -21,9 +21,13 @@ export let driverUserDetailsColumns = [
 
 export let driverFinancialColumns = [
     'SRU08_BANK_N as bankName',
+    'SRU08_BANK_IV_N as bankNameIv',
     'SRU08_ACCOUNT_N as accountNo',
+    'SRU08_ACCOUNT_IV_N as accountNumberIv',
     'SRU08_INSTITUTION_N as institutionName',
+    'SRU08_INSTITUTION_IV_N as institutionNumberIv',
     'SRU08_TRANSIT_N as transitNo',
+    'SRU08_TRANSIT_IV_N as transitNumberIv'
 ];
 
 export let driverExperienceColumns = [   
