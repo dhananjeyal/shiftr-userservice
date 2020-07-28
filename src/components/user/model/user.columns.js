@@ -99,9 +99,13 @@ export let financialDetails = [
     "SRU03_USER_MASTER_D as driveruserId",
     'SRU08_FINANCIAL_D as financialId',
     'SRU08_BANK_N as bankName',
+    'SRU08_BANK_IV_N as bankNameIv',
     'SRU08_ACCOUNT_N as accountNumber',
+    'SRU08_ACCOUNT_IV_N as accountNumberIv',
     'SRU08_INSTITUTION_N as institutionNumber',
-    'SRU08_TRANSIT_N as transitNumber'
+    'SRU08_INSTITUTION_IV_N as institutionNumberIv',
+    'SRU08_TRANSIT_N as transitNumber',
+    'SRU08_TRANSIT_IV_N as transitNumberIv'
 ];
 
 export let userDocumentColumns = [
