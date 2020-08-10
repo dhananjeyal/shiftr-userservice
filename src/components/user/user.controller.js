@@ -1632,7 +1632,7 @@ class UserController extends BaseController {
             let where = {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
-            
+
             const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
@@ -1643,7 +1643,7 @@ class UserController extends BaseController {
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
                 .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
                 .select(allUsercolumnList);
-                
+
             const driverLicenses = await DriverLicenses.query()
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(driverLicenseList);
@@ -2307,9 +2307,9 @@ class UserController extends BaseController {
 */
     _TestgetunmatchedUserList = async (req, res) => {
         try {
-            
+
             const userIds = ["2008"];
-           
+
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
@@ -2326,7 +2326,7 @@ class UserController extends BaseController {
             let where = {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
-            
+
             const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
@@ -2338,7 +2338,7 @@ class UserController extends BaseController {
                 .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
                 .select(allUsercolumnList);
 
-            
+
             const driverLicenses = await DriverLicenses.query()
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(driverLicenseList);
@@ -2368,7 +2368,7 @@ class UserController extends BaseController {
             });
 
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
-            
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
@@ -2605,6 +2605,39 @@ class UserController extends BaseController {
                 return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.messageTypes.errorMessages.unauthorized);
             }
 
+        } catch (e) {
+            return this.internalServerError(req, res, e);
+        }
+    };
+
+    /**
+   * @DESC : Platform  Active Driver List
+   * @return array/json
+   * @param req
+   * @param res
+   */
+    platformDriverlist = async (req, res) => {
+        try {
+
+            let activeDrivers = await Users.query()                
+                .join(UserDetails.tableName, `${UserDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                .where(`${Users.tableName}.SRU03_STATUS_D`, UserStatus.ACTIVE)
+                .where(`${UserDetails.tableName}.SRU04_EMAIL_STATUS_D`, SignUpStatus.VERIFIED)
+                .where(`${UserDetails.tableName}.SRU04_SIGNUP_STATUS_D`, SignUpStatus.COMPLETED)
+                .count(`${Users.tableName}.SRU03_USER_MASTER_D as driversCount`);
+
+            let totalDrivers = await Users.query()                
+                .join(UserDetails.tableName, `${UserDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                .whereIn(`${Users.tableName}.SRU03_STATUS_D`,[UserStatus.ACTIVE,UserStatus.INACTIVE])                
+                .where(`${UserDetails.tableName}.SRU04_EMAIL_STATUS_D`, SignUpStatus.VERIFIED)
+                .where(`${UserDetails.tableName}.SRU04_SIGNUP_STATUS_D`, SignUpStatus.COMPLETED)
+                .count(`${Users.tableName}.SRU03_USER_MASTER_D as driversCount`);
+
+            const result = {
+                activeDriver: activeDrivers[0].driversCount||0,
+                totalDrivers: totalDrivers[0].driversCount||0
+            }
+            return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.successful);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
