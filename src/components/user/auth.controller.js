@@ -1,8 +1,8 @@
 import BaseController from "../baseController";
 import Users from '../user/model/user.model'
 import jwt from 'jsonwebtoken';
-import { columns, userAddressColumns, userDetailsColumns,contactInfoDetailsColumns } from "./model/user.columns";
-import { UserRole } from '../../constants'
+import { columns, userAddressColumns, userDetailsColumns, contactInfoDetailsColumns } from "./model/user.columns";
+import { UserRole, booleanType } from '../../constants'
 
 class AuthController extends BaseController {
 
@@ -29,13 +29,14 @@ class AuthController extends BaseController {
                                 let user = await Users.query().findOne({
                                     SRU03_USER_MASTER_D: userId,
                                 }).eager('[userDetails, addressDetails,contactInfoDetails]')
-                                .modifyEager('userDetails', builder => {
-                                    builder.select(userDetailsColumns)
-                                }).modifyEager('addressDetails', (builder) => {
-                                    builder.select(userAddressColumns)
-                                }).modifyEager('contactInfoDetails', (builder) => {
-                                    builder.select(contactInfoDetailsColumns)
-                                }).select(columns);
+                                    .modifyEager('userDetails', builder => {
+                                        builder.select(userDetailsColumns)
+                                    }).modifyEager('addressDetails', (builder) => {
+                                        builder.select(userAddressColumns)
+                                    }).modifyEager('contactInfoDetails', (builder) => {
+                                        builder.where('SRU19_DELETED_F', booleanType.NO)
+                                        builder.select(contactInfoDetailsColumns)
+                                    }).select(columns);
 
                                 if (user) {
                                     req.user = user;

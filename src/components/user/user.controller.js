@@ -273,8 +273,10 @@ class UserController extends BaseController {
 
                 if (contactInfo.length > 0) {
                     //Update contact Info
+                    const conIds = []
                     const contactInfoData = [];
                     contactInfo.forEach(contactvalue => {
+                        if (contactvalue.contactinfoId) conIds.push(contactvalue.contactinfoId)
                         contactInfoData.push({
                             SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
                             SRU03_USER_MASTER_D: userId,
@@ -286,6 +288,13 @@ class UserController extends BaseController {
 
                     await ContactInfo.query()
                         .upsertGraph(contactInfoData);
+
+
+                    if (conIds.length)
+                        await ContactInfo.query()
+                            .patch({ SRU19_DELETED_F: booleanType.YES })
+                            .whereNotIn('SRU19_CONTACT_INFO_D', conIds)
+                            .where({ SRU03_USER_MASTER_D: userId })
                 }
 
                 if (contactDetails.length > 0) {
@@ -1632,7 +1641,6 @@ class UserController extends BaseController {
             let where = {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
-
             const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
@@ -1643,7 +1651,6 @@ class UserController extends BaseController {
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
                 .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
                 .select(allUsercolumnList);
-
             const driverLicenses = await DriverLicenses.query()
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(driverLicenseList);
@@ -2307,9 +2314,7 @@ class UserController extends BaseController {
 */
     _TestgetunmatchedUserList = async (req, res) => {
         try {
-
             const userIds = ["2008"];
-
             const columnList = [...driverExperienceColumns, ...driverExpSpecialityColumns];
 
             //Filter By Driver Details
@@ -2326,7 +2331,6 @@ class UserController extends BaseController {
             let where = {
                 "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
             };
-
             const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
@@ -2337,7 +2341,6 @@ class UserController extends BaseController {
                 .whereIn('SRU04_USER_DETAIL.SRU03_USER_MASTER_D', userids)
                 .select("SRU04_USER_DETAIL.SRU04_PROFILE_I as userprofile")
                 .select(allUsercolumnList);
-
 
             const driverLicenses = await DriverLicenses.query()
                 .whereIn('SRU03_USER_MASTER_D', userids)
@@ -2368,7 +2371,6 @@ class UserController extends BaseController {
             });
 
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
-
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
