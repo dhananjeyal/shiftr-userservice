@@ -267,7 +267,8 @@ class UserController extends BaseController {
                         .where('SRU03_USER_MASTER_D', userId)
                         .update({
                             SRU04_PROFILE_I: userprofile,
-                            SRU04_UPDATED_D: req.user.userId
+                            SRU04_UPDATED_D: req.user.userId,
+
                         });
                 }
 
@@ -1377,15 +1378,15 @@ class UserController extends BaseController {
             if (userType === UserRole.DRIVER_R) {
                 //To fetch drivers financial details
                 userQuery = userQuery.join(SpecialityDetails.tableName, `${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
+                    // .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
 
                 userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
+                    // .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
 
-                userQuery = userQuery.join(Language.tableName, `${Language.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                userQuery = userQuery.leftJoin(Language.tableName, `${Language.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
 
-                userQuery = userQuery.join(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                userQuery = userQuery.leftJoin(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
 
                 columnList = [...columnList, ...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverLanguageColumns, ...contactInfoColumns];
@@ -2621,23 +2622,29 @@ class UserController extends BaseController {
     platformDriverlist = async (req, res) => {
         try {
 
-            let activeDrivers = await Users.query()                
+            let activeDrivers = await Users.query()
                 .join(UserDetails.tableName, `${UserDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                .where(`${Users.tableName}.SRU03_STATUS_D`, UserStatus.ACTIVE)
-                .where(`${UserDetails.tableName}.SRU04_EMAIL_STATUS_D`, SignUpStatus.VERIFIED)
-                .where(`${UserDetails.tableName}.SRU04_SIGNUP_STATUS_D`, SignUpStatus.COMPLETED)
+                .where({
+                    [`${Users.tableName}.SRU03_STATUS_D`]: UserStatus.ACTIVE,
+                    [`${UserDetails.tableName}.SRU04_EMAIL_STATUS_D`]: SignUpStatus.VERIFIED,
+                    [`${UserDetails.tableName}.SRU04_SIGNUP_STATUS_D`]: SignUpStatus.VERIFIED,
+                    [`${Users.tableName}.SRU03_TYPE_D`]: UserRole.DRIVER_R
+                })
                 .count(`${Users.tableName}.SRU03_USER_MASTER_D as driversCount`);
 
-            let totalDrivers = await Users.query()                
+            let totalDrivers = await Users.query()
                 .join(UserDetails.tableName, `${UserDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                .whereIn(`${Users.tableName}.SRU03_STATUS_D`,[UserStatus.ACTIVE,UserStatus.INACTIVE])                
-                .where(`${UserDetails.tableName}.SRU04_EMAIL_STATUS_D`, SignUpStatus.VERIFIED)
-                .where(`${UserDetails.tableName}.SRU04_SIGNUP_STATUS_D`, SignUpStatus.COMPLETED)
+                .whereIn(`${Users.tableName}.SRU03_STATUS_D`, [UserStatus.ACTIVE, UserStatus.INACTIVE])
+                .where({
+                    [`${UserDetails.tableName}.SRU04_EMAIL_STATUS_D`]: SignUpStatus.VERIFIED,
+                    [`${UserDetails.tableName}.SRU04_SIGNUP_STATUS_D`]: SignUpStatus.VERIFIED,
+                    [`${Users.tableName}.SRU03_TYPE_D`]: UserRole.DRIVER_R
+                })
                 .count(`${Users.tableName}.SRU03_USER_MASTER_D as driversCount`);
 
             const result = {
-                activeDriver: activeDrivers[0].driversCount||0,
-                totalDrivers: totalDrivers[0].driversCount||0
+                activeDriver: activeDrivers[0].driversCount || 0,
+                totalDrivers: totalDrivers[0].driversCount || 0
             }
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.successful);
         } catch (e) {
