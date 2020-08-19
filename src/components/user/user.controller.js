@@ -783,7 +783,6 @@ class UserController extends BaseController {
                 let decrypted = decrypt(token);
                 if (decrypted) {
                     let payload = JSON.parse(decrypted);
-
                     let result = await Users.query().where({
                         SRU03_USER_MASTER_D: payload.userId,
                         SRU03_EMAIL_N: payload.emailId,
@@ -795,7 +794,6 @@ class UserController extends BaseController {
                         result = result[0];
                         // Active status check
                         if (result.status === UserStatus.ACTIVE) {
-
                             const path = require("path");
                             const indexFile = path.resolve('./public/templates/emails/verified.html');
 
@@ -808,22 +806,22 @@ class UserController extends BaseController {
                                     SRU03_USER_MASTER_D: payload.userId
                                 });
                                 // }
+                                if (result.typeId == UserRole.DRIVER_R) {
+                                    let notifyData = {
+                                        title: this.messageTypes.passMessages.title,
+                                        message: this.messageTypes.passMessages.emailVerified,
+                                        body: "ShiftR Welcomes You, Email verified Successfully",
+                                        type: NotifyType.VERIFY_EMAIL
+                                    }
+                                    const token = jwt.sign({
+                                        userId: result.userId,
+                                        type: 'login'
+                                    }, process.env.JWT_SECRET, { expiresIn: 86400 });
 
-                                let notifyData = {
-                                    title: this.messageTypes.passMessages.title,
-                                    message: this.messageTypes.passMessages.emailVerified,
-                                    body: "ShiftR Welcomes You, Email verified Successfully",
-                                    type: NotifyType.VERIFY_EMAIL
+                                    req.headers['authorization'] = `Bearer ${token}`;
+                                    await NotifyService.sendNotication(req, res, notifyData)
                                 }
 
-                                const token = jwt.sign({
-                                    userId: result.userId,
-                                    type: 'login'
-                                }, process.env.JWT_SECRET, { expiresIn: 86400 });
-
-                                req.headers['authorization'] = `Bearer ${token}`;
-
-                                await NotifyService.sendNotication(req, res, notifyData)
                                 await mailer.emailVerified(result);
                             }
 
@@ -838,8 +836,6 @@ class UserController extends BaseController {
         } catch (e) {
             this.internalServerError(req, res, e);
         }
-
-        return res.status(this.status.HTTP_NOT_FOUND).send();
     };
 
     /**
@@ -1378,10 +1374,10 @@ class UserController extends BaseController {
             if (userType === UserRole.DRIVER_R) {
                 //To fetch drivers financial details
                 userQuery = userQuery.join(SpecialityDetails.tableName, `${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    // .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
+                // .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
 
                 userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    // .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
+                // .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
 
                 userQuery = userQuery.leftJoin(Language.tableName, `${Language.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
