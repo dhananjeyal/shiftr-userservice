@@ -473,20 +473,20 @@ class UserController extends BaseController {
             let userQuery = Users.query().where(where)
                 .where(`SRU03_CREATED_AT`, '>=', startDate)
                 .where(`SRU03_CREATED_AT`, '<=', endDate)
-                .join(UserDetails.tableName,
+                .leftJoin(UserDetails.tableName,
                     `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                     `${Users.tableName}.SRU03_USER_MASTER_D`
-                );
+                ).orderBy(`${Users.tableName}.SRU03_USER_MASTER_D`, 'desc');
 
             let columnList = adminReportListColumns;
 
             if (userType === UserRole.DRIVER_R) {
-                userQuery = userQuery.join(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    .where({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
-                    .groupBy(`${AddressDetails.tableName}.SRU03_USER_MASTER_D`);
+                userQuery = userQuery.leftJoin(AddressDetails.tableName, `${AddressDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    // .where({ SRU06_ADDRESS_TYPE_D: AddressType.PERMANENT })
+                    .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`);
 
-                userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
+                userQuery = userQuery.leftJoin(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`);
 
 
                 columnList = [...columnList, ...userAddressColumns, ...reportsDriverExperienceColumns];
