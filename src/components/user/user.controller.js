@@ -8,7 +8,7 @@ import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails } from "./model/user.columns";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails, driverLicenseReport } from "./model/user.columns";
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus, encryptionSecret } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
@@ -490,8 +490,10 @@ class UserController extends BaseController {
                 userQuery = userQuery.leftJoin(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`);
 
+                userQuery = userQuery.leftJoin(DriverLicenses.tableName, `${DriverLicenses.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                    .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`);
 
-                columnList = [...columnList, ...userAddressColumns, ...reportsDriverExperienceColumns];
+                columnList = [...columnList, ...userAddressColumns, ...reportsDriverExperienceColumns, ...driverLicenseReport];
             }
 
             if (userType === UserRole.CUSTOMER_R) {
