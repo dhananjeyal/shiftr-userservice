@@ -206,3 +206,8 @@ export let driverLicenseList = [
     `SRU22_LICENSE_TYPE_R as licenseId`,
     `SRU22_LICENSE_TYPE_N as licenseType`
 ]
+
+export let driverLicenseReport = [
+    `SRU22_LICENSE_TYPE_R as licenseId`,
+    `SRU22_LICENSE_TYPE_N as licenseType`
+]
