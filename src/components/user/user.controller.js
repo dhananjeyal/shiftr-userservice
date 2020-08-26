@@ -456,7 +456,9 @@ class UserController extends BaseController {
 
             const page = req.body.pagination.page;
             const chunk = req.body.pagination.chunk;
+            const type = req.body.type;
 
+            let pageMetaData, result;
             let { startDate, endDate } = req.body.date;
 
             const threeMonthsBefore = moment(Date.now()).subtract(3, 'months').format('YYYY-MM-DD HH:mm:ss')
@@ -501,19 +503,24 @@ class UserController extends BaseController {
                 columnList = [...columnList, ...userAddressColumns];
             }
 
-            userQuery = await userQuery.select(columnList).page(page - 1, chunk);
-
-            const pageMetaData = {
-                chunk: chunk,
-                total: userQuery.total,
-                page: page,
-                totalPages: Math.ceil(userQuery.total / chunk)
-            };
-
-            const result = {
-                list: userQuery.results,
-                pageMetaData
-            };
+            if (type == "list") {
+                userQuery = await userQuery.select(columnList).page(page - 1, chunk);
+                pageMetaData = {
+                    chunk: chunk,
+                    total: userQuery.total,
+                    page: page,
+                    totalPages: Math.ceil(userQuery.total / chunk)
+                };
+                result = {
+                    list: userQuery.results,
+                    pageMetaData
+                };
+            } else {
+                userQuery = await userQuery.select(columnList);
+                result = {
+                    list: userQuery
+                };
+            }
 
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.getAll);
         } catch (e) {
