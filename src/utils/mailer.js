@@ -3,20 +3,21 @@ import { UserRole, UserStatus } from "../constants";
 const nodemailer = require("nodemailer");
 import moment from 'moment';
 
-export const sendMail = async (to, subject, html) => {
+export const sendMail = async (to, subject, html, fromEmail) => {
+    fromEmail = fromEmail ? fromEmail : process.env.SMTP_FROM
     const transport = nodemailer.createTransport({
-        service: 'gmail',
-        host: "smtp.gmail.com",
+        service: process.env.SMTP_SERVICE,
+        host: process.env.SMTP_HOST,
         secureConnection: false,
         logger: true,
         debug: true,
-        port: 465,
+        port: process.env.SMTP_PORT,
         auth: {
-            user: "shiftr@joshiinc.com",
-            pass: "joshiinc123"
+            user: process.env.SMTP_USERNAME,
+            pass: process.env.SMTP_PASSWORD
         }
     }, {
-        from: 'shiftr <shiftr@joshiinc.com>'
+        from: `ShiftR <${fromEmail}>`
     });
 
     const mailOptions = {
@@ -113,10 +114,10 @@ export const accountCreated = (user, link) => {
                     <a href="${process.env.ADMINEMAILLINK}">Admin login click here</a>
                     <hr>
                     <p>Best Regards</p>`;
-                   // `<p>OR</p>
-                    //<p>Set a new password using below shown link:</p>
-                    //<a href="${link}">Set new password</a>
-                    //<p>Best regards</p>`;
+        // `<p>OR</p>
+        //<p>Set a new password using below shown link:</p>
+        //<a href="${link}">Set new password</a>
+        //<p>Best regards</p>`;
     }
 
     return sendMail(user.emailId, "Account created", html)
@@ -152,7 +153,7 @@ export const forgetPassword = (user, link) => {
                                    
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
-    return sendMail(user.emailId, "Forget password", html)
+    return sendMail(user.emailId, "Forgot password", html)
 };
 
 export const resetPassword = (user) => {

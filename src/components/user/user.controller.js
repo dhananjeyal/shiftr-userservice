@@ -12,7 +12,6 @@ import { adminListColumns, columns, userAddressColumns, userDetailsColumns, user
 import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus, encryptionSecret } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
-import VehicleDetails from "../driver/model/vehicle.model";
 import NotifyService from "../../services/notifyServices";
 import ExperienceDetails from "../driver/model/driverExperience.model";
 import FinancialDetails from "../driver/model/financial.model";
@@ -23,10 +22,6 @@ import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
 import Contactus from "./model/contactus.model";
 import DriverLicenses from "./model/driverLicenses.model";
-
-
-let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
-
 
 class UserController extends BaseController {
 
@@ -1385,7 +1380,7 @@ class UserController extends BaseController {
                 userQuery = userQuery.join(SpecialityDetails.tableName, `${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                 // .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
 
-                userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                // userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                 // .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
 
                 userQuery = userQuery.leftJoin(Language.tableName, `${Language.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
@@ -1394,7 +1389,8 @@ class UserController extends BaseController {
                 userQuery = userQuery.leftJoin(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                     .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
 
-                columnList = [...columnList, ...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverLanguageColumns, ...contactInfoColumns];
+                // columnList = [...columnList, ...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverLanguageColumns, ...contactInfoColumns];
+                columnList = [...columnList, ...driverExpSpecialityColumns, ...driverLanguageColumns, ...contactInfoColumns];
             }
 
             if (userType === UserRole.CUSTOMER_R) {
@@ -1417,7 +1413,26 @@ class UserController extends BaseController {
                 });
             }
 
-            userQuery = await userQuery.select(columnList).page(page - 1, chunk);
+            userQuery = await userQuery.select(
+                columnList
+            ).page(page - 1, chunk);
+            if (userType === UserRole.DRIVER_R && userQuery.results.length) {
+                let userids = userQuery.results.map(x => x.userId)
+                let driverExp = await ExperienceDetails.query()
+                    .whereIn('SRU03_USER_MASTER_D', userids)
+                    .select('SRU09_TOTALEXP_N as totalExp', 'SRU03_USER_MASTER_D as userId')
+                userQuery.results = userQuery.results.map(x => {
+                    let totalExp = driverExp.reduce((acc, ex) => {
+                        if (x.userId == ex.userId) {
+                           return acc + Number(ex.totalExp || 0)
+                        };
+                        return acc
+                    }, 0)
+                    // console.log(totalExp );
+                    x.totalExp = totalExp || 0
+                    return x
+                })
+            }
 
             const pageMetaData = {
                 chunk: chunk,
