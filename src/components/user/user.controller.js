@@ -1416,10 +1416,10 @@ class UserController extends BaseController {
                 });
             }
 
-            userQuery = await userQuery.select(
-                columnList
-            ).page(page - 1, chunk)
-                .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`);
+            userQuery = await userQuery.select(columnList)
+                .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`)
+                .orderBy(search ? `${Users.tableName}.SRU03_FIRST_N` : `${Users.tableName}.SRU03_USER_MASTER_D`, search ? `asc` : `desc`)
+                .page(page - 1, chunk);
 
             if (userType === UserRole.DRIVER_R && userQuery.results.length) {
                 let userids = userQuery.results.map(x => x.userId)
