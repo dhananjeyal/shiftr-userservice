@@ -165,7 +165,7 @@ class DriverController extends BaseController {
             //status - Check
             let signupStatus;
             if (UserDetailsResponse.signUpStatus == SignUpStatus.PERSONAL_DETAILS) {
-                signupStatus = SignUpStatus.VEHICLE_DETAILS;
+                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
             } else {
                 signupStatus = UserDetailsResponse.signUpStatus;
             }
@@ -220,8 +220,11 @@ class DriverController extends BaseController {
     CreateExperienceDetails = async (req, res) => {
         try {
             const user = req.user;
-            const experienceDetails = await ExperienceDetails.query().delete().where('SRU03_USER_MASTER_D', user.userId);
-            const specialityDetails = await SpecialityDetails.query().delete().where('SRU03_USER_MASTER_D', user.userId);
+            await ExperienceDetails.query().delete().where('SRU03_USER_MASTER_D', user.userId);
+            await SpecialityDetails.query().delete().where('SRU03_USER_MASTER_D', user.userId);
+            await ExperienceReferenceDetails.query().delete().where('SRU03_USER_MASTER_D', user.userId)
+            //Delete - Existing License
+            await DriverLicenses.query().where('SRU03_USER_MASTER_D', user.userId).delete();
 
             let experienceData = [];
             let specialityData = [];
@@ -263,9 +266,21 @@ class DriverController extends BaseController {
                 }
             });
 
-            const experienceResponse = await ExperienceDetails.query().insertGraphAndFetch(experienceData);
-            const specialityResponse = await SpecialityDetails.query().insertGraph(specialityData);
-            const experienceReferenceResponse = await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
+            const driverLicenselist = [];
+            licenseList.map((val, index) => {
+                driverLicenselist.push({
+                    SRU03_USER_MASTER_D: user.userId,
+                    SRU22_LICENSE_TYPE_R: val.licenseId,
+                    SRU22_LICENSE_TYPE_N: val.licenseType,
+                });
+            });
+
+            this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.added);
+
+            await ExperienceDetails.query().insertGraphAndFetch(experienceData);
+            await SpecialityDetails.query().insertGraph(specialityData);
+            await ExperienceReferenceDetails.query().insertGraph(experienceDataReference);
+            await DriverLicenses.query().insertGraph(driverLicenselist);
 
             //check - financial exists
             let rowExists = await FinancialDetails.query()
@@ -282,31 +297,10 @@ class DriverController extends BaseController {
             } else {
                 signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
             }
-
-            //Delete - Existing License
-            await DriverLicenses.query()
-                .where('SRU03_USER_MASTER_D', user.userId)
-                .delete();
-
-            const driverLicenselist = [];
-            licenseList.map((val, index) => {
-                driverLicenselist.push({
-                    SRU03_USER_MASTER_D: user.userId,
-                    SRU22_LICENSE_TYPE_R: val.licenseId,
-                    SRU22_LICENSE_TYPE_N: val.licenseType,
-                });
-            });
-
-            const driverLicenseDetails = await DriverLicenses.query().insertGraph(driverLicenselist);
-
-            const userDetailsResponse = await UserDetails.query()
-                .update({
-                    SRU04_SIGNUP_STATUS_D: signupStatus
-                })
-                .where('SRU03_USER_MASTER_D', user.userId);
-
-            return this.success(req, res, this.status.HTTP_OK, null, this.messageTypes.successMessages.added);
-
+            
+            await UserDetails.query().update({
+                SRU04_SIGNUP_STATUS_D: signupStatus
+            }).where('SRU03_USER_MASTER_D', user.userId);
         } catch (e) {
             return this.internalServerError(req, res, e);
         }

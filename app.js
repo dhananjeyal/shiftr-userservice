@@ -32,7 +32,6 @@ glob("./src/components/*", null, (err, items) => {
     items.forEach(component => {
         let routes = require(component).routes;
         if (routes) {
-            console.log(component);
             routes(openRouter, apiRouter);
         }
     });
