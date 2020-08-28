@@ -991,11 +991,14 @@ class UserController extends BaseController {
                         });
                     } else {
                         if (sendResponse) {
-                            this.errors(req, res, this.status.HTTP_FOUND, this.exceptions.unauthorizedErr(req, {
+                            return this.errors(req, res, this.status.HTTP_FOUND, this.exceptions.unauthorizedErr(req, {
                                 message: this.messageTypes.authMessages.userNotVerified
                             }));
+                        } else {
+                            this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.messageTypes.authMessages.verifyEmail);
                         }
                     }
+
                 } else {
 
                     if (sendResponse || result.status == UserStatus.INACTIVE) {
@@ -1424,7 +1427,7 @@ class UserController extends BaseController {
                 userQuery.results = userQuery.results.map(x => {
                     let totalExp = driverExp.reduce((acc, ex) => {
                         if (x.userId == ex.userId) {
-                           return acc + Number(ex.totalExp || 0)
+                            return acc + Number(ex.totalExp || 0)
                         };
                         return acc
                     }, 0)
