@@ -486,7 +486,7 @@ class UserController extends BaseController {
                     .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`);
 
                 userQuery = userQuery.leftJoin(DriverLicenses.tableName, `${DriverLicenses.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`);
+                .select( raw(`GROUP_CONCAT(DISTINCT SRU22_LICENSE_TYPE_N ORDER BY SRU22_LICENSE_TYPE_N ASC SEPARATOR ',')`).as('licenseType'));
 
                 columnList = [...columnList, ...userAddressColumns, ...reportsDriverExperienceColumns, ...driverLicenseReport];
             }

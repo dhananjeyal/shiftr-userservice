@@ -135,7 +135,6 @@ export let adminReportListColumns = [
     `${Users.tableName}.SRU03_CREATED_AT as registeredOn`,
     `${UsersDetails.tableName}.SRU04_COMPANY_NAME_N as companyName`,
     `${UsersDetails.tableName}.SRU04_SIGNUP_STATUS_D as signUpStatus`,
-    `${UsersDetails.tableName}.SRU04_LICENSE_TYPE_N as licenseName`,
     `${UsersDetails.tableName}.SRU04_ACTIVE_SUBSCRIPTION_PLAN_F as subscriptionStatus`,
     `${UsersDetails.tableName}.SRU04_ACCEPTANCE_RATIO_R as acceptanceRatio`
 ];
@@ -143,7 +142,6 @@ export let adminReportListColumns = [
 export let userListColumns = [
     `${Users.tableName}.SRU03_USER_MASTER_D as userId`,
     `${Users.tableName}.SRU03_FIRST_N as firstName`,
-    `${Users.tableName}.SRU03_LAST_N as lastName`,
     `${Users.tableName}.SRU03_EMAIL_N as emailId`,
     `${Users.tableName}.SRU03_STATUS_D as status`,
     `${Users.tableName}.SRU03_UPDATED_AT as updatedAt`,
@@ -208,6 +206,5 @@ export let driverLicenseList = [
 ]
 
 export let driverLicenseReport = [
-    `SRU22_LICENSE_TYPE_R as licenseId`,
-    `SRU22_LICENSE_TYPE_N as licenseType`
+    `SRU22_LICENSE_TYPE_R as licenseId`
 ]
