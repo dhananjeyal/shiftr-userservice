@@ -17,7 +17,7 @@ export const sendMail = async (to, subject, html, fromEmail) => {
             pass: process.env.SMTP_PASSWORD
         }
     }, {
-        from: `ShiftR <${fromEmail}>`
+        from: `ShiftR ${fromEmail}`
     });
 
     const mailOptions = {

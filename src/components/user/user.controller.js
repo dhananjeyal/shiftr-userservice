@@ -991,23 +991,21 @@ class UserController extends BaseController {
                         });
                     } else {
                         if (sendResponse) {
-                            this.errors(req, res, this.status.HTTP_FOUND, this.exceptions.unauthorizedErr(req, {
+                            return this.errors(req, res, this.status.HTTP_FOUND, this.exceptions.unauthorizedErr(req, {
                                 message: this.messageTypes.authMessages.userNotVerified
                             }));
+                        } else {
+                            this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.messageTypes.authMessages.verifyEmail);
                         }
                     }
-                } else {
 
+                } else {
                     if (sendResponse || result.status == UserStatus.INACTIVE) {
                         return result;
                     }
                 }
             } else {
-                if (sendResponse) {
-                    this.userNotFound(req, res);
-                } else {
-                    this.userNotFound(req, res);
-                }
+                this.userNotFound(req, res);
             }
 
         } catch (e) {
@@ -1368,7 +1366,12 @@ class UserController extends BaseController {
                 where.SRU04_SIGNUP_STATUS_D = parseInt(req.query.signUpStatus)
             }
 
-            let userQuery = Users.query().where(where).join(UserDetails.tableName,
+            let userQuery = Users.query().where(builder => {
+                if (signUpStatus == SignUpStatus.COMPLETED) {
+                    return builder.whereIn('SRU04_SIGNUP_STATUS_D', [5, 6, 7, 8, 9]).where('SRU03_TYPE_D', Number(userType))
+                }
+                return builder.where(where)
+            }).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                 `${Users.tableName}.SRU03_USER_MASTER_D`
             );
@@ -1377,17 +1380,17 @@ class UserController extends BaseController {
 
             if (userType === UserRole.DRIVER_R) {
                 //To fetch drivers financial details
-                userQuery = userQuery.join(SpecialityDetails.tableName, `${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
+                userQuery = userQuery.leftJoin(SpecialityDetails.tableName, `${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                 // .groupBy(`${SpecialityDetails.tableName}.SRU03_USER_MASTER_D`);
 
                 // userQuery = userQuery.join(ExperienceDetails.tableName, `${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
                 // .groupBy(`${ExperienceDetails.tableName}.SRU03_USER_MASTER_D`);
 
                 userQuery = userQuery.leftJoin(Language.tableName, `${Language.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
+                // .groupBy(`${Language.tableName}.SRU03_USER_MASTER_D`);
 
                 userQuery = userQuery.leftJoin(ContactInfo.tableName, `${ContactInfo.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                    .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
+                // .groupBy(`${ContactInfo.tableName}.SRU03_USER_MASTER_D`);
 
                 // columnList = [...columnList, ...driverExperienceColumns, ...driverExpSpecialityColumns, ...driverLanguageColumns, ...contactInfoColumns];
                 columnList = [...columnList, ...driverExpSpecialityColumns, ...driverLanguageColumns, ...contactInfoColumns];
@@ -1409,13 +1412,21 @@ class UserController extends BaseController {
                     builder.where('SRU03_EMAIL_N', "LIKE", `%${search}%`)
                         .orWhere("SRU03_FIRST_N", "LIKE", `%${search}%`)
                         .orWhere("SRU03_LAST_N", "LIKE", `%${search}%`)
-                        .orWhereRaw(`CONCAT(SRU03_FIRST_N, ' ', SRU03_LAST_N) LIKE ?`, `%${search}%`);
+                        .orWhereRaw(`CONCAT(SRU03_FIRST_N, ' ', SRU03_LAST_N) LIKE ?`, `%${search}%`)
+                        .orWhere(builder2 => {
+                            if (userType == UserRole.CUSTOMER_R) {
+                                builder2.orWhere(`SRU04_COMPANY_NAME_N`, "LIKE", `%${search}%`)
+                                builder2.orWhere(`SRU19_CONTACT_PERSON_N`, "LIKE", `%${search}%`)
+                            }
+                        })
                 });
             }
 
-            userQuery = await userQuery.select(
-                columnList
-            ).page(page - 1, chunk);
+            userQuery = await userQuery.select(columnList)
+                .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`)
+                .orderBy(search ? `${Users.tableName}.SRU03_FIRST_N` : `${Users.tableName}.SRU03_USER_MASTER_D`, search ? `asc` : `desc`)
+                .page(page - 1, chunk);
+
             if (userType === UserRole.DRIVER_R && userQuery.results.length) {
                 let userids = userQuery.results.map(x => x.userId)
                 let driverExp = await ExperienceDetails.query()
@@ -1424,7 +1435,7 @@ class UserController extends BaseController {
                 userQuery.results = userQuery.results.map(x => {
                     let totalExp = driverExp.reduce((acc, ex) => {
                         if (x.userId == ex.userId) {
-                           return acc + Number(ex.totalExp || 0)
+                            return acc + Number(ex.totalExp || 0)
                         };
                         return acc
                     }, 0)

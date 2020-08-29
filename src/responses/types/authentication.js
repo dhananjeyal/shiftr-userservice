@@ -12,4 +12,5 @@ module.exports = {
     invalidPassword: "Password incorrect",
     existsEmail: "Email Already Exist",
     existMobilenumber: "Mobilenumber Already Exist",
+    verifyEmail: "Please verify Email to continue!!"
 };
