@@ -282,7 +282,7 @@ class UserController extends BaseController {
                     contactInfo.forEach(contactvalue => {
                         if (contactvalue.contactinfoId) conIds.push(contactvalue.contactinfoId)
                         contactInfoData.push({
-                            // SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
+                            SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
                             SRU03_USER_MASTER_D: userId,
                             SRU19_CONTACT_PERSON_N: contactvalue.contcatPersonName,
                             SRU19_PHONE_R: contactvalue.contactpersonPhoneNumber,
