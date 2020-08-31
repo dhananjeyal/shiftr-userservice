@@ -290,15 +290,14 @@ class UserController extends BaseController {
                         });
                     });
 
-                    await ContactInfo.query()
-                        .upsertGraph(contactInfoData);
-
 
                     if (conIds.length)
                         await ContactInfo.query()
                             .patch({ SRU19_DELETED_F: booleanType.YES })
                             .whereNotIn('SRU19_CONTACT_INFO_D', conIds)
                             .where({ SRU03_USER_MASTER_D: userId })
+                    await ContactInfo.query()
+                        .upsertGraph(contactInfoData);
                 }
 
                 if (contactDetails && contactDetails.length > 0) {
