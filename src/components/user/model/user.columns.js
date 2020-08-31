@@ -160,7 +160,8 @@ export let screeningCanadastatus = [
 export let contactInfoDetailsColumns = [
     'SRU19_CONTACT_INFO_D as contactinfoId',
     'SRU19_CONTACT_PERSON_N as contcatPersonName',
-    'SRU19_PHONE_R as contactpersonPhoneNumber'
+    'SRU19_PHONE_R as contactpersonPhoneNumber',
+    'SRU01_TYPE_D as phoneNumberType'
 ];
 
 export let drivercontactInfoDetailsColumns = [

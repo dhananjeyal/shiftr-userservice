@@ -285,8 +285,8 @@ class UserController extends BaseController {
                         contactInfoData.push({
                             SRU19_CONTACT_INFO_D: contactvalue.contactinfoId,
                             SRU03_USER_MASTER_D: userId,
-                            SRU19_CONTACT_PERSON_N: contactvalue.contactPerson,
-                            SRU19_PHONE_R: contactvalue.phoneNumber,
+                            SRU19_CONTACT_PERSON_N: contactvalue.contcatPersonName,
+                            SRU19_PHONE_R: contactvalue.contactpersonPhoneNumber,
                             SRU01_TYPE_D: contactvalue.phoneNumberType
                         });
                     });
