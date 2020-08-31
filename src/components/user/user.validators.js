@@ -107,11 +107,11 @@ const schemas = {
             }),
             latitude: Joi.when('screenType', {
                 is: WebscreenType.COMPANY,
-                then: Joi.string().required()
+                then: Joi.number().required()
             }),
             longitude: Joi.when('screenType', {
                 is: WebscreenType.COMPANY,
-                then: Joi.string().required()
+                then: Joi.number().required()
             }),
             notificationflag: Joi.when('screenType', {
                 is: WebscreenType.SETTINGS,

@@ -268,7 +268,15 @@ class UserController extends BaseController {
                         });
                 }
 
-                if (contactInfo.length > 0) {
+                if(phone) {
+                    await UserDetails.query()
+                    .where('SRU03_USER_MASTER_D', userId)
+                    .update({
+                        SRU04_PHONE_N: phone
+                    });
+                }
+
+                if (contactInfo && contactInfo.length > 0) {
                     //Update contact Info
                     const conIds = []
                     const contactInfoData = [];
@@ -294,7 +302,7 @@ class UserController extends BaseController {
                             .where({ SRU03_USER_MASTER_D: userId })
                 }
 
-                if (contactDetails.length > 0) {
+                if (contactDetails && contactDetails.length > 0) {
                     //Insert contact Info
                     const contactInfodetailsData = [];
                     contactDetails.forEach(contactvalue => {
