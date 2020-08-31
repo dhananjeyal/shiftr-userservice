@@ -263,8 +263,7 @@ class UserController extends BaseController {
                         .where('SRU03_USER_MASTER_D', userId)
                         .update({
                             SRU04_PROFILE_I: userprofile,
-                            SRU04_UPDATED_D: req.user.userId,
-                            SRU04_PHONE_N: phone
+                            SRU04_UPDATED_D: req.user.userId
                         });
                 }
 
