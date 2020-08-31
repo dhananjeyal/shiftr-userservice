@@ -243,7 +243,8 @@ class UserController extends BaseController {
                 latitude,
                 longitude,
                 userprofile,
-                notificationflag
+                notificationflag,
+                phone
             } = req.body;
 
             if (screenType == WebscreenType.PROFILE) {
@@ -263,7 +264,7 @@ class UserController extends BaseController {
                         .update({
                             SRU04_PROFILE_I: userprofile,
                             SRU04_UPDATED_D: req.user.userId,
-
+                            SRU04_PHONE_N: phone
                         });
                 }
 
