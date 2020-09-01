@@ -163,22 +163,25 @@ class DriverController extends BaseController {
             });
 
             //status - Check
-            let signupStatus;
-            if (UserDetailsResponse.signUpStatus == SignUpStatus.PERSONAL_DETAILS) {
-                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
-            } else {
-                signupStatus = UserDetailsResponse.signUpStatus;
-            }
+            if (UserDetailsResponse && UserDetailsResponse.length && UserDetailsResponse.signUpStatus !== SignUpStatus.COMPLETED) {
+                let signupStatus;
 
-            if (UserDetailsResponse) {
-                await UserDetails.query()
-                    .patch({
-                        SRU04_UNIT: unit || UserDetailsResponse.unit,
-                        SRU04_PROFILE_I: userprofile || UserDetailsResponse.userprofile,
-                        SRU04_SIGNUP_STATUS_D: signupStatus
-                    }).where({
-                        SRU03_USER_MASTER_D: ActiveUser.userId
-                    });
+                if (UserDetailsResponse.signUpStatus == SignUpStatus.PERSONAL_DETAILS) {
+                    signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+                } else {
+                    signupStatus = UserDetailsResponse.signUpStatus;
+                }
+
+                if (UserDetailsResponse) {
+                    await UserDetails.query()
+                        .patch({
+                            SRU04_UNIT: unit || UserDetailsResponse.unit,
+                            SRU04_PROFILE_I: userprofile || UserDetailsResponse.userprofile,
+                            SRU04_SIGNUP_STATUS_D: signupStatus
+                        }).where({
+                            SRU03_USER_MASTER_D: ActiveUser.userId
+                        });
+                }
             }
 
             //Row Exists Delete 
@@ -289,18 +292,25 @@ class DriverController extends BaseController {
                     SRU03_USER_MASTER_D: user.userId
                 });
 
-            let signupStatus;
-            if (rowExists.length <= booleanType.NO) {
-                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
-            } else if (rowExists.length >= booleanType.YES) {
-                signupStatus = SignUpStatus.COMPLETED;
-            } else {
-                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+            let UserDetailsResponse = await UserDetails.query()
+                .findOne('SRU03_USER_MASTER_D', user.userId)
+                .select(driverUserDetailsColumns);
+
+            if (UserDetailsResponse && UserDetailsResponse.length && UserDetailsResponse.signUpStatus) {
+                let signupStatus;
+                if (rowExists.length <= booleanType.NO) {
+                    signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+                } else if (rowExists.length >= booleanType.YES) {
+                    signupStatus = SignUpStatus.COMPLETED;
+                } else {
+                    signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+                }
+
+                await UserDetails.query().update({
+                    SRU04_SIGNUP_STATUS_D: signupStatus
+                }).where('SRU03_USER_MASTER_D', user.userId);
             }
-            
-            await UserDetails.query().update({
-                SRU04_SIGNUP_STATUS_D: signupStatus
-            }).where('SRU03_USER_MASTER_D', user.userId);
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
@@ -699,19 +709,27 @@ class DriverController extends BaseController {
                     SRU03_USER_MASTER_D: userId
                 });
 
-            let signupStatus;
-            if (rowExists.length <= booleanType.NO) {
-                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
-            } else if (rowExists.length >= booleanType.YES) {
-                signupStatus = SignUpStatus.COMPLETED;
-            } else {
-                signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+            let UserDetailsResponse = await UserDetails.query()
+            .findOne('SRU03_USER_MASTER_D', userId)
+            .select(driverUserDetailsColumns);
+
+            if(UserDetailsResponse && UserDetailsResponse.length && UserDetailsResponse.signUpStatus) {
+
+                let signupStatus;
+                if (rowExists.length <= booleanType.NO) {
+                    signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+                } else if (rowExists.length >= booleanType.YES) {
+                    signupStatus = SignUpStatus.COMPLETED;
+                } else {
+                    signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
+                }
+    
+                //Update signup status
+                await UserDetails.query()
+                    .update({ SRU04_SIGNUP_STATUS_D: signupStatus })
+                    .where('SRU03_USER_MASTER_D', userId);
             }
 
-            //Update signup status
-            await UserDetails.query()
-                .update({ SRU04_SIGNUP_STATUS_D: signupStatus })
-                .where('SRU03_USER_MASTER_D', userId);
 
             //Response data
             const responseData = {
