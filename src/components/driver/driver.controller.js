@@ -554,18 +554,18 @@ class DriverController extends BaseController {
                         SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
                         SRU04_SIGNUP_STATUS_D: SignUpStatus.COMPLETED
                     }).where('SRU03_USER_MASTER_D', userId);
+                // TODO: Send the mail
+                await mailer.DriversignUpCompleted(
+                    firstName,
+                    emailId
+                );
             }
 
             const driver = await this._getDriverDetails(req, res, userId);
 
-            this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.updatedSuccessfully);
+            return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.updatedSuccessfully);
             // return this.success(req, res, this.status.HTTP_OK, driver, this.messageTypes.passMessages.driverCreated);
 
-            // TODO: Send the mail
-            return await mailer.DriversignUpCompleted(
-                firstName,
-                emailId
-            );
 
 
         } catch (e) {
