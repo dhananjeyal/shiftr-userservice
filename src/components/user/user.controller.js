@@ -477,6 +477,7 @@ class UserController extends BaseController {
             let userQuery = Users.query().where(where)
                 .where(`SRU03_CREATED_AT`, '>=', startDate)
                 .where(`SRU03_CREATED_AT`, '<=', endDate)
+                .whereNotIn('SRU04_SIGNUP_STATUS_D', [SignUpStatus.PERSONAL_DETAILS, SignUpStatus.VEHICLE_DETAILS, SignUpStatus.DRIVER_DOCUMENTS, SignUpStatus.FINANCIAL_DETAILS])
                 .leftJoin(UserDetails.tableName,
                     `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                     `${Users.tableName}.SRU03_USER_MASTER_D`
@@ -1373,12 +1374,7 @@ class UserController extends BaseController {
                 where.SRU04_SIGNUP_STATUS_D = parseInt(req.query.signUpStatus)
             }
 
-            let userQuery = Users.query().where(builder => {
-                if (signUpStatus == SignUpStatus.COMPLETED) {
-                    return builder.whereIn('SRU04_SIGNUP_STATUS_D', [5, 6, 7, 8, 9]).where('SRU03_TYPE_D', Number(userType))
-                }
-                return builder.where(where)
-            }).join(UserDetails.tableName,
+            let userQuery = Users.query().where(where).join(UserDetails.tableName,
                 `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
                 `${Users.tableName}.SRU03_USER_MASTER_D`
             );
