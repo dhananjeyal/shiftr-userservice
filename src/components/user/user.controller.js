@@ -1500,7 +1500,7 @@ class UserController extends BaseController {
             //     .pluck('SRU03_USER_MASTER_D');
                     
             const driverUserList =  await UserDetails.query()
-                .where({"SRU03_USER_MASTER_D": driverIdlist})
+                .whereIn("SRU03_USER_MASTER_D", driverIdlist)
                 .whereIn('SRU04_SIGNUP_STATUS_D', [SignUpStatus.ACTIVE, SignUpStatus.VERIFIED, SignUpStatus.COMPLETED])
                 .pluck("SRU03_USER_MASTER_D")
 
