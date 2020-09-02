@@ -1498,11 +1498,16 @@ class UserController extends BaseController {
             //     .whereIn('SRU03_USER_MASTER_D', driverIdlist)
             //     .groupBy('SRU03_USER_MASTER_D')
             //     .pluck('SRU03_USER_MASTER_D');
+                    
+            const driverUserList =  await UserDetails.query()
+                .where({"SRU03_USER_MASTER_D": driverIdlist})
+                .whereIn('SRU04_SIGNUP_STATUS_D', [SignUpStatus.ACTIVE, SignUpStatus.VERIFIED, SignUpStatus.COMPLETED])
+                .pluck("SRU03_USER_MASTER_D")
 
             const userIdlist = await DriverLicenses.query()
                 .join('SRU04_USER_DETAIL', 'SRU04_USER_DETAIL.SRU03_USER_MASTER_D', 'SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
                 .where('SRU22_DRIVER_LICENSE.SRU22_LICENSE_TYPE_R', driverLicensetype)
-                .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverIdlist)
+                .whereIn('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D', driverUserList)
                 .where('SRU04_USER_DETAIL.SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                 .groupBy('SRU22_DRIVER_LICENSE.SRU03_USER_MASTER_D')
                 .pluck('SRU03_USER_MASTER_D');
@@ -1625,8 +1630,8 @@ class UserController extends BaseController {
             let allUserList = [];
             if (userIdlist.length > 0) {
                 allUserList = await this._getmatchedUserList(req, res, userIdlist);//call back function
-            } else if (driverIdlist && driverIdlist.length > 0) {
-                allUserList = await this._getpartialmatchedUserList(req, res, driverIdlist);//call back function
+            } else if (driverUserList && driverUserList.length > 0) {
+                allUserList = await this._getpartialmatchedUserList(req, res, driverUserList);//call back function
             }
 
             if (allUserList && !allUserList.length) {
