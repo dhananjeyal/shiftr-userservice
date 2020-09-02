@@ -54,6 +54,7 @@ export class UserStatus {
 }
 
 export class SignUpStatus {
+    static ACTIVE = 1;
     static VERIFIED = 2;
     static REJECTED = 4;
     static PERSONAL_DETAILS = 5;

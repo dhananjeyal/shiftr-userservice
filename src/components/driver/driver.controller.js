@@ -163,7 +163,8 @@ class DriverController extends BaseController {
             });
 
             //status - Check
-            if (UserDetailsResponse && UserDetailsResponse.length && UserDetailsResponse.signUpStatus !== SignUpStatus.COMPLETED) {
+            if (UserDetailsResponse && UserDetailsResponse.length &&
+                (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || userDetails.signUpStatus != SignUpStatus.VERIFIED || userDetails.signUpStatus != SignUpStatus.ACTIVE)) {
                 let signupStatus;
 
                 if (UserDetailsResponse.signUpStatus == SignUpStatus.PERSONAL_DETAILS) {
@@ -296,7 +297,8 @@ class DriverController extends BaseController {
                 .findOne('SRU03_USER_MASTER_D', user.userId)
                 .select(driverUserDetailsColumns);
 
-            if (UserDetailsResponse && UserDetailsResponse.length && UserDetailsResponse.signUpStatus) {
+            if (UserDetailsResponse && UserDetailsResponse.length &&
+                (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || userDetails.signUpStatus != SignUpStatus.VERIFIED || userDetails.signUpStatus != SignUpStatus.ACTIVE)) {
                 let signupStatus;
                 if (rowExists.length <= booleanType.NO) {
                     signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
@@ -548,7 +550,7 @@ class DriverController extends BaseController {
                 });
             }
 
-            if (userDetails.signUpStatus != SignUpStatus.COMPLETED) {
+            if (userDetails.signUpStatus != SignUpStatus.COMPLETED || userDetails.signUpStatus != SignUpStatus.VERIFIED || userDetails.signUpStatus != SignUpStatus.ACTIVE) {
                 await UserDetails.query()
                     .update({
                         SRU04_EMAIL_STATUS_D: EmailStatus.FIRST_TIME,
@@ -710,10 +712,12 @@ class DriverController extends BaseController {
                 });
 
             let UserDetailsResponse = await UserDetails.query()
-            .findOne('SRU03_USER_MASTER_D', userId)
-            .select(driverUserDetailsColumns);
+                .findOne('SRU03_USER_MASTER_D', userId)
+                .select(driverUserDetailsColumns);
 
-            if(UserDetailsResponse && UserDetailsResponse.length && UserDetailsResponse.signUpStatus) {
+            if (UserDetailsResponse && (UserDetailsResponse.signUpStatus ||
+                userDetails.signUpStatus != SignUpStatus.VERIFIED ||
+                userDetails.signUpStatus != SignUpStatus.ACTIVE)) {
 
                 let signupStatus;
                 if (rowExists.length <= booleanType.NO) {
@@ -723,7 +727,7 @@ class DriverController extends BaseController {
                 } else {
                     signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
                 }
-    
+
                 //Update signup status
                 await UserDetails.query()
                     .update({ SRU04_SIGNUP_STATUS_D: signupStatus })
