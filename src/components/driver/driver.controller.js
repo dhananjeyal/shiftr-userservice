@@ -653,10 +653,17 @@ class DriverController extends BaseController {
             //Insert Documents
             await UserDocument.query().insertGraph(documents);
 
+            let UserDetailsResponse = await UserDetails.query()
+                .findOne('SRU03_USER_MASTER_D', userId)
+                .select(driverUserDetailsColumns);
+
             //Update signup status
-            await UserDetails.query()
-                .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.FINANCIAL_DETAILS })
-                .where('SRU03_USER_MASTER_D', userId);
+            if (UserDetailsResponse && UserDetailsResponse.length &&
+                (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || userDetails.signUpStatus != SignUpStatus.VERIFIED || userDetails.signUpStatus != SignUpStatus.ACTIVE)) {
+                await UserDetails.query()
+                    .update({ SRU04_SIGNUP_STATUS_D: SignUpStatus.FINANCIAL_DETAILS })
+                    .where('SRU03_USER_MASTER_D', userId);
+            }
 
             //get All users List (Driver)
             const driver = await this._getDriverDetails(req, res, userId);
