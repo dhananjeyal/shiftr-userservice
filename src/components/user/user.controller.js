@@ -126,6 +126,16 @@ class UserController extends BaseController {
 
             const userType = parseInt(req.headers['user-type']);
 
+            const phoneNumber = req.body.phones.map(phone => phone.phoneNumber);
+            let phoneNumberExist = await ContactInfo.query()
+                .whereIn("SRU19_PHONE_R", phoneNumber)
+                .count('SRU19_CONTACT_INFO_D as id');
+
+            if (phoneNumberExist[0].id) {
+                return this.errors(req, res, this.status.HTTP_BAD_REQUEST, this.exceptions.badRequestErr(req, {
+                    message: this.messageTypes.authMessages.existMobilenumber + "[" + mobileNumber + "]"
+                }));
+            }
             // Create user
             let result = await Users.query().insert({
                 SRU03_FIRST_N: req.body.firstName,
