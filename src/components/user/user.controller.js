@@ -2431,7 +2431,6 @@ class UserController extends BaseController {
     subscriptionplanNotification = async (req, res) => {
         try {
 
-            console.log("req subscriptionNotification", req.body);
             //Activate- subscription user
             await UserDetails.query().patch({
                 SRU04_ACTIVE_SUBSCRIPTION_PLAN_F: subscriptionStatus.ACTIVEUSER

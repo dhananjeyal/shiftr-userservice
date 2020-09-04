@@ -223,7 +223,7 @@ export const subscriptionNotification = (payload) => {
                     <p><b>Plan Details:-</b></p>
                     <p>companyName:- ${payload.companyName}</p>
                     <p>Plan Type:- ${payload.planType}</p>
-                    <p>Plan Category(Monthly/Yearly):- ${payload.plandurationType}</p>
+                    <p>Plan Category(Monthly/Yearly):- ${payload.planDurationType}</p>
                     <p>Plan startdate:- ${payload.startdate}</p>
                     <p>plan enddate:- ${payload.expirydate}</p>
                     <p>TotalTrips:- ${payload.totalTrips}</p>
