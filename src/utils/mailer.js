@@ -56,7 +56,7 @@ export const busownerSignUp = (firstName, email, link) => {
                 <p>Please note that inorder to use this platform you need to have a vaild WSB Clearance certificate,which we might ask you to present for verification at any time.</p>
                 <p>Click on below link to verify your account and complete the registeration process.</p>
                 <a href="${link}">Verify your account</a>
-                <p>Regards,</p>;
+                <p>Regards,</p>
                 <p>Shiftr Support</p>`;
     return sendMail(email, "Verification Email", html)
 };
