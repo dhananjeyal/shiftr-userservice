@@ -3,7 +3,7 @@
     "info": {
         "version": "1.0",
         "title": "USER SERVICE",
-        "description": "Only Admin or Super admin can consume following APIs.\nEvery API requires valid JWT authentication header.",
+        "description": "The user management microservice is the core of the application and helps us to provide features directly related to the user. Application has features available as a service for the application which includes cores such as 1.User onboarding 2.User authentication and authorization 3.User’s account recovery/forgot password 4.User’s profiling, Option to change user’s password.The user microservice has additional APIs which are related to Admin. This mainly includes APIs to Create Super Admin, Create Admin userGet list of Admins, get details of Admin users.",
         "contact": {}
     },
     "servers": [
