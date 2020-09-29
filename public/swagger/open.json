@@ -1,0 +1,238 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0",
+        "title": "USER SERVICE",
+        "description": "The user management microservice is the core of the application and helps us to provide features directly related to the user. Application has features available as a service for the application which includes cores such as 1.User onboarding 2.User authentication and authorization 3.User’s account recovery/forgot password 4.User’s profiling, Option to change user’s password.The user microservice has additional APIs which are related to Admin. This mainly includes APIs to Create Super Admin, Create Admin userGet list of Admins, get details of Admin users.",
+        "contact": {}
+    },
+    "servers": [
+        {
+            "url": "http://192.168.1.5:2097/or1.0/v1",
+            "description": "Development server"
+        },
+        {
+            "url": "http://180.151.69.138:2097/or1.0/v1",
+            "description": "Integration server"
+        },
+        {
+            "url": "http://35.182.24.82:2009/or1.0/v1",
+            "description": "Staging server"
+        }
+
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/api/user/create_super_user": {
+            "post": {
+                "summary": "One time api to create a root user (Super admin)",
+                "tags": [
+                    "All Open APIs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/SignUp"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/api/user/sign_up": {
+            "post": {
+                "summary": "Sign up for {Driver, Customer}",
+                "tags": [
+                    "All Open APIs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/SignUp"
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Type",
+                        "description": "3 = Driver\n\n4 = Customer",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "3",
+                                "4"
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "summary": "Login for {Super admin, Admin, Driver, Customer}",
+                "tags": [
+                    "All Open APIs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/Login"
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Type",
+                        "description": "3 = Driver\n\n4 = Customer\n\nUser type is mandatory for Driver and Customer login.",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "3",
+                                "4"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/user/forget_password": {
+            "post": {
+                "summary": "Forget password for {Super admin, Admin, Driver, Customer}",
+                "tags": [
+                    "All Open APIs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/ForgetPassword"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/api/user/verify_reset_token": {
+            "post": {
+                "summary": "Verify reset password token",
+                "tags": [
+                    "All Open APIs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/VerifyResetPasswordToken"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/api/user/verify_email": {
+            "get": {
+                "summary": "Verify user by received token on email",
+                "tags": [
+                    "All Open APIs"
+                ],
+                "produces": [
+                    "text/html"
+                ],
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "type": "string",
+                        "description": "Received token on email"
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+        "SignUp": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "emailId": {
+                    "type": "string"
+                },
+                "phoneNo": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "emailId": "john@email.com",
+                "phoneNo": "0123456789",
+                "password": "Pa$$word1"
+            }
+        },
+        "Login": {
+            "type": "object",
+            "properties": {
+                "emailId": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "emailId": "john@email.com",
+                "password": "Pa$$word1"
+            }
+        },
+        "ForgetPassword": {
+            "type": "object",
+            "properties": {
+                "emailId": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "emailId": "john@email.com"
+            }
+        },
+        "VerifyResetPasswordToken": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "token": "Generate token from forget password"
+            }
+        }
+    }
+}

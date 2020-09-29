@@ -1,0 +1,644 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0",
+        "title": "USER SERVICE",
+        "description": "The user management microservice is the core of the application and helps us to provide features directly related to the user. Application has features available as a service for the application which includes cores such as 1.User onboarding 2.User authentication and authorization 3.User’s account recovery/forgot password 4.User’s profiling, Option to change user’s password.The user microservice has additional APIs which are related to Admin. This mainly includes APIs to Create Super Admin, Create Admin userGet list of Admins, get details of Admin users.",
+        "contact": {}
+    },
+    "servers": [
+        {
+            "url": "http://192.168.1.5:2097/api",
+            "description": "Development server"
+        },
+        {
+            "url": "http://180.151.69.138:2097/api",
+            "description": "Integration server"
+        },
+        {
+            "url": "http://35.182.24.82:2009/api",
+            "description": "Staging server"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": [
+            ]
+        }
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/user/activate_user/{userId}": {
+            "put": {
+                "summary": "Activate user",
+                "description": "A user cannot activate/deactivate himself and higher or same hierarchy user.",
+                "tags": [
+                    "Common APIs"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/deactivate_user/{userId}": {
+            "put": {
+                "summary": "Suspend user",
+                "description": "A user cannot activate/deactivate himself and higher or same hierarchy user.",
+                "tags": [
+                    "Common APIs"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/update_profile": {
+            "put": {
+                "summary": "Update self profile",
+                "description": "Update self profile, Optionally user can also update password.",
+                "tags": [
+                    "Common APIs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/UpdateProfile"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/user/create_driver": {
+            "post": {
+                "summary": "Create driver",
+                "tags": [
+                    "Driver management"
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/CreateDriver"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/user/update_driver/{userId}": {
+            "put": {
+                "summary": "Create driver",
+                "tags": [
+                    "Driver management"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/UpdateDriver"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/user/drivers": {
+            "get": {
+                "summary": "Get all drivers",
+                "tags": [
+                    "Driver management"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "type": "string",
+                        "default": "1"
+                    },
+                    {
+                        "name": "chunk",
+                        "in": "query",
+                        "type": "string",
+                        "default": "10"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "1 = Active users \n\n 2 = Suspended users",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "4"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "signUpStatus",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9"
+                            ]
+                        },
+                        "description": "5 = Personal details\n\n6 = Vehicle details\n\n7 = Driver documents\n\n8 = Financial details\n\n9 = Completed"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/get_driver/{userId}": {
+            "get": {
+                "summary": "Get a driver by ID",
+                "tags": [
+                    "Driver management"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/create_user": {
+            "post": {
+                "summary": "Create user",
+                "tags": [
+                    "End user management"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/CreateUpdateUser"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/user/update_user/{userId}": {
+            "put": {
+                "summary": "Update user",
+                "tags": [
+                    "End user management"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/CreateUpdateUser"
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/user/users": {
+            "get": {
+                "summary": "Get all users",
+                "tags": [
+                    "End user management"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "type": "string",
+                        "default": "1"
+                    },
+                    {
+                        "name": "chunk",
+                        "in": "query",
+                        "type": "string",
+                        "default": "10"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "1 = Active users \n\n 2 = Suspended users",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "4"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "signUpStatus",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9"
+                            ]
+                        },
+                        "description": "5 = Personal details\n\n6 = Vehicle details\n\n7 = Driver documents\n\n8 = Financial details\n\n9 = Completed"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/user/get_user/{userId}": {
+            "get": {
+                "summary": "Get a user by ID",
+                "tags": [
+                    "End user management"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "CreateDriver": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "default": "John"
+                },
+                "lastName": {
+                    "type": "string",
+                    "default": "Smith"
+                },
+                "emailId": {
+                    "type": "string",
+                    "default": "john@email.com"
+                },
+                "password": {
+                    "type": "string",
+                    "default": "Pa$$word1"
+                },
+                "personalDetails[profilePicture]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "personalDetails[address]": {
+                    "type": "string",
+                    "default": "Dummy address"
+                },
+                "personalDetails[age]": {
+                    "type": "string",
+                    "default": "20"
+                },
+                "personalDetails[gender]": {
+                    "type": "string",
+                    "description": "1 = Male, 2 = Female",
+                    "enum": [
+                        1,
+                        2
+                    ],
+                    "default": 1
+                },
+                "personalDetails[phone]": {
+                    "type": "string",
+                    "default": "0123456789"
+                },
+                "personalDetails[experience]": {
+                    "type": "string",
+                    "default": "5"
+                },
+                "personalDetails[workingWithOthers]": {
+                    "type": "string",
+                    "enum": [
+                        true,
+                        false
+                    ],
+                    "default": "false"
+                },
+                "personalDetails[otherServiceInfo]": {
+                    "type": "string",
+                    "default": "Other service info"
+                },
+                "vehicleDetails[type]": {
+                    "type": "string",
+                    "default": "Type"
+                },
+                "vehicleDetails[make]": {
+                    "type": "string",
+                    "default": "Make"
+                },
+                "vehicleDetails[model]": {
+                    "type": "string",
+                    "default": "Model"
+                },
+                "vehicleDetails[vin]": {
+                    "type": "string",
+                    "default": "12345678978945678"
+                },
+                "vehicleDetails[color]": {
+                    "type": "string",
+                    "default": "Vin"
+                },
+                "vehicleDetails[licensePlate]": {
+                    "type": "string",
+                    "default": "123-ABC"
+                },
+                "vehicleDetails[seatsUp]": {
+                    "type": "string",
+                    "default": "4"
+                },
+                "vehicleDetails[seatsDown]": {
+                    "type": "string",
+                    "default": "4"
+                },
+                "financialDetails[bankName]": {
+                    "type": "string",
+                    "default": "Bank name"
+                },
+                "financialDetails[accountNumber]": {
+                    "type": "string",
+                    "default": "1234567891234"
+                },
+                "financialDetails[institutionNumber]": {
+                    "type": "string",
+                    "default": "123"
+                },
+                "financialDetails[transitNumber]": {
+                    "type": "string",
+                    "default": "12345"
+                },
+                "financialDetails[attachment]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "driverDocuments[license]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "driverDocuments[pcc]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "driverDocuments[insurance]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "driverDocuments[ownership]": {
+                    "type": "string",
+                    "format": "binary"
+                }
+            }
+        },
+        "UpdateDriver": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "default": "John"
+                },
+                "lastName": {
+                    "type": "string",
+                    "default": "Smith"
+                },
+                "personalDetails[profilePicture]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "personalDetails[address]": {
+                    "type": "string",
+                    "default": "Dummy address"
+                },
+                "personalDetails[age]": {
+                    "type": "string",
+                    "default": "20"
+                },
+                "personalDetails[gender]": {
+                    "type": "string",
+                    "description": "1 = Male, 2 = Female",
+                    "enum": [
+                        1,
+                        2
+                    ],
+                    "default": 1
+                },
+                "personalDetails[phone]": {
+                    "type": "string",
+                    "default": "0123456789"
+                },
+                "personalDetails[experience]": {
+                    "type": "string",
+                    "default": "5"
+                },
+                "personalDetails[workingWithOthers]": {
+                    "type": "string",
+                    "enum": [
+                        true,
+                        false
+                    ],
+                    "default": "false"
+                },
+                "personalDetails[otherServiceInfo]": {
+                    "type": "string",
+                    "default": "Other service info"
+                },
+                "vehicleDetails[type]": {
+                    "type": "string",
+                    "default": "Type"
+                },
+                "vehicleDetails[make]": {
+                    "type": "string",
+                    "default": "Make"
+                },
+                "vehicleDetails[model]": {
+                    "type": "string",
+                    "default": "Model"
+                },
+                "vehicleDetails[vin]": {
+                    "type": "string",
+                    "default": "12345678978945678"
+                },
+                "vehicleDetails[color]": {
+                    "type": "string",
+                    "default": "Vin"
+                },
+                "vehicleDetails[licensePlate]": {
+                    "type": "string",
+                    "default": "123-ABC"
+                },
+                "vehicleDetails[seatsUp]": {
+                    "type": "string",
+                    "default": "4"
+                },
+                "vehicleDetails[seatsDown]": {
+                    "type": "string",
+                    "default": "4"
+                },
+                "financialDetails[bankName]": {
+                    "type": "string",
+                    "default": "Bank name"
+                },
+                "financialDetails[accountNumber]": {
+                    "type": "string",
+                    "default": "1234567891234"
+                },
+                "financialDetails[institutionNumber]": {
+                    "type": "string",
+                    "default": "123"
+                },
+                "financialDetails[transitNumber]": {
+                    "type": "string",
+                    "default": "12345"
+                },
+                "financialDetails[attachment]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "driverDocuments[license]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "driverDocuments[pcc]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "driverDocuments[insurance]": {
+                    "type": "string",
+                    "format": "binary"
+                },
+                "driverDocuments[ownership]": {
+                    "type": "string",
+                    "format": "binary"
+                }
+            }
+        },
+        "CreateUpdateUser": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "emailId": {
+                    "type": "string"
+                },
+                "phoneNo": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "emailId": "john@email.com",
+                "phoneNo": "0123456789"
+            }
+        },
+        "UpdateProfile": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "phoneNo": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "emailId": "john@email.com",
+                "phoneNo": "0123456789",
+                "password": "Pa$$word1"
+            }
+        }
+    }
+}

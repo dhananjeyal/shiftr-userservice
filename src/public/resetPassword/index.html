@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>Set password</title>
+    <style type="text/css">
+        .container {
+            width: 50%;
+            margin: 0 auto;
+            background-color: whitesmoke;
+            padding: 20px;
+            font-family: sans-serif;
+        }
+
+        #result {
+            display: flex;
+            margin-top: 30px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <mark>Temporary page</mark>
+    <h2>Set new password</h2>
+    <form method="post" action="./reset_password" id="newPasswordForm">
+        <label for="password">New password: </label>
+        <input name="newPassword" id="password" type="password"/>
+        <input type="submit"/>
+    </form>
+    <textarea id="result" cols="30" rows="10" placeholder="Response"></textarea>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="application/javascript">
+    const getCookie = (name) => {
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+    };
+
+    const deleteCookie = (name) => {
+        document.cookie = name + '=; max-age=0;';
+    };
+
+    const parseObjectFromCookie = (cookie) => {
+        const decodedCookie = decodeURIComponent(cookie);
+        return JSON.parse(decodedCookie);
+    };
+
+    $(document).ready(function () {
+        let dataCookie = getCookie('data');
+        deleteCookie('data');
+
+        if (dataCookie) {
+
+            const form = $('#newPasswordForm');
+            form.submit(function (e) {
+                e.preventDefault();
+
+                const data = parseObjectFromCookie(dataCookie);
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('authorization', data.jwtToken);
+                        xhr.setRequestHeader('user-type', data.type);
+                    },
+                    success: function (response) {
+                        $('#result').html(JSON.stringify(response, null, 4));
+                    },
+                    error: function (response) {
+                        $('#result').html(JSON.stringify(response, null, 4));
+                    }
+                });
+            });
+        }
+
+    });
+
+</script>
+</body>
+</html>

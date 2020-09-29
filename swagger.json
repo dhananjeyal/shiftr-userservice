@@ -1,0 +1,435 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "PICKUPS USER SERVICES",
+    "description": "Users API",
+    "contact": {}
+  },
+  "host": "180.151.69.138:2081",
+  "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+  "paths": {
+    "/or1.0/v1/api/user/sign_up": {
+      "post": {
+        "operationId": "POST_or1-0-v1-api-user-sign_up",
+        "summary": "Sign up",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "User (for all)"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "emailId": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "firstName": "Karan",
+                "lastName": "Mandal",
+                "emailId": "driver_user_1@email.com",
+                "password": "Pa$$word1"
+              }
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          },
+          {
+            "name": "User-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " 3"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/or1.0/v1/api/user/verify_email": {
+      "get": {
+        "operationId": "GET_or1-0-v1-api-user-verify_email",
+        "summary": "Verify email",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "User (for all)"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "default": "f94cd2a4af4db54a65c908df9055924cbaf826c2f67f7096cd446d3b61658113ffde715462ba11c5c3c88ee72165ade4"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/or1.0/v1/api/user/login": {
+      "post": {
+        "operationId": "POST_or1-0-v1-api-user-login",
+        "summary": "Login",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "User (for all)"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "emailId": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "emailId": "admin@email.com",
+                "password": "Pa$$word1"
+              }
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/or1.0/v1/api/user/forget_password": {
+      "post": {
+        "operationId": "POST_or1-0-v1-api-user-forget_password",
+        "summary": "Forget password",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "User (for all)"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "emailId": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "emailId": "root@email.com"
+              }
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/or1.0/v1/api/user/verify_reset_token": {
+      "post": {
+        "operationId": "POST_or1-0-v1-api-user-verify_reset_token",
+        "summary": "Verify reset password token",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "User (for all)"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "token": "f94cd2a4af4db54a65c908df9055924cbaf826c2f67f7096cd446d3b616581136f2362dd961a584a162d71ac1022a33ec36305de64a4e9ccc6225507cb1199254aa80d2b1d562f5819a28cd035284e83e84e95e269c78bd89f2f3534bf2ec635"
+              }
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/user/reset_password": {
+      "post": {
+        "operationId": "POST_api-user-reset_password",
+        "summary": "Reset password",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "User (for all)"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "newPassword": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "newPassword": "Pa$$word1"
+              }
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          },
+          {
+            "name": "user-type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " 1"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },    
+    "/api/user/activate_user/{userId}": {
+      "put": {
+        "operationId": "PUT_api-user-activate_user-208",
+        "summary": "Activate customer",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/user/create_admin": {
+      "post": {
+        "operationId": "POST_api-user-create_admin",
+        "summary": "Create new admin",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "emailId": {
+                  "type": "string"
+                },
+                "phoneNo": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "firstName": "New",
+                "lastName": "Admin",
+                "emailId": "admin5@email.com",
+                "phoneNo": "7898432337",
+                "password": "Password@1"
+              }
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/user/update_admin/{userId}": {
+      "put": {
+        "operationId": "PUT_api-user-update_admin-179",
+        "summary": "Update admin",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "emailId": {
+                  "type": "string"
+                },
+                "phoneNo": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "firstName": "Karan",
+                "lastName": "Mandal",
+                "emailId": "admin2@email.com",
+                "phoneNo": "7898432337"
+              }
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "default": " application/json"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {}
+}

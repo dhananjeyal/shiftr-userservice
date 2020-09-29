@@ -1,0 +1,9 @@
+<<<<<<< HEAD
+/node_modules/
+/.idea/
+.DS_Store
+/public/uploads/
+=======
+logs
+node_modules
+>>>>>>> cab3353e18492be16b9467173e8ad81affed46ff
