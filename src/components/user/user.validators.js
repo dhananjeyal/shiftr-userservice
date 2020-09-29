@@ -3,6 +3,7 @@ import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { DocumentStatus, SignUpStatus, UserRole, WebscreenType, booleanType } from "../../constants";
 import { validateFile } from "../../utils";
+import { aesDecrpt, aesEncrpt } from '../../utils/cipher';
 
 const Joi = BaseJoi.extend(joinDateExtension);
 
@@ -198,6 +199,10 @@ export const options = {
 };
 
 export const signUpUser = (req, res, next) => {
+    //AES decryption
+    let decryptKey = aesDecrpt(req.body.password);
+    req.body.password = decryptKey;
+
     let schema = schemas.signUpUser;
     let option = options.basic;
     schema.validate({
@@ -237,6 +242,10 @@ export const createUpdateUser = (req, res, next) => {
 };
 
 export const loginUser = (req, res, next) => {
+    // AES decryption
+    let decryptKey = aesDecrpt(req.body.password);
+    req.body.password = decryptKey;
+
     let schema = schemas.loginUser;
     let option = options.basic;
     schema.validate({
