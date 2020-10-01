@@ -19,6 +19,11 @@ class AuthController extends BaseController {
                     token = token.slice(7, token.length);
                 }
 
+                //AES decryption
+                let decryptKey = aesDecrpt(token);
+                token = decryptKey;
+
+
                 return jwt.verify(token, process.env.JWT_SECRET, async (err, payload) => {
                     if (err) {
                         return this.userInvalidToken(req, res);

@@ -1,4 +1,4 @@
-import { decrypt, encrypt } from "../../utils/cipher";
+import { decrypt, encrypt, aesEncrpt, aesDecrpt } from "../../utils/cipher";
 import moment from "moment";
 import { raw } from 'objection';
 import BaseController from '../baseController';
@@ -90,9 +90,7 @@ class UserController extends BaseController {
 
             let host = req.protocol + '://' + req.get('host');
             insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
-            insertResult.beamstoken = token
-
-
+            insertResult.beamstoken = token;
 
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
@@ -709,7 +707,10 @@ class UserController extends BaseController {
                             // , { expiresIn: 86400 }
                         );
 
-                        result.token = `Bearer ${token}`;
+                        //AES token encryption
+                         let encryptToken = aesEncrpt(token);
+                         
+                        result.token = `Bearer ${encryptToken}`;
 
                         // delete result.userDetails;
                         delete result.password;
