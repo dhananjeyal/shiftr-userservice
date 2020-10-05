@@ -2,7 +2,8 @@ import BaseController from "../baseController";
 import Users from '../user/model/user.model'
 import jwt from 'jsonwebtoken';
 import { columns, userAddressColumns, userDetailsColumns, contactInfoDetailsColumns } from "./model/user.columns";
-import { UserRole, booleanType } from '../../constants'
+import { UserRole, booleanType } from '../../constants';
+import { decrypt, encrypt, aesEncrpt, aesDecrpt } from "../../utils/cipher";
 
 class AuthController extends BaseController {
 
@@ -21,6 +22,11 @@ class AuthController extends BaseController {
 
                 //AES decryption
                 let decryptKey = aesDecrpt(token);
+    
+                if (!decryptKey) {
+                    return this.userInvalidToken(req, res);
+                }
+
                 token = decryptKey;
 
 

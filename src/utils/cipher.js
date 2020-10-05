@@ -35,7 +35,8 @@ const aesDecrpt = (value, key = process.env.AES_ENCRPT_KEY) => {
     try {
         return cryptLib.decryptCipherTextWithRandomIV(value, key);
     } catch (error) {
-        console.log(error);
+        console.log(error)
+        return false
     }
 };
 

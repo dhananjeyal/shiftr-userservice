@@ -44,6 +44,16 @@ class UserController extends BaseController {
      */
     signUp = async (req, res) => {
         try {
+            // AES decryption
+            let decryptKey = aesDecrpt(req.body.password);
+            
+            if (!decryptKey) {
+                return res.status(400).json({
+                    message : 'Invalid Encryption'
+                })
+            }
+
+            req.body.password = decryptKey;
 
             const userType = parseInt(req.headers['user-type']);
 
@@ -682,6 +692,16 @@ class UserController extends BaseController {
      */
     loginUser = async (req, res) => {
         try {
+
+            // AES decryption
+            let decryptKey = aesDecrpt(req.body.password);
+            if (!decryptKey) {
+                return res.status(400).json({
+                    message : 'Invalid Encryption'
+                })
+            }
+
+            req.body.password = decryptKey;
             let result = await this._getVerificationStatus(req, res, false);
 
             if (result && result.status != UserStatus.INACTIVE) {
