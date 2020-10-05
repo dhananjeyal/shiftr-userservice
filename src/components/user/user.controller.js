@@ -708,9 +708,9 @@ class UserController extends BaseController {
                         );
 
                         //AES token encryption
-                         let encryptToken = aesEncrpt(token);
+                         let encryptToken = aesEncrpt(`Bearer ${token}`);
                          
-                        result.token = `Bearer ${encryptToken}`;
+                        result.token = encryptToken;
 
                         // delete result.userDetails;
                         delete result.password;
