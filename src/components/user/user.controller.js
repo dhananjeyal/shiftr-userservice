@@ -1425,6 +1425,7 @@ class UserController extends BaseController {
                     builder.where('SRU03_EMAIL_N', "LIKE", `%${search}%`)
                         .orWhere("SRU03_FIRST_N", "LIKE", `%${search}%`)
                         .orWhere("SRU03_LAST_N", "LIKE", `%${search}%`)
+                        .orWhere("SRU04_PHONE_N", "LIKE", `%${search}%`)
                         .orWhereRaw(`CONCAT(SRU03_FIRST_N, ' ', SRU03_LAST_N) LIKE ?`, `%${search}%`)
                         .orWhere(builder2 => {
                             if (userType == UserRole.CUSTOMER_R) {
