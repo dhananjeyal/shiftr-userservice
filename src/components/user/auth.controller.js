@@ -16,10 +16,6 @@ class AuthController extends BaseController {
             let token = req.headers['x-access-token'] || req.headers['authorization'];
             if (token) {
 
-                if (token.startsWith('Bearer ')) {
-                    token = token.slice(7, token.length);
-                }
-
                 //AES decryption
                 let decryptKey = aesDecrpt(token);
     
@@ -29,6 +25,9 @@ class AuthController extends BaseController {
 
                 token = decryptKey;
 
+                if (token.startsWith('Bearer ')) {
+                    token = token.slice(7, token.length);
+                }
 
                 return jwt.verify(token, process.env.JWT_SECRET, async (err, payload) => {
                     if (err) {
