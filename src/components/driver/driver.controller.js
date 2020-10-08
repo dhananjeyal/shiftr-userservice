@@ -163,7 +163,7 @@ class DriverController extends BaseController {
             });
 
             //status - Check
-            if (UserDetailsResponse && UserDetailsResponse.length &&
+            if (UserDetailsResponse  &&
                 (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || userDetails.signUpStatus != SignUpStatus.VERIFIED || userDetails.signUpStatus != SignUpStatus.ACTIVE)) {
                 let signupStatus;
 
