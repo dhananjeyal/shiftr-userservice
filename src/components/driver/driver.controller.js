@@ -964,7 +964,6 @@ class DriverController extends BaseController {
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST)
-                .orderBy('SRU17_CITY_N', 'ASC')
 
             //state list USA
             let USProvinceList = await Province.query().select(provinceColumns)
