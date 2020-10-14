@@ -1685,7 +1685,8 @@ class UserController extends BaseController {
             });
 
             let where = {
-                "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
+                "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R,
+                "SRU03_USER_MASTER.SRU03_STATUS_D": UserStatus.ACTIVE
             };
             const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,
