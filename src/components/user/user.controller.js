@@ -786,7 +786,8 @@ class UserController extends BaseController {
                 // TODO: Send mail
                 return await mailer.forgetPassword({
                     firstName: result.firstName,
-                    emailId: result.emailId
+                    emailId: result.emailId,
+                    userTpe:result.typeId
                 }, resetLink)
             }
 
@@ -1682,7 +1683,7 @@ class UserController extends BaseController {
             //Filter By Driver Details
 
             let specialityQuery = await SpecialityDetails.query()
-                .join("SRU09_DRIVEREXP", 'SRU09_DRIVEREXP.SRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
+                .join("SR09_DRIVEREXP", 'SRU09_DRIVEREXP.USRU09_SPECIALITY_REFERENCE_N', 'SRU12_DRIVER_SPECIALITY.SRU09_SPECIALITY_REFERENCE_N')
                 .whereIn('SRU12_DRIVER_SPECIALITY.SRU03_USER_MASTER_D', userIds)
                 .select(columnList);
 
