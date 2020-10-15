@@ -1,4 +1,4 @@
-import { decrypt, encrypt } from "../../utils/cipher";
+import { decrypt, encrypt, aesEncrpt, aesDecrpt } from "../../utils/cipher";
 import moment from "moment";
 import { raw } from 'objection';
 import BaseController from '../baseController';
@@ -709,7 +709,10 @@ class UserController extends BaseController {
                             // , { expiresIn: 86400 }
                         );
 
-                        result.token = `Bearer ${token}`;
+                        //AES  token encryption
+                        let encryptToken = aesEncrpt(`Bearer ${token}`);
+
+                        result.token = encryptToken;
 
                         // delete result.userDetails;
                         delete result.password;
@@ -840,7 +843,7 @@ class UserController extends BaseController {
                                         type: 'login'
                                     }, process.env.JWT_SECRET, { expiresIn: 86400 });
 
-                                    req.headers['authorization'] = `Bearer ${token}`;
+                                    req.headers['authorization'] = aesEncrpt(`Bearer ${token}`);
                                     await NotifyService.sendNotication(req, res, notifyData)
                                 }
 

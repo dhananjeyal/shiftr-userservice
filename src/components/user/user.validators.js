@@ -3,9 +3,8 @@ import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { DocumentStatus, SignUpStatus, UserRole, WebscreenType, booleanType } from "../../constants";
 import { validateFile } from "../../utils";
-
+import { decrypt, encrypt, aesEncrpt, aesDecrpt } from "../../utils/cipher";
 const Joi = BaseJoi.extend(joinDateExtension);
-
 
 const contactInfoSchema = {
     contactInfo: Joi.object({
@@ -198,6 +197,12 @@ export const options = {
 };
 
 export const signUpUser = (req, res, next) => {
+    //AES decryption
+    if (req.body.emailId)
+        req.body.emailId = aesDecrpt(req.body.emailId)
+    if (req.body.password)
+        req.body.password = aesDecrpt(req.body.password)
+        
     let schema = schemas.signUpUser;
     let option = options.basic;
     schema.validate({
@@ -212,6 +217,12 @@ export const signUpUser = (req, res, next) => {
 
 //TRAVELS - SIGNUP
 export const travelsSignup = (req, res, next) => {
+    //AES decryption
+    if (req.body.emailId)
+        req.body.emailId = aesDecrpt(req.body.emailId)
+    if (req.body.password)
+        req.body.password = aesDecrpt(req.body.password)
+        
     let schema = schemas.travelsSignup;
     let option = options.basic;
     schema.validate({
@@ -237,6 +248,12 @@ export const createUpdateUser = (req, res, next) => {
 };
 
 export const loginUser = (req, res, next) => {
+    console.log(req.body);
+    if (req.body.emailId)
+        req.body.emailId = aesDecrpt(req.body.emailId)
+    if (req.body.password)
+        req.body.password = aesDecrpt(req.body.password)
+
     let schema = schemas.loginUser;
     let option = options.basic;
     schema.validate({

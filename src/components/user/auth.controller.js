@@ -3,6 +3,7 @@ import Users from '../user/model/user.model'
 import jwt from 'jsonwebtoken';
 import { columns, userAddressColumns, userDetailsColumns, contactInfoDetailsColumns } from "./model/user.columns";
 import { UserRole, booleanType } from '../../constants'
+import { decrypt, encrypt, aesEncrpt, aesDecrpt } from "../../utils/cipher";
 
 class AuthController extends BaseController {
 
@@ -14,7 +15,9 @@ class AuthController extends BaseController {
         try {
             let token = req.headers['x-access-token'] || req.headers['authorization'];
             if (token) {
+                //AES token decryption
 
+                token = aesDecrpt(token);
                 if (token.startsWith('Bearer ')) {
                     token = token.slice(7, token.length);
                 }
