@@ -1,4 +1,4 @@
-import { decrypt, encrypt } from "../../utils/cipher";
+import { decrypt, encrypt, aesEncrpt, aesDecrpt } from "../../utils/cipher";
 import moment from "moment";
 import { raw } from 'objection';
 import BaseController from '../baseController';
@@ -277,12 +277,12 @@ class UserController extends BaseController {
                         });
                 }
 
-                if(phone) {
+                if (phone) {
                     await UserDetails.query()
-                    .where('SRU03_USER_MASTER_D', userId)
-                    .update({
-                        SRU04_PHONE_N: phone
-                    });
+                        .where('SRU03_USER_MASTER_D', userId)
+                        .update({
+                            SRU04_PHONE_N: phone
+                        });
                 }
 
                 if (contactInfo && contactInfo.length > 0) {
@@ -504,7 +504,7 @@ class UserController extends BaseController {
                     .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`);
 
                 userQuery = userQuery.leftJoin(DriverLicenses.tableName, `${DriverLicenses.tableName}.SRU03_USER_MASTER_D`, `${Users.tableName}.SRU03_USER_MASTER_D`)
-                .select( raw(`GROUP_CONCAT(DISTINCT SRU22_LICENSE_TYPE_N ORDER BY SRU22_LICENSE_TYPE_N ASC SEPARATOR ',')`).as('licenseType'));
+                    .select(raw(`GROUP_CONCAT(DISTINCT SRU22_LICENSE_TYPE_N ORDER BY SRU22_LICENSE_TYPE_N ASC SEPARATOR ',')`).as('licenseType'));
 
                 columnList = [...columnList, ...userAddressColumns, ...reportsDriverExperienceColumns, ...driverLicenseReport];
             }
@@ -709,7 +709,10 @@ class UserController extends BaseController {
                             // , { expiresIn: 86400 }
                         );
 
-                        result.token = `Bearer ${token}`;
+                        //AES  token encryption
+                        let encryptToken = aesEncrpt(`Bearer ${token}`);
+
+                        result.token = encryptToken;
 
                         // delete result.userDetails;
                         delete result.password;
@@ -783,7 +786,8 @@ class UserController extends BaseController {
                 // TODO: Send mail
                 return await mailer.forgetPassword({
                     firstName: result.firstName,
-                    emailId: result.emailId
+                    emailId: result.emailId,
+                    userTpe:result.typeId
                 }, resetLink)
             }
 
@@ -840,7 +844,7 @@ class UserController extends BaseController {
                                         type: 'login'
                                     }, process.env.JWT_SECRET, { expiresIn: 86400 });
 
-                                    req.headers['authorization'] = `Bearer ${token}`;
+                                    req.headers['authorization'] = aesEncrpt(`Bearer ${token}`);
                                     await NotifyService.sendNotication(req, res, notifyData)
                                 }
 
@@ -1555,6 +1559,7 @@ class UserController extends BaseController {
             if (_whereSize > 0 && _orWhereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
+                    .where("SRU03_STATUS_D", UserStatus.ACTIVE)
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
@@ -1580,6 +1585,7 @@ class UserController extends BaseController {
             } else if (_whereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
+                    .where("SRU03_STATUS_D", UserStatus.ACTIVE)
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
@@ -1606,6 +1612,7 @@ class UserController extends BaseController {
             } else if (_orWhereSize > 0 && dataExist.length > 0 && userIdlist.length > 0) {
 
                 specialityQuery = await Users.query()
+                    .where("SRU03_STATUS_D", UserStatus.ACTIVE)
                     .whereIn('SRU03_USER_MASTER_D', userIdlist)
                     .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                     .modifyEager('userDetails', (builder) => {
@@ -1685,7 +1692,8 @@ class UserController extends BaseController {
             });
 
             let where = {
-                "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R
+                "SRU03_USER_MASTER.SRU03_TYPE_D": UserRole.DRIVER_R,
+                // "SRU03_USER_MASTER.SRU03_STATUS_D": UserStatus.ACTIVE
             };
             const allUsercolumnList = [...userListColumns, ...contactInfoColumns];
             let userQuery = await Users.query().where(where).join(UserDetails.tableName,

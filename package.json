@@ -24,6 +24,7 @@
     "license": "ISC",
     "dependencies": {
         "@hapi/joi": "^16.1.7",
+        "@skavinvarnan/cryptlib": "^1.0.3",
         "babel-polyfill": "^6.26.0",
         "babel-preset-es2015": "^6.24.1",
         "babel-preset-stage-2": "^6.24.1",

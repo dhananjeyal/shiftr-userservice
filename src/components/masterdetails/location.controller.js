@@ -22,7 +22,8 @@ class LocationController extends BaseController {
             let provinceId = req.params.provinceId;
 
             let responseData = await City.query().select(cityColumns)
-            .where('SRU17_PROVINCE_D', provinceId);
+            .where('SRU17_PROVINCE_D', provinceId)
+            .orderBy('SRU17_CITY_N', 'ASC');
             return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.successMessages.getAll);
        
         } catch (e) {

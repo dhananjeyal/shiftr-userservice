@@ -1,8 +1,6 @@
 import { UserRole, UserStatus } from "../constants";
-
 const nodemailer = require("nodemailer");
 import moment from 'moment';
-
 export const sendMail = async (to, subject, html, fromEmail) => {
     fromEmail = fromEmail ? fromEmail : process.env.SMTP_FROM
     const transport = nodemailer.createTransport({
@@ -19,16 +17,13 @@ export const sendMail = async (to, subject, html, fromEmail) => {
     }, {
         from: `${fromEmail}`
     });
-
     const mailOptions = {
         to: to, // list of receivers
         subject: subject, // Subject line
         html: html // html body
     };
-
     return transport.sendMail(mailOptions);
 };
-
 export const signUp = (firstName, email, link) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
     let html = `<b>Welcome to Shiftr</b>
@@ -45,7 +40,6 @@ export const signUp = (firstName, email, link) => {
                 <p>Shiftr Support</p>`;
     return sendMail(email, "Verification Email", html)
 };
-
 export const busownerSignUp = (firstName, email, link) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
     let html = `<b>Welcome to Shiftr</b>
@@ -58,8 +52,6 @@ export const busownerSignUp = (firstName, email, link) => {
                 <p>Shiftr Support</p>`;
     return sendMail(email, "Verification Email", html)
 };
-
-
 export const DriversignUpCompleted = (firstName, email) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
     let html = `<b>Hello ${userName}</b>
@@ -71,29 +63,24 @@ export const DriversignUpCompleted = (firstName, email) => {
                 <p>Shiftr Support</p>`;
     return sendMail(email, "Signup Confirmation Email", html)
 };
-
-
-
 export const emailVerified = (user) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
     let html = `<b>Congratulations !!! ${userName}</b>
                     <p>You're email is successfully verified. You can now login to continue..</p>
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
-
     if (user.typeId === UserRole.DRIVER_R) {
         html = `<b>Congratulations !!! ${userName}</b>
                     <p>Your verification was successfully completed.You are welcomed to join our platform as a commercial Driver.</p>
                     <b>Next Step</b>
                     <p>Please login to the Shiftr mobile application to optimise your settings to start recieving trips.</p>
-		            <p>Link to Shiftr application</p>
+                <p>Link to Shiftr application</p>
                     <p>If you have any questions or concerns please write to us.</p>
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
     }
     return sendMail(user.emailId, "Email verified", html)
 };
-
 export const accountCreated = (user, link) => {
     let html = `<b>Hello ${user.firstName}</b>
                     <p>ShiftR admin has created an account for you, please download the app "{app-link}" and log in with temporary credentials:</p>
@@ -104,7 +91,6 @@ export const accountCreated = (user, link) => {
                     <p>Set a new password using below shown link:</p>
                     <a href="${link}">Set new password</a>
                     <p>Best regards</p>`;
-
     if (user.typeId === UserRole.ADMIN_R) {
         html = `<b>Hello ${user.firstName}</b>
                     <p>ShiftR admin has created an account for you, you can log in the admin dashboard using following credential:</p>
@@ -118,10 +104,8 @@ export const accountCreated = (user, link) => {
         //<a href="${link}">Set new password</a>
         //<p>Best regards</p>`;
     }
-
     return sendMail(user.emailId, "Account created", html)
 };
-
 export const activateDeactivate = (user) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
     let html = `<b>Hello ${userName}</b>
@@ -130,7 +114,6 @@ export const activateDeactivate = (user) => {
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
     let subject = "Account activated";
-
     if (user.status === UserStatus.INACTIVE) {
         html = `<b>${userName}</b>
                 <p>Your Shiftr account has been suspended by Admin.</p>
@@ -139,17 +122,24 @@ export const activateDeactivate = (user) => {
                     <p>Shiftr Support</p>`;
         subject = "Account suspended";
     }
-
     return sendMail(user.emailId, subject, html)
 };
 
 export const forgetPassword = (user, link) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
     let html = `<b>Hello ${userName},</b>
-    <p>Click on the single-use link /password below to access your account. Please remember to change your password.</p>
+    <p>Click on the single-use <a href="${link}">link /password</a> below to access your account. Please remember to change your password</p>
     <p>It should be 8 characters minimum, 1 small - 1 capital - 1 special 1 number” you can log in the admin dashboard using this credential</p>
     <p>Regards</p>
     <p>Shiftr Support</p>`;
+
+    if(user.userType == UserRole.CUSTOMER_R){
+        html = `<b>Hello ${userName},</b>
+    <p>A request has been recieved to change the password for your Shiftr account.Please use the single-use <a href="${link}">Link/Password</a> to access your account.</p> 
+    <p>Please remember to change your password as soon as you login.Your new password should be 8 characters minimum: I small • I capital • I special I number</p>
+    <p>Regards</p>
+    <p>Shiftr Support</p>`;
+    }
     return sendMail(user.emailId, "Forgot password", html)
 };
 
@@ -160,10 +150,8 @@ export const resetPassword = (user) => {
                     <p>Regards</p>`;
     return sendMail(user.emailId, "Password reset", html)
 };
-
 // <p>Trip start yard:- ${tripDetails.startYard}</p>
 export const notifyBusOwner = (user, tripDetails) => {
-
     let html = `<b>Hello ${user.firstName},</b>
                     <p>Your Trip have been ${tripDetails.tripStatus} by ${tripDetails.driverFirstName}.</p>
                     <p><b>Trip Details:-</b></p>
@@ -173,7 +161,6 @@ export const notifyBusOwner = (user, tripDetails) => {
                     <p>Trip start date:- ${moment(tripDetails.startDate).format('DD/MM/YYYY')}</p>
                     <p>Trip end date:- ${moment(tripDetails.endDate).format('DD/MM/YYYY')}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>
-
                     <p><b>Driver Details:-</b></p>
                     <p>Driver name:- ${tripDetails.driverFirstName} ${tripDetails.driverLastName}</p>
                     <p>Driver contact:- ${tripDetails.driverPhoneNumber}</p>
@@ -181,9 +168,7 @@ export const notifyBusOwner = (user, tripDetails) => {
                     <p>Best regards</p>`;
     return sendMail(user.emailId, `Trip-${tripDetails.tripStatus}`, html)
 };
-
 export const busOwnerEmail = (user, tripDetails, message) => {
-
     let html = `<b>Hello ${user.firstName},</b>
                     <p>${message} ${tripDetails.tripCode} .</p>
                     <p><b>Trip Details:-</b></p>
@@ -195,8 +180,6 @@ export const busOwnerEmail = (user, tripDetails, message) => {
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
     return sendMail(user.emailId, `Trip-${tripDetails.tripStatus}`, html)
 };
-
-
 export const superAdminEmail = (tripDetails, message) => {
     let html = `<b>Hello shiftr,</b>
                     <p>${message} ${tripDetails.tripCode} .</p>
@@ -209,11 +192,7 @@ export const superAdminEmail = (tripDetails, message) => {
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
     return sendMail(`shiftr@joshiinc.com`, `Trip-${tripDetails.tripStatus}`, html)
 };
-
-
-
 export const subscriptionNotification = (payload) => {
-
     let html = `<b>Hello ${payload.username},</b>
                     <p>Welcome to shiftR ! Thank you for the subscription.!</p>                   
                     <p><b>Plan Details:-</b></p>
@@ -226,11 +205,7 @@ export const subscriptionNotification = (payload) => {
                     <p>Amount (CAD) $:- ${payload.amount}</p>`;
     return sendMail(payload.useremail, "ShiftR-Subscription", html)
 };
-
-
-
 export const subscriptionReminder = (payload) => {
-
     let html = `<b>Hello ${payload.username},</b>
                     <p>Your subscription will be expired.!</p>                   
                     <p><b>Plan Details:-</b></p>
@@ -240,10 +215,7 @@ export const subscriptionReminder = (payload) => {
                     <p>TotalTrips:- ${payload.totalTrips}</p>`;
     return sendMail(payload.useremail, "ShiftR-Reminder-Subscription", html)
 };
-
-
 export const subscriptionExpired = (payload) => {
-
     let html = `<b>Hello ${payload.username},</b>
                     <p>Welcome to shiftR ! your subscription expired.!</p>                   
                     <p><b>Plan Details:-</b></p>
@@ -253,11 +225,7 @@ export const subscriptionExpired = (payload) => {
                     <p>TotalTrips:- ${payload.totalTrips}</p>`;
     return sendMail(payload.useremail, "ShiftR-Reminder-Subscription", html)
 };
-
-
-
 export const subscriptionActivated = (payload) => {
-
     let html = `<b>Hello ${payload.username},</b>
                     <p>Welcome to shiftR ! your subscription Pre-subscription Activated.!</p>                   
                     <p><b>Plan Details:-</b></p>
@@ -267,11 +235,7 @@ export const subscriptionActivated = (payload) => {
                     <p>TotalTrips:- ${payload.totalTrips}</p>`;
     return sendMail(payload.useremail, "ShiftR-Reminder-Subscription", html)
 };
-
-
-
 export const subscriptionDeactiveNotification = (payload) => {
-
     let html = `<b>Hello ${payload.username},</b>
                     <p>Welcome to shiftR ! your subscription Deactivated successfully.!</p>                   
                     <p><b>Plan Details:-</b></p>
@@ -282,10 +246,7 @@ export const subscriptionDeactiveNotification = (payload) => {
                     <p>RemainingTrips:- ${payload.remainingTrips}</p>`;
     return sendMail(payload.useremail, "ShiftR-Deactive-Subscription", html)
 };
-
-
 export const adminSignupnotification = (name, emailid, userType) => {
-
     let html;
     if (userType == UserRole.DRIVER_R) {
         html = `<b>Hello ShiftR,</b>
@@ -300,6 +261,5 @@ export const adminSignupnotification = (name, emailid, userType) => {
         <p>CompanyName:- ${name}</p>
         <p>Email-Id:- ${emailid}</p>`;
     }
-
     return sendMail("shiftr@joshiinc.com", "ShiftR-Signup-Alert", html)
 };
