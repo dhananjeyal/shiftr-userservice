@@ -959,8 +959,19 @@ class DriverController extends BaseController {
             const speciality = await SpecialityTraining.query().select(driverSpecialityTrainingColumns);
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
-            const languageList = await AllLanguages.query().select(languageColumns);
+            let languageList = await AllLanguages.query().orderBy('languageName', 'ASC').select(languageColumns);
+            
+            let preferredLanguage = languageList.filter(el => {
+                return el.languageId == 1 || el.languageId == 3
+            })
 
+            languageList.forEach((el, idx, arr) => {
+                if(el.languageId == 1 || el.languageId == 3)
+                    languageList.splice(idx, 1);
+            })
+
+            languageList = [...preferredLanguage, ...languageList];
+            
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST)
