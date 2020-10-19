@@ -1,25 +1,13 @@
 import { UserRole, UserStatus } from "../constants";
 const nodemailer = require("nodemailer");
 import moment from 'moment';
-var hbs = require('nodemailer-express-handlebars');
-var hbsOptions = {
-    viewEngine: {
-        extname: '.hbs', // handlebars extension
-        layoutsDir: 'public/templates/emails/', // location of handlebars templates
-        defaultLayout: 'template', // name of main template
-        partialsDir: 'public/templates/emails/', // location of your subtemplates aka. header, footer etc
-    },
-    viewPath: 'public/templates/emails',
-    extName: '.hbs'
-};
-
-export const sendMail = async (to, subject, template, options, hbsTemp) => {
-    const fromEmail = process.env.SMTP_FROM
+export const sendMail = async (to, subject, html, fromEmail) => {
+    fromEmail = fromEmail ? fromEmail : process.env.SMTP_FROM
     const transport = nodemailer.createTransport({
         service: process.env.SMTP_SERVICE,
         host: process.env.SMTP_HOST,
-        secureConnection: false,
-        logger: false,
+        secureConnection: true,
+        logger: true,
         debug: true,
         port: process.env.SMTP_PORT,
         auth: {
@@ -27,30 +15,18 @@ export const sendMail = async (to, subject, template, options, hbsTemp) => {
             pass: process.env.SMTP_PASSWORD
         }
     }, {
-        from: fromEmail
+        from: `${fromEmail}`
     });
-    let mailOptions = {
+    const mailOptions = {
         to: to, // list of receivers
         subject: subject, // Subject line
-        html: template // html body
-    }
-    if (hbsTemp) {
-        hbsOptions.viewEngine.defaultLayout = template;
-        transport.use('compile', hbs(hbsOptions));
-        mailOptions = {
-            to: to,
-            subject: subject,
-            template: template,
-            context: options
-        }
-    }
-    transport.sendMail(mailOptions)
+        html: html // html body
+    };
+    return transport.sendMail(mailOptions);
 };
-
 export const signUp = (firstName, email, link) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-    let html = `<div style="text-align:left">
-                <b>Welcome to Shiftr, <br/></b>
+    let html = `<b>Welcome to Shiftr</b>
                 <b>${userName}</b>
                 <p>Thank you for signing up to the Shiftr Platform. In order to complete the registration process we need to review and verify your details which includes personal, driving, and banking details.</p>
                 <p>While personal details are required for verification purposes,banking details will solely be used for making payments to your account.</p>
@@ -61,11 +37,8 @@ export const signUp = (firstName, email, link) => {
                 <p>If you have any questions or concerns please feel to write to us</p>
                 <a href="${link}">Verify your account</a>
                 <p>Regards,</p>
-                <p>Shiftr Support</p>
-                </div>`;
-    hbsOptions.viewEngine.defaultLayout = 'emailVerify'
-    // transport.use('compile', mailerhbs(options));
-    return sendMail(email, "Signup Confirmation Email", 'emailVerify', { mailContent: html }, true)
+                <p>Shiftr Support</p>`;
+    return sendMail(email, "Verification Email", html)
 };
 export const busownerSignUp = (firstName, email, link) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
@@ -160,7 +133,7 @@ export const forgetPassword = (user, link) => {
     <p>Regards</p>
     <p>Shiftr Support</p>`;
 
-    if (user.userType == UserRole.CUSTOMER_R) {
+    if(user.userType == UserRole.CUSTOMER_R){
         html = `<b>Hello ${userName},</b>
     <p>A request has been recieved to change the password for your Shiftr account.Please use the single-use <a href="${link}">Link/Password</a> to access your account.</p> 
     <p>Please remember to change your password as soon as you login.Your new password should be 8 characters minimum: I small • I capital • I special I number</p>
