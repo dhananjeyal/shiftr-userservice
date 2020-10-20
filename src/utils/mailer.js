@@ -49,9 +49,8 @@ export const sendMail = async (to, subject, template, options, hbsTemp) => {
 
 export const signUp = (firstName, email, link) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-    let html = `<div style="text-align:left">
-                <b>Welcome to Shiftr, <br/></b>
-                <b>${userName}</b>
+    let html = `<b>Welcome to Shiftr</b><br><br>
+                <b>${userName},</b>
                 <p>Thank you for signing up to the Shiftr Platform. In order to complete the registration process we need to review and verify your details which includes personal, driving, and banking details.</p>
                 <p>While personal details are required for verification purposes,banking details will solely be used for making payments to your account.</p>
                 <p><b>Verification is a two step process:</b></p>
@@ -61,23 +60,23 @@ export const signUp = (firstName, email, link) => {
                 <p>If you have any questions or concerns please feel to write to us</p>
                 <a href="${link}">Verify your account</a>
                 <p>Regards,</p>
-                <p>Shiftr Support</p>
-                </div>`;
-    hbsOptions.viewEngine.defaultLayout = 'emailVerify'
+                <p>Shiftr Support</p>`;
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
     // transport.use('compile', mailerhbs(options));
-    return sendMail(email, "Signup Confirmation Email", 'emailVerify', { mailContent: html }, true)
+    return sendMail(email, "Signup Confirmation Email", 'emailTemp', { mailContent: html }, true)
 };
 export const busownerSignUp = (firstName, email, link) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-    let html = `<b>Welcome to Shiftr</b>
-                <b>${userName}</b>
+    let html = `<b>Welcome to Shiftr</b><br><br>
+                <b>${userName},</b>
                 <p>Thank you for signing up to Shiftr Platform.</p>
                 <p>Please note that in order to use this platform you need to have a vaild WSIB Clearance certificate.</p>
                 <p>Click on below link to verify your account and complete the registeration process.</p>
                 <a href="${link}">Verify your account</a>
                 <p>Regards,</p>
                 <p>Shiftr Support</p>`;
-    return sendMail(email, "Verification Email", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(email, "Bus Owner signup", 'emailTemp', { mailContent: html }, true)
 };
 export const DriversignUpCompleted = (firstName, email) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
@@ -88,16 +87,19 @@ export const DriversignUpCompleted = (firstName, email) => {
                 <p>Thanks</p>
                 <p>Regards,</p>
                 <p>Shiftr Support</p>`;
-    return sendMail(email, "Signup Confirmation Email", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(email, "Driver SignUp", 'emailTemp', { mailContent: html }, true)
 };
 export const emailVerified = (user) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
-    let html = `<b>Congratulations !!! ${userName}</b>
+    let html = `<b>Congratulations !!!</b><br>
+                    <p>${userName},</p>
                     <p>You're email is successfully verified. You can now login to continue..</p>
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
     if (user.typeId === UserRole.DRIVER_R) {
-        html = `<b>Congratulations !!! ${userName}</b>
+        html = `<b>Congratulations !!!</b><br>
+                    <p>${userName},</p>
                     <p>Your verification was successfully completed.You are welcomed to join our platform as a commercial Driver.</p>
                     <b>Next Step</b>
                     <p>Please login to the Shiftr mobile application to optimise your settings to start recieving trips.</p>
@@ -106,11 +108,12 @@ export const emailVerified = (user) => {
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
     }
-    return sendMail(user.emailId, "Email verified", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(user.emailId, "Email Verify", 'emailTemp', { mailContent: html }, true)
 };
 export const accountCreated = (user, link) => {
     let html = `<b>Hello ${user.firstName}</b>
-                    <p>ShiftR admin has created an account for you, please download the app "{app-link}" and log in with temporary credentials:</p>
+                    <p>ShiftR admin has created an account for you, please download the app "${link}" and log in with temporary credentials:</p>
                     <p>Username / email address: ${user.emailId}</p>
                     <p>Temporary password: ${user.password}</p>
                     <hr>
@@ -131,7 +134,8 @@ export const accountCreated = (user, link) => {
         //<a href="${link}">Set new password</a>
         //<p>Best regards</p>`;
     }
-    return sendMail(user.emailId, "Account created", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(user.emailId, "Account Created", 'emailTemp', { mailContent: html }, true)
 };
 export const activateDeactivate = (user) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
@@ -149,14 +153,15 @@ export const activateDeactivate = (user) => {
                     <p>Shiftr Support</p>`;
         subject = "Account suspended";
     }
-    return sendMail(user.emailId, subject, html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(user.emailId, "Account Deactivate", 'emailTemp', { mailContent: html }, true)
 };
 
 export const forgetPassword = (user, link) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
     let html = `<b>Hello ${userName},</b>
-    <p>Click on the single-use <a href="${link}">link /password</a> below to access your account. Please remember to change your password</p>
-    <p>It should be 8 characters minimum, 1 small - 1 capital - 1 special 1 number” you can log in the admin dashboard using this credential</p>
+    <p>Click on the single-use <a href="${link}">link / password</a> below to access your account. Please remember to change your password</p>
+    <p>It should be 8 characters minimum, 1 small - 1 capital - 1 special 1 number”. You can log in the admin dashboard using this credential</p>
     <p>Regards</p>
     <p>Shiftr Support</p>`;
 
@@ -167,7 +172,8 @@ export const forgetPassword = (user, link) => {
     <p>Regards</p>
     <p>Shiftr Support</p>`;
     }
-    return sendMail(user.emailId, "Forgot password", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(user.emailId, "Forget Password", 'emailTemp', { mailContent: html }, true)
 };
 
 export const resetPassword = (user) => {
@@ -176,12 +182,13 @@ export const resetPassword = (user) => {
                     <p>You have successfully reset your password you can now log in to the app with your new credential.</p>
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
-    return sendMail(user.emailId, "Password reset", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(user.emailId, "Password Reset", 'emailTemp', { mailContent: html }, true)
 };
 // <p>Trip start yard:- ${tripDetails.startYard}</p>
 export const notifyBusOwner = (user, tripDetails) => {
     let html = `<b>Hello ${user.firstName},</b>
-                    <p>Your Trip have been ${tripDetails.tripStatus} by ${tripDetails.driverFirstName}.</p>
+                    <p>Your trip schedule for ${tripDetails.startTime} ${tripDetails.startDate} ${tripDetails.tripDestination} has been canceled by the Driver. Please contact the driver for more details.</p>
                     <p><b>Trip Details:-</b></p>
                     <p>Company name:- ${tripDetails.companyName}</p>
                     <p>Trip code:- ${tripDetails.tripCode}</p>
@@ -194,7 +201,8 @@ export const notifyBusOwner = (user, tripDetails) => {
                     <p>Driver contact:- ${tripDetails.driverPhoneNumber}</p>
                     <p>Driver address:- ${tripDetails.driverAddress}</p>
                     <p>Best regards</p>`;
-    return sendMail(user.emailId, `Trip-${tripDetails.tripStatus}`, html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(user.emailId, "Notify Bus Owner", 'emailTemp', { mailContent: html }, true)
 };
 export const busOwnerEmail = (user, tripDetails, message) => {
     let html = `<b>Hello ${user.firstName},</b>
@@ -206,7 +214,8 @@ export const busOwnerEmail = (user, tripDetails, message) => {
                     <p>Trip start date:- ${moment(tripDetails.startDate).format('DD/MM/YYYY')}</p>
                     <p>Trip end date:- ${moment(tripDetails.endDate).format('DD/MM/YYYY')}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
-    return sendMail(user.emailId, `Trip-${tripDetails.tripStatus}`, html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(user.emailId, "Bus Owner Email", 'emailTemp', { mailContent: html }, true)
 };
 export const superAdminEmail = (tripDetails, message) => {
     let html = `<b>Hello shiftr,</b>
@@ -218,7 +227,8 @@ export const superAdminEmail = (tripDetails, message) => {
                     <p>Trip start date:- ${moment(tripDetails.startDate).format('DD/MM/YYYY')}</p>
                     <p>Trip end date:- ${moment(tripDetails.endDate).format('DD/MM/YYYY')}</p>
                     <p>Trip start time:- ${tripDetails.startTime}</p>`;
-    return sendMail(`shiftr@joshiinc.com`, `Trip-${tripDetails.tripStatus}`, html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail((process.env.ADMINEMAIL || `shiftr@joshiinc.com`), "Super Admin Email", 'emailTemp', { mailContent: html }, true)
 };
 export const subscriptionNotification = (payload) => {
     let html = `<b>Hello ${payload.username},</b>
@@ -231,7 +241,8 @@ export const subscriptionNotification = (payload) => {
                     <p>plan enddate:- ${payload.expirydate}</p>
                     <p>TotalTrips:- ${payload.totalTrips}</p>
                     <p>Amount (CAD) $:- ${payload.amount}</p>`;
-    return sendMail(payload.useremail, "ShiftR-Subscription", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(payload.useremail, "Subscription Notification", 'emailTemp', { mailContent: html }, true)
 };
 export const subscriptionReminder = (payload) => {
     let html = `<b>Hello ${payload.username},</b>
@@ -241,7 +252,8 @@ export const subscriptionReminder = (payload) => {
                     <p>Plan startdate:- ${moment(payload.startdate).format('DD/MM/YYYY')}</p>
                     <p>plan enddate:- ${moment(payload.expirydate).format('DD/MM/YYYY')}</p>
                     <p>TotalTrips:- ${payload.totalTrips}</p>`;
-    return sendMail(payload.useremail, "ShiftR-Reminder-Subscription", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(payload.useremail, "Subscription Reminder", 'emailTemp', { mailContent: html }, true)
 };
 export const subscriptionExpired = (payload) => {
     let html = `<b>Hello ${payload.username},</b>
@@ -251,7 +263,8 @@ export const subscriptionExpired = (payload) => {
                     <p>Plan startdate:- ${payload.startdate}</p>
                     <p>plan enddate:- ${payload.expirydate}</p>
                     <p>TotalTrips:- ${payload.totalTrips}</p>`;
-    return sendMail(payload.useremail, "ShiftR-Reminder-Subscription", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(payload.useremail, "Subscription Expired", 'emailTemp', { mailContent: html }, true)
 };
 export const subscriptionActivated = (payload) => {
     let html = `<b>Hello ${payload.username},</b>
@@ -261,7 +274,8 @@ export const subscriptionActivated = (payload) => {
                     <p>Plan startdate:- ${payload.startdate}</p>
                     <p>plan enddate:- ${payload.expirydate}</p>
                     <p>TotalTrips:- ${payload.totalTrips}</p>`;
-    return sendMail(payload.useremail, "ShiftR-Reminder-Subscription", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(payload.useremail, "Subscription Activated", 'emailTemp', { mailContent: html }, true)
 };
 export const subscriptionDeactiveNotification = (payload) => {
     let html = `<b>Hello ${payload.username},</b>
@@ -272,7 +286,8 @@ export const subscriptionDeactiveNotification = (payload) => {
                     <p>plan enddate:- ${payload.endDate}</p>
                     <p>TotalTrips:- ${payload.totalTrips}</p>
                     <p>RemainingTrips:- ${payload.remainingTrips}</p>`;
-    return sendMail(payload.useremail, "ShiftR-Deactive-Subscription", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail(payload.useremail, "Subscription Deactive Notification", 'emailTemp', { mailContent: html }, true)
 };
 export const adminSignupnotification = (name, emailid, userType) => {
     let html;
@@ -289,5 +304,6 @@ export const adminSignupnotification = (name, emailid, userType) => {
         <p>CompanyName:- ${name}</p>
         <p>Email-Id:- ${emailid}</p>`;
     }
-    return sendMail("shiftr@joshiinc.com", "ShiftR-Signup-Alert", html)
+    hbsOptions.viewEngine.defaultLayout = 'emailTemp'
+    return sendMail((process.env.ADMINEMAIL || `shiftr@joshiinc.com`), "Admin Signup Notification", 'emailTemp', { mailContent: html }, true)
 };
