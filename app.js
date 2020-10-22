@@ -16,6 +16,13 @@ app.use(appLogger.requestDetails(appLogger));
 app.enable("trust proxy");
 middleware(app);
 
+app.get("/healthCheck", (req, res) => {
+    res.status(200).send({
+        status: 200,
+        message: 'Api Running!'
+    })
+});
+
 // Open router
 const openRouter = express.Router();
 app.use("/or1.0/v1", openRouter);

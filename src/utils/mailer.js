@@ -80,7 +80,7 @@ export const busownerSignUp = (firstName, email, link) => {
 };
 export const DriversignUpCompleted = (firstName, email) => {
     let userName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-    let html = `<b>Hello ${userName}</b>
+    let html = `<b>Hello ${userName},</b>
                 <p>Thank you for submitting the documents for verification.</p>
                 <p><b>Current status :</b>Documents submitted for verification.</p>
                 <p>Once your documents are verified you will be notified.</p>
@@ -139,38 +139,38 @@ export const accountCreated = (user, link) => {
 };
 export const activateDeactivate = (user) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
-    let html = `<b>Hello ${userName}</b>
+    let html = `<b>Hello ${userName},</b>
                     <p>Your Shiftr account has been reactivated.</p>
                     <p>You can now login to your account.</p>
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
-    let subject = "Account activated";
+    let subject = "Account Activated";
     if (user.status === UserStatus.INACTIVE) {
-        html = `<b>${userName}</b>
+        html = `<b>${userName},</b>
                 <p>Your Shiftr account has been suspended by Admin.</p>
                 <p>If you have any questions or concerns please write to us.</p>
-                    <p>Regards</p>
-                    <p>Shiftr Support</p>`;
-        subject = "Account suspended";
+                <p>Regards</p>
+                <p>Shiftr Support</p>`;
+        subject = "Account Suspended";
     }
     hbsOptions.viewEngine.defaultLayout = 'emailTemp'
-    return sendMail(user.emailId, "Account Deactivate", 'emailTemp', { mailContent: html }, true)
+    return sendMail(user.emailId, subject, 'emailTemp', { mailContent: html }, true)
 };
 
 export const forgetPassword = (user, link) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
     let html = `<b>Hello ${userName},</b>
-    <p>Click on the single-use <a href="${link}">link / password</a> below to access your account. Please remember to change your password</p>
-    <p>It should be 8 characters minimum, 1 small - 1 capital - 1 special 1 number”. You can log in the admin dashboard using this credential</p>
-    <p>Regards</p>
-    <p>Shiftr Support</p>`;
-
-    if (user.userType == UserRole.CUSTOMER_R) {
-        html = `<b>Hello ${userName},</b>
     <p>A request has been recieved to change the password for your Shiftr account.Please use the single-use <a href="${link}">Link/Password</a> to access your account.</p> 
     <p>Please remember to change your password as soon as you login.Your new password should be 8 characters minimum: I small • I capital • I special I number</p>
     <p>Regards</p>
     <p>Shiftr Support</p>`;
+
+    if (user.userType == UserRole.ADMIN_R) {
+        html = `<b>Hello ${userName},</b>
+                <p>Click on the single-use link /password <a href="${link}">Link/Password</a> to access your account. Please remember to change your password.</p>
+                <p>It should be 8 characters minimum, 1 small - 1 capital - 1 special 1 number” you can log in the admin dashboard using this credential</p>
+                <p>Regards</p>
+                <p>Shiftr Support</p>`;
     }
     hbsOptions.viewEngine.defaultLayout = 'emailTemp'
     return sendMail(user.emailId, "Forget Password", 'emailTemp', { mailContent: html }, true)
@@ -179,7 +179,8 @@ export const forgetPassword = (user, link) => {
 export const resetPassword = (user) => {
     let userName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
     let html = `<b>Hello ${userName},</b>
-                    <p>You have successfully reset your password you can now log in to the app with your new credential.</p>
+                    <p>A request has been recieved to change the password for your Shiftr account. Please use the single-use link password below to access your account. </p>
+                    <p>Please remember to change your password as soon as you login.Your new password should be 8 characters minimum: I small • I capital • I special I number</p>
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
     hbsOptions.viewEngine.defaultLayout = 'emailTemp'
@@ -188,7 +189,7 @@ export const resetPassword = (user) => {
 // <p>Trip start yard:- ${tripDetails.startYard}</p>
 export const notifyBusOwner = (user, tripDetails) => {
     let html = `<b>Hello ${user.firstName},</b>
-                    <p>Your trip schedule for ${tripDetails.startTime} ${tripDetails.startDate} ${tripDetails.tripDestination} has been canceled by the Driver. Please contact the driver for more details.</p>
+                    <p>Your trip schedule for ${tripDetails.startDate} ${tripDetails.startTime} ${tripDetails.tripDestination} has been canceled by the Driver. Please contact the driver for more details.</p>
                     <p><b>Trip Details:-</b></p>
                     <p>Company name:- ${tripDetails.companyName}</p>
                     <p>Trip code:- ${tripDetails.tripCode}</p>
