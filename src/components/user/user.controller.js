@@ -2521,6 +2521,13 @@ class UserController extends BaseController {
                             totalTrips: data.totalTripType == booleanType.NO ? data.totalTrips : plandurationTypetext.UNLIMITED
                         });
                     }
+                // let notifyData = {
+            //     title: this.messageTypes.passMessages.title,
+            //     message: this.messageTypes.passMessages.emailVerified,
+            //     body: "ShiftR Welcomes You, Email verified Successfully",
+            //     type: NotifyType.VERIFY_EMAIL
+            // }
+            // await NotifyService.sendNotication(req, res, notifyData)
                 }
             }
 
@@ -2543,6 +2550,7 @@ class UserController extends BaseController {
                 }
             }
             this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+           
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
