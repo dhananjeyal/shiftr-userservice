@@ -103,7 +103,6 @@ class UserController extends BaseController {
                 body: `Welcome to Shiftr - The New Driver Pool. Please optimise your distance settings to start recieving trips`,
                 type: NotifyType.ACTIVATE_USER
             }
-
             await NotifyService.sendNotication(req, res, notifyData)
 
             // TODO: Send the mail
