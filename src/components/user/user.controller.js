@@ -100,8 +100,7 @@ class UserController extends BaseController {
             let notifyData = {
                 title: this.messageTypes.passMessages.title,
                 message: this.messageTypes.passMessages.userCreated,
-                body: `Welcome to Shiftr - The New Driver Pool
-                       Please optimise your distance settings to start recieving trips`,
+                body: `Welcome to Shiftr - The New Driver Pool. Please optimise your distance settings to start recieving trips`,
                 type: NotifyType.ACTIVATE_USER
             }
 
