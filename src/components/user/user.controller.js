@@ -96,6 +96,17 @@ class UserController extends BaseController {
 
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
+            //push notification
+            let notifyData = {
+                title: this.messageTypes.passMessages.title,
+                message: this.messageTypes.passMessages.userCreated,
+                body: `Welcome to Shiftr - The New Driver Pool
+                       Please optimise your distance settings to start recieving trips`,
+                type: NotifyType.ACTIVATE_USER
+            }
+
+            await NotifyService.sendNotication(req, res, notifyData)
+
             // TODO: Send the mail
             await mailer.signUp(
                 insertResult.firstName,
@@ -208,6 +219,16 @@ class UserController extends BaseController {
             insertResult.token = token
 
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
+
+            //push notification
+            let notifyData = {
+                title: this.messageTypes.passMessages.title,
+                message: this.messageTypes.passMessages.userCreated,
+                body: `Hey ${req.body.firstName}, Congratulations, you have successfully signed up for your account. Let's add some more details to verify your account`,
+                type: NotifyType.ACTIVATE_USER
+            }
+
+            await NotifyService.sendNotication(req, res, notifyData)
 
             //TODO: Send the mail
             await mailer.busownerSignUp(
