@@ -103,6 +103,12 @@ class UserController extends BaseController {
                 body: `Welcome to Shiftr - The New Driver Pool. Please optimise your distance settings to start recieving trips`,
                 type: NotifyType.ACTIVATE_USER
             }
+            const auth = jwt.sign({
+                userId: result.userId,
+                type: 'login'
+            }, process.env.JWT_SECRET, { expiresIn: 86400 });
+
+            req.headers['authorization'] = `Bearer ${auth}`;
             await NotifyService.sendNotication(req, res, notifyData)
 
             // TODO: Send the mail
