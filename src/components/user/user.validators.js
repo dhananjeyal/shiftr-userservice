@@ -41,7 +41,7 @@ const schemas = {
             UserRole.CUSTOMER_R
         ).required(),
         // phoneNo: Joi.number().min(10).max(15).required(),
-        phoneNo: Joi.number().min(10).required(),
+        phoneNo: Joi.string().min(10).max(15).required(),
         compnayName: Joi.string().required(),
         numberofBuses: Joi.number().required(),
         address1: Joi.string().required(),
