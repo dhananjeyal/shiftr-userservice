@@ -2293,6 +2293,7 @@ class UserController extends BaseController {
         try {
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .where('SRU03_STATUS_D', UserStatus.ACTIVE)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
@@ -2332,6 +2333,7 @@ class UserController extends BaseController {
 
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .where('SRU03_STATUS_D', UserStatus.ACTIVE)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
@@ -2367,6 +2369,7 @@ class UserController extends BaseController {
 
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .where('SRU03_STATUS_D', UserStatus.ACTIVE)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .where({
                     "SRU03_TYPE_D": UserRole.DRIVER_R
