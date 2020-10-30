@@ -88,13 +88,28 @@ class UserController extends BaseController {
                 for: "BEAMS"
             }));
 
-            let host = req.protocol + '://' + req.get('host');
+            let host = process.env.PUBLIC_UPLOAD_LINK1;
             insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
             insertResult.beamstoken = token
 
 
 
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
+
+            //push notification
+            let notifyData = {
+                title: this.messageTypes.passMessages.title,
+                message: this.messageTypes.passMessages.userCreated,
+                body: `Welcome to Shiftr - The New Driver Pool. Please optimise your distance settings to start recieving trips`,
+                type: NotifyType.ACTIVATE_USER
+            }
+            const auth = jwt.sign({
+                userId: result.userId,
+                type: 'login'
+            }, process.env.JWT_SECRET, { expiresIn: 86400 });
+
+            req.headers['authorization'] = `Bearer ${auth}`;
+            await NotifyService.sendNotication(req, res, notifyData)
 
             // TODO: Send the mail
             await mailer.signUp(
@@ -208,6 +223,23 @@ class UserController extends BaseController {
             insertResult.token = token
 
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
+
+            //push notification
+            let notifyData = {
+                title: this.messageTypes.passMessages.title,
+                message: this.messageTypes.passMessages.userCreated,
+                body: `Hey ${req.body.firstName}, Congratulations, you have successfully signed up for your account. Let's add some more details to verify your account`,
+                type: NotifyType.ACTIVATE_USER
+            }
+
+            const auth = jwt.sign({
+                userId: result.userId,
+                type: 'login'
+            }, process.env.JWT_SECRET, { expiresIn: 86400 });
+
+            req.headers['authorization'] = `Bearer ${auth}`;
+
+            await NotifyService.sendNotication(req, res, notifyData)
 
             //TODO: Send the mail
             await mailer.busownerSignUp(
@@ -2261,6 +2293,7 @@ class UserController extends BaseController {
         try {
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .where('SRU03_STATUS_D', UserStatus.ACTIVE)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
@@ -2300,6 +2333,7 @@ class UserController extends BaseController {
 
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .where('SRU03_STATUS_D', UserStatus.ACTIVE)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
@@ -2335,6 +2369,7 @@ class UserController extends BaseController {
 
             const allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
+                .where('SRU03_STATUS_D', UserStatus.ACTIVE)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
                 .where({
                     "SRU03_TYPE_D": UserRole.DRIVER_R
@@ -2521,6 +2556,13 @@ class UserController extends BaseController {
                             totalTrips: data.totalTripType == booleanType.NO ? data.totalTrips : plandurationTypetext.UNLIMITED
                         });
                     }
+                // let notifyData = {
+            //     title: this.messageTypes.passMessages.title,
+            //     message: this.messageTypes.passMessages.emailVerified,
+            //     body: "ShiftR Welcomes You, Email verified Successfully",
+            //     type: NotifyType.VERIFY_EMAIL
+            // }
+            // await NotifyService.sendNotication(req, res, notifyData)
                 }
             }
 
@@ -2543,6 +2585,7 @@ class UserController extends BaseController {
                 }
             }
             this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
+           
         } catch (e) {
             return this.internalServerError(req, res, e);
         }

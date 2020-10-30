@@ -44,5 +44,6 @@ glob("./src/components/*", null, (err, items) => {
     });
 });
 
-// exporting the app
+
+//exporting the app
 module.exports = app;
