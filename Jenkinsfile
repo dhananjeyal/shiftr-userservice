@@ -19,6 +19,10 @@ spec:
     image: docker
     command:
     - cat
+    args:
+    - /bin/sh
+    - -c
+    - chmod -R 777 /var/run/docker.sock
     tty: true
     volumeMounts:
        - name: dockersock
