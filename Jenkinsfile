@@ -14,6 +14,11 @@ spec:
     command:
     - cat
     tty: true
+    image: "lachlanevenson/k8s-kubectl:latest"
+    name: "kube"
+    tty: true
+    command:
+    - cat
     volumeMounts:
       - name: docker-config
         mountPath: /home/user/.docker
