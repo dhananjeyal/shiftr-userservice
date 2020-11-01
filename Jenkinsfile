@@ -33,7 +33,7 @@ spec:
         container(name: 'img') {
             sh 'wget https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.3.1/linux-amd64/docker-credential-ecr-login'
             sh 'chmod +x docker-credential-ecr-login'
-            sh 'curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl'
+            sh 'wget -O https://storage.googleapis.com/kubernetes-release/release/$(wget -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl'
             sh 'chmod +x ./kubectl'
             sh 'mkdir ~/bin'
             sh 'mv docker-credential-ecr-login ~/bin/docker-credential-ecr-login'
