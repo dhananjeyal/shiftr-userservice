@@ -51,7 +51,7 @@ spec:
                 curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
                 chmod +x ./kubectl
                 cat ./user-deployment.yml | sed s/prod0/prod${BUILD_NUMBER}/g
-                ./kubectl apply -f ./user-deployment.yml -n default
+                ./kubectl apply -f ./user-deployment.yml
                 '''
            }
         }
