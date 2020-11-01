@@ -38,7 +38,6 @@ spec:
             sh '''
             img build . -t 572862620375.dkr.ecr.ca-central-1.amazonaws.com/shiftr_user:prod$BUILD_NUMBER
             '''
-            sh ' img push 572862620375.dkr.ecr.ca-central-1.amazonaws.com/shiftr_user:prod$BUILD_NUMBER'
         }
       }
     }
