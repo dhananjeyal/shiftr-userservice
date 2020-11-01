@@ -49,7 +49,7 @@ spec:
     }
   stage('deploy') {
             steps{
-              container(name: 'jnlp') {
+              container(name: 'kube') {
                 sh script: '''
                 #!/bin/bash
                 cd $WORKSPACE/
