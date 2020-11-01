@@ -44,7 +44,7 @@ spec:
     }
     stage("Deploy") {
    steps {
-    withKubeConfig([serverUrl: 'https://kubernetes.default']) {  
+    withKubeConfig([serverUrl: 'https://kubernetes.default', credentialsId: '' ]) {  
      sh "kubectl get pods"
     }
    }
