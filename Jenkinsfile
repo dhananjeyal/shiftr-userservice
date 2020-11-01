@@ -1,72 +1,60 @@
 pipeline {
-
-  environment {
-    registry = "572862620375.dkr.ecr.ca-central-1.amazonaws.com/shiftr_user"
-    dockerImage = ""
-  }
-      agent {
+  agent {
     kubernetes {
-      defaultContainer 'jnlp'
+      //cloud 'kubernetes'
       yaml """
-apiVersion: v1
 kind: Pod
 metadata:
-  labels:
-    app: pipeline
+  name: img
 spec:
   containers:
-  - name: docker
-    image: docker
+  - name: img
+    image: jessfraz/img
+    imagePullPolicy: Always
     command:
     - cat
-    args:
-    - /bin/sh
-    - -c
-    - chmod -R 777 /var/run/docker.sock
     tty: true
     volumeMounts:
-       - name: dockersock
-         mountPath: /var/run/docker.sock
-  - command:
-    - "cat"
-    image: "lachlanevenson/k8s-kubectl:latest"
-    name: "kube"
-    tty: true
+      - name: docker-config
+        mountPath: /home/user/.docker
   volumes:
-  - name: dockersock
-    hostPath:
-      path: /var/vcap/sys/run/docker/docker.sock
-
- 
+    - name: docker-config
+      configMap:
+        name: docker-config
 """
     }
   }
-
   stages {
-
-        stage('SCM checkout') {
-          steps {
-            checkout scm
+    stage('Build with Img') {
+      environment {
+        PATH = "/home/user/bin:$PATH"
       }
-    }
-
-    stage('Build image') {
       steps {
-         container('docker'){
-             sh "docker build -t ${registry}:prod${BUILD_NUMBER} ."
+        container(name: 'img') {
+            sh 'wget https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.3.1/linux-amd64/docker-credential-ecr-login'
+            sh 'chmod +x docker-credential-ecr-login'
+            sh 'mkdir ~/bin'
+            sh 'mv docker-credential-ecr-login ~/bin/docker-credential-ecr-login'
+            sh '''
+            img build . -t 572862620375.dkr.ecr.ca-central-1.amazonaws.com/shiftr_user:prod$BUILD_NUMBER
+            '''
+            sh ' img push 572862620375.dkr.ecr.ca-central-1.amazonaws.com/shiftr_user:prod$BUILD_NUMBER'
         }
       }
     }
-
-    stage('Deployment'){
-      steps{
-        container('kube'){
-          sh ("sed -i 's/prod0/prod${BUILD_NUMBER}/g' ./user-deployment.yml" )
-          sh 'cat ./user-deployment.yml'
-          sh 'kubectl get pods -n jenkins'
-          sh 'kubectl apply -f user-deployment.yml -n jenkins'
+  stage('deploy') {
+            steps{
+                sh script: '''
+                #!/bin/bash
+                cd $WORKSPACE/
+                #get kubectl for this demo
+                curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+                chmod +x ./kubectl
+                kubectl version
+                cat ./user-deployment.yml | sed s/prod0/prod${BUILD_NUMBER}/g
+                ./kubectl apply -f ./user-deployment.yml -n default
+                '''
+           }
         }
-      }
-    }
-  }
-}
+    } 
+}  
