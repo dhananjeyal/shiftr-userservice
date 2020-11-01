@@ -42,17 +42,12 @@ spec:
         }
       }
     }
-  stage('deploy') {
-            steps{
-              container(name: 'kube') {
-                sh script: '''
-                #!/bin/bash
-                cd $WORKSPACE/
-                cat ./user-deployment.yml | sed s/prod0/prod${BUILD_NUMBER}/g
-                kubectl apply -f ./user-deployment.yml
-                '''
-           }
-        }
-     }
+    stage("Deploy") {
+   steps {
+    withKubeConfig([serverUrl: 'https://kubernetes.default']) {  
+     sh "kubectl get pods"
+    }
+   }
   }
+ }
 }  
