@@ -44,7 +44,7 @@ spec:
     }
   stage('deploy') {
             steps{
-              container(name: 'img') {
+              container(name: 'jnlp') {
                 sh script: '''
                 #!/bin/bash
                 cd $WORKSPACE/
