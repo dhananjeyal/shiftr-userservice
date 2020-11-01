@@ -49,7 +49,7 @@ spec:
                 #!/bin/bash
                 cd $WORKSPACE/
                 cat ./user-deployment.yml | sed s/prod0/prod${BUILD_NUMBER}/g
-                ./kubectl apply -f ./user-deployment.yml
+                kubectl apply -f ./user-deployment.yml
                 '''
            }
         }
