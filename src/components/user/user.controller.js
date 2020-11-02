@@ -585,6 +585,7 @@ class UserController extends BaseController {
         try {
             const userId = req.body.userData.userId;
             const tripDetails = req.body.tripDetails;
+            const type = req.body.type;
             let user = await Users.query()
                 .select(userEmailDetails)
                 .where("SRU03_USER_MASTER_D", userId);
@@ -592,7 +593,9 @@ class UserController extends BaseController {
             if (!tripDetails.noMatchFound) {
                 mailer.notifyBusOwner(
                     user[0],
-                    tripDetails
+                    tripDetails,
+                    type
+
                 );
             } else {
                 mailer.busOwnerEmail(
