@@ -1,2 +1,1 @@
-# Pickups Order Service
-
+# ShiftR User Service

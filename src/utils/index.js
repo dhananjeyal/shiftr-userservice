@@ -13,42 +13,7 @@ module.exports = {
         return bcrypt.hashSync(data, salt)
     },
     mailer: require('./mailer'),
-    validateFile: validateFile,
-    genHmac256: (data) => {
-
-        // let string = `GET\\996b9958c54363f99876844c6efc2ce8\\ntext/html\\n1569607203`;
-
-        // let key = "02b6ce79-3ad4-4a5b-97c8-0b38d0899270"
-        // let data = crypto.createHmac('sha256', key).update(string).digest("hex");
-        // let buff = new Buffer(data);
-        // let base64data = buff.toString('base64');
-
-        // console.log(encodeURIComponent(base64data));
-        // console.log("datadata",data);
-        
-
-        let md5Content = MD5(data)
-        let currentTime = moment().unix()
-
-        let string = `GET\\n${md5Content}\\ntext/html\\n${currentTime}`;
-        let key = process.env.SC_API_KEY
-        let hmac = crypto.createHmac('sha256', key).update(string).digest('hex');
-        let buff = new Buffer(hmac);
-        let base64data = buff.toString('base64');
-        let encoded = encodeURIComponent(base64data)
-
-        let querString = {
-            'hmac': encoded,
-            'hmac-date': currentTime
-        }
-        // console.log(querString);
-
-        // console.log("########");
-        // console.log(querystring.stringify(querString))
-        
-        
-        return querystring.stringify(querString)
-    }
+    validateFile: validateFile
 };
 
 function validateFile(req, res) {

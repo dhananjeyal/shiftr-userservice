@@ -151,12 +151,6 @@ export let userListColumns = [
     `${UsersDetails.tableName}.SRU04_ACCEPTANCE_RATIO_R as acceptanceRatio`
 ];
 
-export let screeningCanadastatus = [
-    'SRU09_SCREENING_CANADA_STATUS_D as SCstatusId',    
-    'SRU09_SC_USER_N as screeningcanadaUserId',
-    'SRU09_SC_STATUS_N as ScreeningCanadastatus'
-];
-
 export let contactInfoDetailsColumns = [
     'SRU19_CONTACT_INFO_D as contactinfoId',
     'SRU19_CONTACT_PERSON_N as contcatPersonName',

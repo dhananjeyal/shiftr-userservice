@@ -1,29 +1,24 @@
 import BaseController from '../baseController';
-import LocationController from '../masterdetails/location.controller';
-import { raw } from 'objection'
 import Users from "../user/model/user.model";
-import { decrypt, encrypt } from "../../utils/cipher";
 import {
     AddressType,
     DocumentName,
     DocumentStatus,
     DocumentType,
     SignUpStatus,
-    phonenumbertype,
     CountryType,
     Typeofdistance,
     booleanType,
     UserRole,
     EmailStatus
 } from "../../constants";
-import { genHash, genHmac256, mailer } from "../../utils";
+import { mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns, driverLicenseList } from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
-import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import ExperienceReferenceDetails from './model/experienceReference.model';
 import LicenseType from './model/licensetype.model';
@@ -40,9 +35,6 @@ import DriverLicenses from "../user/model/driverLicenses.model";
 import { provinceColumns } from '../masterdetails/model/location.columns';
 import NotifyService from "../../services/notifyServices";
 import BoardingService from "../../services/boardingServices";
-
-let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
-
 
 class DriverController extends BaseController {
 
