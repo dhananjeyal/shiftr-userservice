@@ -2,7 +2,7 @@ import BaseJoi from 'joi';
 import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { options } from "../user/user.validators";
-import { Gender, UserRole, booleanType, licenseType } from "../../constants";
+import { booleanType} from "../../constants";
 import { validateFile } from "../../utils";
 
 const Joi = BaseJoi.extend(joinDateExtension);
@@ -18,19 +18,6 @@ const CreateExperienceSchema = {
     }).required(),
     countryType: Joi.number().required()
 }
-
-const phone = {
-    phones: Joi.object({
-        phoneNumber: Joi.number().required()
-    })
-}
-
-const lang = {
-    languages: Joi.object({
-        language: Joi.number().required()
-    })
-}
-
 
 // add joi schema
 const schemas = {

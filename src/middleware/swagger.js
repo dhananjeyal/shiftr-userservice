@@ -3,6 +3,8 @@ const swaggerUi = require('swagger-ui-express');
 module.exports = (app) => {
     const options = {
         explorer: true,
+        customSiteTitle: 'ShiftR - User Service',
+        customfavIcon: '/public/logo.png',
         swaggerOptions: {
             urls: [
                 {

@@ -7,18 +7,16 @@ class Response {
   success(req, res, status, data = null, message = "success") {
     if (status == responseStatus.HTTP_OK) {
       req.appLogger.info(
-        `URL : ${req.protocol}://${req.get("host")}${
-        req.originalUrl
-        } | Request : ${JSON.stringify(
-          req.value ? req.value : {}
+        `URL : ${req.protocol}://${req.get("host")}${req.originalUrl
+        }| ${req.method} | Request : ${JSON.stringify(
+          req.body ? req.body : {}
         )} | Response :  ${JSON.stringify(data)}`
       );
     } else {
       req.appLogger.error(
-        `URL : ${req.protocol}://${req.get("host")}${
-        req.originalUrl
-        } | Request : ${JSON.stringify(
-          req.value ? req.value : {}
+        `URL : ${req.protocol}://${req.get("host")}${req.originalUrl
+        }| ${req.method} | Request : ${JSON.stringify(
+          req.body ? req.body : {}
         )} | Error : ${message}`
       );
     }
@@ -32,10 +30,9 @@ class Response {
   // triggering a error response
   errors(req, res, status, message) {
     req.appLogger.error(
-      `URL : ${req.protocol}://${req.get("host")}${
-      req.originalUrl
-      } | Request : ${JSON.stringify(
-        req.value ? req.value : {}
+      `URL : ${req.protocol}://${req.get("host")}${req.originalUrl
+      }| ${req.method} | Request : ${JSON.stringify(
+        req.body ? req.body : {}
       )} | Error : ${message}`
     );
 
@@ -55,16 +52,15 @@ class Response {
 
     if (customMessage) {
       message = messageTypes.errorMessages.invaliddata;
-    } else{
+    } else {
       message = messageTypes.errorMessages.badRequest;
     }
 
     let status = responseStatus.HTTP_UNPROCESSABLE_ENTITY;
     req.appLogger.error(
-      `URL : ${req.protocol}://${req.get("host")}${
-      req.originalUrl
-      } | Request : ${JSON.stringify(
-        req.value ? req.value : {}
+      `URL : ${req.protocol}://${req.get("host")}${req.originalUrl
+      }| ${req.method} | Request : ${JSON.stringify(
+        req.body ? req.body : {}
       )} | BadRequestError : ${JSON.stringify(error)}`
     );
 
