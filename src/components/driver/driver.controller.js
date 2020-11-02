@@ -163,7 +163,7 @@ class DriverController extends BaseController {
             });
 
             //status - Check
-            if (UserDetailsResponse  &&
+            if (UserDetailsResponse &&
                 (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || userDetails.signUpStatus != SignUpStatus.VERIFIED || userDetails.signUpStatus != SignUpStatus.ACTIVE)) {
                 let signupStatus;
 
@@ -731,6 +731,15 @@ class DriverController extends BaseController {
                     signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
                 } else if (rowExists.length >= booleanType.YES) {
                     signupStatus = SignUpStatus.COMPLETED;
+                    //push notification
+                    let notifyData = {
+                        title: this.messageTypes.passMessages.title,
+                        message: this.messageTypes.passMessages.driverFlowfinished,
+                        body: this.messageTypes.passMessages.driverFlowfinished,
+                        type: NotifyType.ACTIVATE_USER,
+                        toAdmin: true
+                    }
+                    NotifyService.sendNotication(req, res, notifyData)
                 } else {
                     signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
                 }
@@ -960,18 +969,18 @@ class DriverController extends BaseController {
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
             let languageList = await AllLanguages.query().orderBy('languageName', 'ASC').select(languageColumns);
-            
+
             let preferredLanguage = languageList.filter(el => {
                 return el.languageId == 1 || el.languageId == 3
             })
 
             languageList.forEach((el, idx, arr) => {
-                if(el.languageId == 1 || el.languageId == 3)
+                if (el.languageId == 1 || el.languageId == 3)
                     languageList.splice(idx, 1);
             })
 
             languageList = [...preferredLanguage, ...languageList];
-            
+
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST)
