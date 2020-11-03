@@ -1,6 +1,7 @@
 const responseStatus = require("../facades/response");
 const messageTypes = require("../responses/types");
-
+import { encryptKeys } from '../../src/constants';
+import { aesEncrpt } from '../utils/cipher';
 // response class
 class Response {
   // triggering a success response
@@ -20,6 +21,19 @@ class Response {
         )} | Error : ${message}`
       );
     }
+
+    if (data && Array.isArray(data)==false) {
+      Object.keys(data).forEach((k) => {
+          if (typeof data[k] === 'string' && encryptKeys.includes(k)) {
+              data[k] = aesEncrpt(data[k])
+          } else if (data[k] && Array.isArray(data[k]) == false) {
+              Object.keys(data[k]).forEach((ke) => {
+                  if (data[k][ke] && encryptKeys.includes(ke))
+                      data[k][ke] = aesEncrpt(data[k][ke])
+              })
+          }
+      })
+     }
 
     return res.status(status).json({
       status,

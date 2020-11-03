@@ -197,11 +197,19 @@ export const options = {
 };
 
 export const signUpUser = (req, res, next) => {
-    //AES decryption
-    if (req.body.emailId)
-        req.body.emailId = aesDecrpt(req.body.emailId)
-    if (req.body.password)
-        req.body.password = aesDecrpt(req.body.password)
+    // AES decryption
+    // if (req.body.emailId)
+    //     req.body.emailId = aesEncrpt(req.body.emailId)
+    // if (req.body.password)
+    //     req.body.password = aesEncrpt(req.body.password)
+    // if (req.body.firstName)
+    //     req.body.firstName = aesEncrpt(req.body.firstName)
+    // if (req.body.lastName)
+    //     req.body.lastName = aesEncrpt(req.body.lastName)
+    // if (req.body.phoneNo)
+    //     req.body.phoneNo = aesEncrpt(req.body.phoneNo)
+    
+    // next();
         
     let schema = schemas.signUpUser;
     let option = options.basic;
@@ -218,10 +226,10 @@ export const signUpUser = (req, res, next) => {
 //TRAVELS - SIGNUP
 export const travelsSignup = (req, res, next) => {
     //AES decryption
-    if (req.body.emailId)
-        req.body.emailId = aesDecrpt(req.body.emailId)
-    if (req.body.password)
-        req.body.password = aesDecrpt(req.body.password)
+    // if (req.body.emailId)
+    //     req.body.emailId = aesDecrpt(req.body.emailId)
+    // if (req.body.password)
+    //     req.body.password = aesDecrpt(req.body.password)
         
     let schema = schemas.travelsSignup;
     let option = options.basic;
@@ -248,11 +256,11 @@ export const createUpdateUser = (req, res, next) => {
 };
 
 export const loginUser = (req, res, next) => {
-    console.log(req.body);
-    if (req.body.emailId)
-        req.body.emailId = aesDecrpt(req.body.emailId)
-    if (req.body.password)
-        req.body.password = aesDecrpt(req.body.password)
+    // console.log(req.body);
+    // if (req.body.emailId)
+    //     req.body.emailId = aesDecrpt(req.body.emailId)
+    // if (req.body.password)
+    //     req.body.password = aesDecrpt(req.body.password)
 
     let schema = schemas.loginUser;
     let option = options.basic;

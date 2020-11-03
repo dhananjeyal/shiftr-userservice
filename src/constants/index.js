@@ -147,3 +147,4 @@ export class encryptionSecret {
     static SALTKEY = "06fe746c4d7174b827e5599eac0e26f2";
 }
 
+export const encryptKeys = ['password', 'emailId', 'newPassword', 'tempPassword', 'firstName', 'lastName', 'phoneNo', 'phoneNumber'];

@@ -5,6 +5,8 @@ import path from 'path'
 import middleware from './src/middleware'
 import AuthController from './src/components/user/auth.controller'
 import glob from 'glob';
+import { encryptKeys } from './src/constants';
+import { aesDecrpt, aesEncrpt } from './src/utils/cipher'
 
 const app = express();
 
@@ -22,6 +24,19 @@ app.get("/healthCheck", (req, res) => {
         message: 'Api Running!'
     })
 });
+
+console.log(aesEncrpt("imnamedasdaniel@gmail.com"));
+
+app.use(function (req, res, next) {
+    if (req.body) {
+        Object.keys(req.body).forEach((ke) => {
+            if (encryptKeys.includes(ke)) {
+                req.body[ke] = aesDecrpt(req.body[ke])
+            }
+        })
+    }
+    next()
+})
 
 // Open router
 const openRouter = express.Router();

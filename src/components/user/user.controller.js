@@ -744,10 +744,7 @@ class UserController extends BaseController {
                             // , { expiresIn: 86400 }
                         );
 
-                        //AES  token encryption
-                        let encryptToken = aesEncrpt(`Bearer ${token}`);
-
-                        result.token = encryptToken;
+                        result.token = `Bearer ${token}`;
 
                         // delete result.userDetails;
                         delete result.password;
