@@ -15,9 +15,6 @@ class AuthController extends BaseController {
         try {
             let token = req.headers['x-access-token'] || req.headers['authorization'];
             if (token) {
-                //AES token decryption
-
-                token = aesDecrpt(token);
                 if (token.startsWith('Bearer ')) {
                     token = token.slice(7, token.length);
                 }
