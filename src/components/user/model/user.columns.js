@@ -25,7 +25,8 @@ export let userDetailsColumns = [
     'SRU04_ACCEPTANCE_RATIO_R as acceptanceRatio',
     'SRU04_TRAVEL_LOGIN_STATUS_F as firsttimeLoginstatus',
     'SRU04_NOTIFICATION_SETTINGS_F as notificationSettings',
-    'SRU04_PROFILE_I as userProfileImage'
+    'SRU04_PROFILE_I as userProfileImage',
+    'SRU04_EMERGENCY_PHONE_NO as emergency'
 ];
 
 
