@@ -35,6 +35,7 @@ import DriverLicenses from "../user/model/driverLicenses.model";
 import { provinceColumns } from '../masterdetails/model/location.columns';
 import NotifyService from "../../services/notifyServices";
 import BoardingService from "../../services/boardingServices";
+import { s3GetSignedURL } from "../../middleware/multer"
 
 class DriverController extends BaseController {
 
@@ -881,7 +882,11 @@ class DriverController extends BaseController {
 
             if (driver) {
                 delete driver.password;
-                return new Promise((resolve) => {
+                return new Promise(async (resolve) => {
+                    if (process.env.AWS_ACCESS_KEY && driver.userDetails && (driver.userDetails.userprofile || driver.userDetails.profilePicture)) {
+                        driver.userDetails.userprofile = driver.userDetails.userprofile && await s3GetSignedURL(driver.userDetails.userprofile)
+                        driver.userDetails.profilePicture = driver.userDetails.profilePicture && await s3GetSignedURL(driver.userDetails.profilePicture)
+                    }
                     resolve(driver);
                 });
             } else {

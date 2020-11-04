@@ -25,8 +25,6 @@ app.get("/healthCheck", (req, res) => {
     })
 });
 
-console.log(aesEncrpt("imnamedasdaniel@gmail.com"));
-
 app.use(function (req, res, next) {
     if (req.body) {
         Object.keys(req.body).forEach((ke) => {

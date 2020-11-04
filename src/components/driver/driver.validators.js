@@ -2,9 +2,11 @@ import BaseJoi from 'joi';
 import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { options } from "../user/user.validators";
-import { booleanType} from "../../constants";
-import { validateFile } from "../../utils";
-
+import { booleanType } from "../../constants";
+import { validateFile, s3GetSignedURL } from "../../middleware/multer";
+// (async()=>{
+//     console.log(await s3GetSignedURL('424bd9d27d56403fb58311e8598f178e.png'));
+// })()
 const Joi = BaseJoi.extend(joinDateExtension);
 
 const CreateExperienceSchema = {
@@ -114,11 +116,14 @@ const schemas = {
     }),
 };
 
-export const CreateDriverProfile = (req, res, next) => {
+export const CreateDriverProfile = async (req, res, next) => {
 
     let option = options.basic;
+    const File = await validateFile(req, res, next)
+    console.log(File, "File");
     // Validate file
-    if (validateFile(req, res)) {
+    if (File) {
+        console.log(req.body);
         let schema = schemas.CreateDriverProfile();
         schema.validate({
             ...req.body,
@@ -273,7 +278,7 @@ export const profileUpload = (req, res, next) => {
 /**
  * Upload Profile Picture - MobileApp
  */
-export const deleteDocument = (req, res, next) => {        
+export const deleteDocument = (req, res, next) => {
     let schema = schemas.deleteDocument;
     let option = options.basic;
     schema.validate({
