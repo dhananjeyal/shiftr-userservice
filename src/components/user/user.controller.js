@@ -218,7 +218,7 @@ class UserController extends BaseController {
                 for: "BEAMS"
             }));
 
-            let host = req.protocol + '://' + req.get('host');
+            let host = process.env.PUBLIC_UPLOAD_LINK1;
             insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
             insertResult.token = token
 
