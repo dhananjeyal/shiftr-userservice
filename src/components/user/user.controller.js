@@ -359,15 +359,14 @@ class UserController extends BaseController {
                         .insertGraph(contactInfodetailsData);
                 }
 
-            }
-
-            if (screenType == WebscreenType.COMPANY) {
+            }else if (screenType == WebscreenType.COMPANY) {
                 // Insert user details
                 await UserDetails.query()
                     .where('SRU03_USER_MASTER_D', userId)
                     .update({
                         SRU04_COMPANY_NAME_N: compnayName,
                         SRU04_NUMBER_OF_BUSES_R: numberofBuses,
+                        SRU04_EMERGENCY_PHONE_NO: emergency || "",
                         SRU04_UPDATED_D: userId
                     });
 
@@ -384,9 +383,7 @@ class UserController extends BaseController {
                         SRU06_LOCATION_LONGITUDE_N: longitude,
                         SRU06_UPDATED_D: userId
                     });
-            }
-
-            if (screenType == WebscreenType.SETTINGS) {
+            } else if (screenType == WebscreenType.SETTINGS) {
                 // Update UserDetails
                 await UserDetails.query()
                     .where('SRU03_USER_MASTER_D', userId)
