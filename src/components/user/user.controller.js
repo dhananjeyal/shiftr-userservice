@@ -95,8 +95,14 @@ class UserController extends BaseController {
             insertResult.beamstoken = token
 
 
-
-            this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
+            // TODO: Send the mail
+            mailer.signUp(
+                insertResult.firstName,
+                insertResult.emailId,
+                insertResult.verifyEmailLink
+            );
+            
+            this.success(req, res, this.status.HTTP_OK, {...insertResult}, this.messageTypes.passMessages.userCreated);
 
             //push notification
             let notifyData = {
@@ -112,13 +118,6 @@ class UserController extends BaseController {
 
             req.headers['authorization'] = `Bearer ${auth}`;
             await NotifyService.sendNotication(req, res, notifyData)
-
-            // TODO: Send the mail
-            await mailer.signUp(
-                insertResult.firstName,
-                insertResult.emailId,
-                insertResult.verifyEmailLink
-            );
 
             //Admin Notification
             return await mailer.adminSignupnotification(
