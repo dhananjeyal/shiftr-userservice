@@ -43,8 +43,8 @@ function registerRoutes() {
         apiRouter.route("/driver/fetch_master").get(DriverController.getMasterData);
 
         let verifyAny = AuthController.verifyAny;
-        apiRouter.route("/driver/profilepicture").post(verifyAny, profileUpload, DriverController.profileUpload);
-        apiRouter.route("/driver/profilepicture").delete(verifyAny,DriverController.profileimageDelete);
+        apiRouter.route("/driver/profilepicture").post(profileUpload, DriverController.profileUpload);
+        apiRouter.route("/driver/profilepicture").delete(DriverController.profileimageDelete);
     };
 }
 

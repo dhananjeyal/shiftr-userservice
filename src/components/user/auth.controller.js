@@ -3,7 +3,9 @@ import Users from '../user/model/user.model'
 import jwt from 'jsonwebtoken';
 import { columns, userAddressColumns, userDetailsColumns, contactInfoDetailsColumns } from "./model/user.columns";
 import { UserRole, booleanType } from '../../constants'
-import { decrypt, encrypt, aesEncrpt, aesDecrpt } from "../../utils/cipher";
+import { s3GetSignedURL } from "../../middleware/multer";
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+
 
 class AuthController extends BaseController {
 
@@ -39,6 +41,8 @@ class AuthController extends BaseController {
                                     }).select(columns);
 
                                 if (user) {
+                                    if (AWS_ACCESS_KEY && user.userDetails && user.userDetails.userProfileImage)
+                                        user.userDetails = await s3GetSignedURL(user.userDetails.userProfileImage)
                                     req.user = user;
                                     next();
                                 } else {

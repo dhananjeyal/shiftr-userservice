@@ -22,6 +22,8 @@ import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
 import Contactus from "./model/contactus.model";
 import DriverLicenses from "./model/driverLicenses.model";
+import { s3GetSignedURL } from "../../middleware/multer";
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
 
 class UserController extends BaseController {
 
@@ -359,7 +361,7 @@ class UserController extends BaseController {
                         .insertGraph(contactInfodetailsData);
                 }
 
-            }else if (screenType == WebscreenType.COMPANY) {
+            } else if (screenType == WebscreenType.COMPANY) {
                 // Insert user details
                 await UserDetails.query()
                     .where('SRU03_USER_MASTER_D', userId)
@@ -1039,7 +1041,9 @@ class UserController extends BaseController {
 
                     if (emailStatus === EmailStatus.VERIFIED) {
 
-                        return new Promise((resolve) => {
+                        return new Promise(async (resolve) => {
+                            if (AWS_ACCESS_KEY && result.userDetails && result.userDetails.userProfileImage)
+                                result.userDetails.userProfileImage = await s3GetSignedURL(result.userDetails.userProfileImage)
                             resolve(result);
                         });
                     } else {
@@ -1681,6 +1685,11 @@ class UserController extends BaseController {
             if (allUserList && !allUserList.length) {
                 allUserList = await this._getunmatchedUserList(req, res);//call back function
             }
+            if (AWS_ACCESS_KEY && matchingUserList && matchingUserList.length)
+                await Promise.all(matchingUserList.map(async (dri) => {
+                    if (dri.userDetails && dri.userDetails.userprofile)
+                        dri.userDetails.userprofile = await s3GetSignedURL(dri.userDetails.userprofile)
+                }))
 
             let result = {
                 matchingUserList,
@@ -2366,7 +2375,7 @@ class UserController extends BaseController {
                 .where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                 .pluck('SRU03_USER_MASTER_D');
 
-            const allUserList = await Users.query()
+            let allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .where('SRU03_STATUS_D', UserStatus.ACTIVE)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
@@ -2388,6 +2397,12 @@ class UserController extends BaseController {
                 }).modifyEager('driverlicensesList', (builder) => {
                     builder.select(driverLicenseList)
                 }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+            if (AWS_ACCESS_KEY && allUserList && allUserList.length)
+                allUserList = await Promise.all(allUserList.map(async (user) => {
+                    if (user.userDetails && user.userDetails.userprofile)
+                        user.userDetails.userprofile = await s3GetSignedURL(user.userDetails.userprofile)
+                    return user
+                }))
             return allUserList;
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -2604,6 +2619,8 @@ class UserController extends BaseController {
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
                 }).select(usersColumns);
+            if (AWS_ACCESS_KEY && alluserDetails.userDetails && alluserDetails.userDetails.userprofile)
+                alluserDetails.userDetails.userprofile = await s3GetSignedURL(alluserDetails.userDetails.userprofile)
             return alluserDetails;
         } catch (e) {
 

@@ -36,6 +36,7 @@ import { provinceColumns } from '../masterdetails/model/location.columns';
 import NotifyService from "../../services/notifyServices";
 import BoardingService from "../../services/boardingServices";
 import { s3GetSignedURL } from "../../middleware/multer"
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
 
 class DriverController extends BaseController {
 
@@ -89,7 +90,7 @@ class DriverController extends BaseController {
                     .delete()
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             }
-
+            
             //Format data
             phones.map((data, index) => {
                 phoneNumbers.push({
@@ -883,9 +884,18 @@ class DriverController extends BaseController {
             if (driver) {
                 delete driver.password;
                 return new Promise(async (resolve) => {
-                    if (process.env.AWS_ACCESS_KEY && driver.userDetails && (driver.userDetails.userprofile || driver.userDetails.profilePicture)) {
-                        driver.userDetails.userprofile = driver.userDetails.userprofile && await s3GetSignedURL(driver.userDetails.userprofile)
-                        driver.userDetails.profilePicture = driver.userDetails.profilePicture && await s3GetSignedURL(driver.userDetails.profilePicture)
+                    if (AWS_ACCESS_KEY) {
+                        if (driver.userDetails && (driver.userDetails.userprofile || driver.userDetails.profilePicture)) {
+                            driver.userDetails.userprofile = driver.userDetails.userprofile && await s3GetSignedURL(driver.userDetails.userprofile)
+                            driver.userDetails.profilePicture = driver.userDetails.profilePicture && await s3GetSignedURL(driver.userDetails.profilePicture)
+                        }
+                        if (driver.documents && driver.documents.length) {
+                            driver.documents = await Promise.all(driver.documents.map(async (doc) => {
+                                if (doc.path)
+                                    doc.path = await s3GetSignedURL(doc.path)
+                                return doc
+                            }))
+                        }
                     }
                     resolve(driver);
                 });

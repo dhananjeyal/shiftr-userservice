@@ -3,10 +3,10 @@ const path = require('path');
 const multerS3 = require('multer-s3');
 const aws = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
-console.log(uuidv4());
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
 aws.config.update({
     secretAccessKey: process.env.AWS_SECRET_KEY, // ,
-    accessKeyId: process.env.AWS_ACCESS_KEY, // process.env.ACCESS_KEY,
+    accessKeyId: AWS_ACCESS_KEY, // process.env.ACCESS_KEY,
     region: process.env.AWS_REGION, // process.env.REGION
     signatureVersion: "v4"
 })
@@ -94,7 +94,7 @@ function validateFile(req, res, next) {
                                 .filter((item) => item ? item : null);
                             filePath.forEach((item, index) => {
                                 if (index + 1 === filePath.length) {
-                                    if (true) holder[item] = file.location
+                                    if (AWS_ACCESS_KEY) holder[item] = file.key.split('/')[1]
                                     else holder[item] = `${process.env.PUBLIC_UPLOAD_LINK1}${file.destination.replace('.', '')}${file.filename}`;
                                 } else {
                                     if (!holder[item]) {

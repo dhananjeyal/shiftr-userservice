@@ -117,10 +117,8 @@ const schemas = {
 };
 
 export const CreateDriverProfile = async (req, res, next) => {
-
     let option = options.basic;
     const File = await validateFile(req, res, next)
-    console.log(File, "File");
     // Validate file
     if (File) {
         console.log(req.body);
@@ -184,9 +182,10 @@ export const updateDriverProfile = (req, res, next) => {
 /**
  * Financial Details - Mobile APP
  */
-export const financialDetails = (req, res, next) => {
+export const financialDetails = async (req, res, next) => {
     // Validate file
-    if (validateFile(req, res)) {
+    const File = await validateFile(req, res, next)
+    if (File) {
         let schema = schemas.financialDetails(req.body);
         let option = options.basic;
         schema.validate({
@@ -212,7 +211,7 @@ export const financialDetails = (req, res, next) => {
 /**
  * Upload Driver Documents - MobileApp
  */
-export const driverDocuments = (req, res, next) => {
+export const driverDocuments = async (req, res, next) => {
     // Validate file
     if (validateFile(req, res)) {
         let schema = schemas.driverDocuments;
@@ -242,9 +241,10 @@ export const driverDocuments = (req, res, next) => {
 /**
  * Upload Driver Documents - MobileApp
  */
-export const documentUpload = (req, res, next) => {
+export const documentUpload = async (req, res, next) => {
     // Validate file
-    if (validateFile(req, res)) {
+    const File = await validateFile(req, res, next)
+    if (File) {
         let schema = schemas.documentUpload;
         let option = options.basic;
         schema.validate({
@@ -260,9 +260,10 @@ export const documentUpload = (req, res, next) => {
 /**
  * Upload Profile Picture - MobileApp
  */
-export const profileUpload = (req, res, next) => {
+export const profileUpload = async (req, res, next) => {
     // Validate file
-    if (validateFile(req, res)) {
+    const File = await validateFile(req, res, next)
+    if (File) {
         let schema = schemas.profileUpload;
         let option = options.basic;
         schema.validate({
