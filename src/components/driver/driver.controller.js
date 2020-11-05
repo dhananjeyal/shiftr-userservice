@@ -949,7 +949,7 @@ class DriverController extends BaseController {
 
             if (driver) {
                 delete driver.password;
-                return new Promise((resolve) => {
+                return new Promise(async(resolve) => {
                     if (AWS_ACCESS_KEY) {
                         if (driver.userDetails && (driver.userDetails.userprofile || driver.userDetails.profilePicture)) {
                             driver.userDetails.userprofile = driver.userDetails.userprofile && await s3GetSignedURL(driver.userDetails.userprofile)
