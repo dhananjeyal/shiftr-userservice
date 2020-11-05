@@ -42,7 +42,7 @@ class AuthController extends BaseController {
 
                                 if (user) {
                                     if (AWS_ACCESS_KEY && user.userDetails && user.userDetails.userProfileImage)
-                                        user.userDetails = await s3GetSignedURL(user.userDetails.userProfileImage)
+                                        user.userDetails.userProfileImage = await s3GetSignedURL(user.userDetails.userProfileImage)
                                     req.user = user;
                                     next();
                                 } else {
