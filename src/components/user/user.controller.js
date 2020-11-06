@@ -876,8 +876,8 @@ class UserController extends BaseController {
                                         type: 'login'
                                     }, process.env.JWT_SECRET, { expiresIn: 86400 });
 
-                                    req.headers['authorization'] = aesEncrpt(`Bearer ${token}`);
-                                    await NotifyService.sendNotication(req, res, notifyData)
+                                    req.headers['authorization'] = `Bearer ${token}`;
+                                    NotifyService.sendNotication(req, res, notifyData)
                                 }
 
                                 await mailer.emailVerified(result);
