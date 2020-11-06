@@ -158,7 +158,7 @@ class DriverController extends BaseController {
 
             //status - Check
             if (UserDetailsResponse &&
-                (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || userDetails.signUpStatus != SignUpStatus.VERIFIED || userDetails.signUpStatus != SignUpStatus.ACTIVE)) {
+                (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || UserDetailsResponse.signUpStatus != SignUpStatus.VERIFIED || UserDetailsResponse.signUpStatus != SignUpStatus.ACTIVE)) {
                 let signupStatus;
 
                 if (UserDetailsResponse.signUpStatus == SignUpStatus.PERSONAL_DETAILS) {
