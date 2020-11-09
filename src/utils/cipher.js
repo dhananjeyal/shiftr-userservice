@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const cryptLib = require('@skavinvarnan/cryptlib');
 
-exports.encrypt = (inputString) => {
+const encrypt = (inputString) => {
     try {
         // Difining algorithm 
         const algorithm = 'aes-256-cbc';
@@ -28,7 +28,7 @@ exports.encrypt = (inputString) => {
     }
 };
 
-exports.decrypt = (inputString) => {
+const decrypt = (inputString) => {
     try {
         // Difining algorithm 
         const algorithm = 'aes-256-cbc';
