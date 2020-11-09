@@ -22,6 +22,8 @@ import ContactInfo from "../driver/model/contactInfo.model";
 import Language from "../driver/model/language.model";
 import Contactus from "./model/contactus.model";
 import DriverLicenses from "./model/driverLicenses.model";
+import { s3GetSignedURL } from "../../middleware/multer";
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
 
 class UserController extends BaseController {
 
@@ -93,8 +95,14 @@ class UserController extends BaseController {
             insertResult.beamstoken = token
 
 
-
-            this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
+            // TODO: Send the mail
+            mailer.signUp(
+                insertResult.firstName,
+                insertResult.emailId,
+                insertResult.verifyEmailLink
+            );
+            
+            this.success(req, res, this.status.HTTP_OK, {...insertResult}, this.messageTypes.passMessages.userCreated);
 
             //push notification
             let notifyData = {
@@ -110,13 +118,6 @@ class UserController extends BaseController {
 
             req.headers['authorization'] = `Bearer ${auth}`;
             await NotifyService.sendNotication(req, res, notifyData)
-
-            // TODO: Send the mail
-            await mailer.signUp(
-                insertResult.firstName,
-                insertResult.emailId,
-                insertResult.verifyEmailLink
-            );
 
             //Admin Notification
             return await mailer.adminSignupnotification(
@@ -286,7 +287,8 @@ class UserController extends BaseController {
                 longitude,
                 userprofile,
                 notificationflag,
-                phone
+                phone,
+                emergency
             } = req.body;
 
             if (screenType == WebscreenType.PROFILE) {
@@ -305,7 +307,8 @@ class UserController extends BaseController {
                         .where('SRU03_USER_MASTER_D', userId)
                         .update({
                             SRU04_PROFILE_I: userprofile,
-                            SRU04_UPDATED_D: req.user.userId
+                            SRU04_UPDATED_D: req.user.userId,
+                            SRU04_EMERGENCY_PHONE_NO: emergency || ""
                         });
                 }
 
@@ -357,15 +360,14 @@ class UserController extends BaseController {
                         .insertGraph(contactInfodetailsData);
                 }
 
-            }
-
-            if (screenType == WebscreenType.COMPANY) {
+            } else if (screenType == WebscreenType.COMPANY) {
                 // Insert user details
                 await UserDetails.query()
                     .where('SRU03_USER_MASTER_D', userId)
                     .update({
                         SRU04_COMPANY_NAME_N: compnayName,
                         SRU04_NUMBER_OF_BUSES_R: numberofBuses,
+                        SRU04_EMERGENCY_PHONE_NO: emergency || "",
                         SRU04_UPDATED_D: userId
                     });
 
@@ -382,9 +384,7 @@ class UserController extends BaseController {
                         SRU06_LOCATION_LONGITUDE_N: longitude,
                         SRU06_UPDATED_D: userId
                     });
-            }
-
-            if (screenType == WebscreenType.SETTINGS) {
+            } else if (screenType == WebscreenType.SETTINGS) {
                 // Update UserDetails
                 await UserDetails.query()
                     .where('SRU03_USER_MASTER_D', userId)
@@ -585,6 +585,7 @@ class UserController extends BaseController {
         try {
             const userId = req.body.userData.userId;
             const tripDetails = req.body.tripDetails;
+            const type = req.body.type;
             let user = await Users.query()
                 .select(userEmailDetails)
                 .where("SRU03_USER_MASTER_D", userId);
@@ -592,7 +593,9 @@ class UserController extends BaseController {
             if (!tripDetails.noMatchFound) {
                 mailer.notifyBusOwner(
                     user[0],
-                    tripDetails
+                    tripDetails,
+                    type
+
                 );
             } else {
                 mailer.busOwnerEmail(
@@ -741,10 +744,7 @@ class UserController extends BaseController {
                             // , { expiresIn: 86400 }
                         );
 
-                        //AES  token encryption
-                        let encryptToken = aesEncrpt(`Bearer ${token}`);
-
-                        result.token = encryptToken;
+                        result.token = `Bearer ${token}`;
 
                         // delete result.userDetails;
                         delete result.password;
@@ -819,7 +819,7 @@ class UserController extends BaseController {
                 return await mailer.forgetPassword({
                     firstName: result.firstName,
                     emailId: result.emailId,
-                    userTpe:result.typeId
+                    userTpe: result.typeId
                 }, resetLink)
             }
 
@@ -876,8 +876,8 @@ class UserController extends BaseController {
                                         type: 'login'
                                     }, process.env.JWT_SECRET, { expiresIn: 86400 });
 
-                                    req.headers['authorization'] = aesEncrpt(`Bearer ${token}`);
-                                    await NotifyService.sendNotication(req, res, notifyData)
+                                    req.headers['authorization'] = `Bearer ${token}`;
+                                    NotifyService.sendNotication(req, res, notifyData)
                                 }
 
                                 await mailer.emailVerified(result);
@@ -1040,7 +1040,9 @@ class UserController extends BaseController {
 
                     if (emailStatus === EmailStatus.VERIFIED) {
 
-                        return new Promise((resolve) => {
+                        return new Promise(async (resolve) => {
+                            if (AWS_ACCESS_KEY && result.userDetails && result.userDetails.userProfileImage)
+                                result.userDetails.userProfileImage = await s3GetSignedURL(result.userDetails.userProfileImage)
                             resolve(result);
                         });
                     } else {
@@ -1682,6 +1684,11 @@ class UserController extends BaseController {
             if (allUserList && !allUserList.length) {
                 allUserList = await this._getunmatchedUserList(req, res);//call back function
             }
+            if (AWS_ACCESS_KEY && matchingUserList && matchingUserList.length)
+                await Promise.all(matchingUserList.map(async (dri) => {
+                    if (dri.userDetails && dri.userDetails.userprofile)
+                        dri.userDetails.userprofile = await s3GetSignedURL(dri.userDetails.userprofile)
+                }))
 
             let result = {
                 matchingUserList,
@@ -2367,7 +2374,7 @@ class UserController extends BaseController {
                 .where('SRU04_SIGNUP_STATUS_D', DocumentStatus.VERIFIED)
                 .pluck('SRU03_USER_MASTER_D');
 
-            const allUserList = await Users.query()
+            let allUserList = await Users.query()
                 .whereIn('SRU03_USER_MASTER_D', userIdlist)
                 .where('SRU03_STATUS_D', UserStatus.ACTIVE)
                 .eager(`[userDetails, driverspecialityDetails.[specialityExpDetails, SpecialityTrainingDetails], driverlicensesList]`)
@@ -2389,6 +2396,12 @@ class UserController extends BaseController {
                 }).modifyEager('driverlicensesList', (builder) => {
                     builder.select(driverLicenseList)
                 }).omit(SpecialityDetails, omitDriverSpecialityColumns).select(usersColumns);
+            if (AWS_ACCESS_KEY && allUserList && allUserList.length)
+                allUserList = await Promise.all(allUserList.map(async (user) => {
+                    if (user.userDetails && user.userDetails.userprofile)
+                        user.userDetails.userprofile = await s3GetSignedURL(user.userDetails.userprofile)
+                    return user
+                }))
             return allUserList;
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -2556,13 +2569,13 @@ class UserController extends BaseController {
                             totalTrips: data.totalTripType == booleanType.NO ? data.totalTrips : plandurationTypetext.UNLIMITED
                         });
                     }
-                // let notifyData = {
-            //     title: this.messageTypes.passMessages.title,
-            //     message: this.messageTypes.passMessages.emailVerified,
-            //     body: "ShiftR Welcomes You, Email verified Successfully",
-            //     type: NotifyType.VERIFY_EMAIL
-            // }
-            // await NotifyService.sendNotication(req, res, notifyData)
+                    // let notifyData = {
+                    //     title: this.messageTypes.passMessages.title,
+                    //     message: this.messageTypes.passMessages.emailVerified,
+                    //     body: "ShiftR Welcomes You, Email verified Successfully",
+                    //     type: NotifyType.VERIFY_EMAIL
+                    // }
+                    // await NotifyService.sendNotication(req, res, notifyData)
                 }
             }
 
@@ -2585,7 +2598,7 @@ class UserController extends BaseController {
                 }
             }
             this.success(req, res, this.status.HTTP_OK, {}, this.messageTypes.passMessages.successful);
-           
+
         } catch (e) {
             return this.internalServerError(req, res, e);
         }
@@ -2605,6 +2618,8 @@ class UserController extends BaseController {
                 .modifyEager('userDetails', (builder) => {
                     builder.select(tripUserDetailsColumns)
                 }).select(usersColumns);
+            if (AWS_ACCESS_KEY && alluserDetails.userDetails && alluserDetails.userDetails.userprofile)
+                alluserDetails.userDetails.userprofile = await s3GetSignedURL(alluserDetails.userDetails.userprofile)
             return alluserDetails;
         } catch (e) {
 

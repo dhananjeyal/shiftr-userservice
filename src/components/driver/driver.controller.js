@@ -1,29 +1,24 @@
 import BaseController from '../baseController';
-import LocationController from '../masterdetails/location.controller';
-import { raw } from 'objection'
 import Users from "../user/model/user.model";
-import { decrypt, encrypt } from "../../utils/cipher";
 import {
     AddressType,
     DocumentName,
     DocumentStatus,
     DocumentType,
     SignUpStatus,
-    phonenumbertype,
     CountryType,
     Typeofdistance,
     booleanType,
     UserRole,
     EmailStatus
 } from "../../constants";
-import { genHash, genHmac256, mailer } from "../../utils";
+import { mailer } from "../../utils";
 import UserDetails from "../user/model/userDetails.model";
 import AddressDetails from "../user/model/address.model";
 import FinancialDetails from "./model/financial.model";
 import UserDocument from "../user/model/userDocument.model";
 import { columns, userAddressColumns, userAddressWithType, userDocumentColumns, userFinancialColumns, contactInfoDetailsColumns, drivercontactInfoDetailsColumns, driverLicenseList } from "../user/model/user.columns";
 import { driverUserDetailsColumns, driverLicenseTypeColumns, driverExperienceColumns, driverSpecialityTrainingColumns, driverLanguageColumns, driverSpecialityDetailsColumns, experienceListColumns, validyearColumns, languageColumns, radiusColumns, radiusDetailsColumns, driverExperienceReference } from "./model/driver.columns";
-import { signUpStatus } from '../../utils/mailer';
 import ExperienceDetails from './model/experience.model';
 import ExperienceReferenceDetails from './model/experienceReference.model';
 import LicenseType from './model/licensetype.model';
@@ -40,9 +35,8 @@ import DriverLicenses from "../user/model/driverLicenses.model";
 import { provinceColumns } from '../masterdetails/model/location.columns';
 import NotifyService from "../../services/notifyServices";
 import BoardingService from "../../services/boardingServices";
-
-let profilePath = `http://${process.env.PUBLIC_UPLOAD_LINK}:${process.env.PORT}/`;
-
+import { s3GetSignedURL } from "../../middleware/multer"
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
 
 class DriverController extends BaseController {
 
@@ -96,7 +90,7 @@ class DriverController extends BaseController {
                     .delete()
                     .where('SRU03_USER_MASTER_D', ActiveUser.userId);
             }
-
+            
             //Format data
             phones.map((data, index) => {
                 phoneNumbers.push({
@@ -163,8 +157,8 @@ class DriverController extends BaseController {
             });
 
             //status - Check
-            if (UserDetailsResponse  &&
-                (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || userDetails.signUpStatus != SignUpStatus.VERIFIED || userDetails.signUpStatus != SignUpStatus.ACTIVE)) {
+            if (UserDetailsResponse &&
+                (UserDetailsResponse.signUpStatus != SignUpStatus.COMPLETED || UserDetailsResponse.signUpStatus != SignUpStatus.VERIFIED || UserDetailsResponse.signUpStatus != SignUpStatus.ACTIVE)) {
                 let signupStatus;
 
                 if (UserDetailsResponse.signUpStatus == SignUpStatus.PERSONAL_DETAILS) {
@@ -731,6 +725,15 @@ class DriverController extends BaseController {
                     signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
                 } else if (rowExists.length >= booleanType.YES) {
                     signupStatus = SignUpStatus.COMPLETED;
+                    //push notification
+                    let notifyData = {
+                        title: this.messageTypes.passMessages.title,
+                        message: this.messageTypes.passMessages.driverFlowfinished,
+                        body: this.messageTypes.passMessages.driverFlowfinished,
+                        type: NotifyType.ACTIVATE_USER,
+                        toAdmin: true
+                    }
+                    NotifyService.sendNotication(req, res, notifyData)
                 } else {
                     signupStatus = SignUpStatus.DRIVER_DOCUMENTS;
                 }
@@ -880,7 +883,20 @@ class DriverController extends BaseController {
 
             if (driver) {
                 delete driver.password;
-                return new Promise((resolve) => {
+                return new Promise(async (resolve) => {
+                    if (AWS_ACCESS_KEY) {
+                        if (driver.userDetails && (driver.userDetails.userprofile || driver.userDetails.profilePicture)) {
+                            driver.userDetails.userprofile = driver.userDetails.userprofile && await s3GetSignedURL(driver.userDetails.userprofile)
+                            driver.userDetails.profilePicture = driver.userDetails.profilePicture && await s3GetSignedURL(driver.userDetails.profilePicture)
+                        }
+                        if (driver.documents && driver.documents.length) {
+                            driver.documents = await Promise.all(driver.documents.map(async (doc) => {
+                                if (doc.path)
+                                    doc.path = await s3GetSignedURL(doc.path)
+                                return doc
+                            }))
+                        }
+                    }
                     resolve(driver);
                 });
             } else {
@@ -933,7 +949,20 @@ class DriverController extends BaseController {
 
             if (driver) {
                 delete driver.password;
-                return new Promise((resolve) => {
+                return new Promise(async(resolve) => {
+                    if (AWS_ACCESS_KEY) {
+                        if (driver.userDetails && (driver.userDetails.userprofile || driver.userDetails.profilePicture)) {
+                            driver.userDetails.userprofile = driver.userDetails.userprofile && await s3GetSignedURL(driver.userDetails.userprofile)
+                            driver.userDetails.profilePicture = driver.userDetails.profilePicture && await s3GetSignedURL(driver.userDetails.profilePicture)
+                        }
+                        if (driver.documents && driver.documents.length) {
+                            driver.documents = await Promise.all(driver.documents.map(async (doc) => {
+                                if (doc.path)
+                                    doc.path = await s3GetSignedURL(doc.path)
+                                return doc
+                            }))
+                        }
+                    }
                     resolve(driver);
                 });
             } else {
@@ -960,18 +989,18 @@ class DriverController extends BaseController {
             const experienceList = await ExperienceList.query().select(experienceListColumns);
             const validYear = await Validyear.query().select(validyearColumns);
             let languageList = await AllLanguages.query().orderBy('languageName', 'ASC').select(languageColumns);
-            
+
             let preferredLanguage = languageList.filter(el => {
                 return el.languageId == 1 || el.languageId == 3
             })
 
             languageList.forEach((el, idx, arr) => {
-                if(el.languageId == 1 || el.languageId == 3)
+                if (el.languageId == 1 || el.languageId == 3)
                     languageList.splice(idx, 1);
             })
 
             languageList = [...preferredLanguage, ...languageList];
-            
+
             //State List - Canada
             let canadaprovinceList = await Province.query().select(provinceColumns)
                 .where('SRU15_COUNTRY_D', CountryType.CANADA_LIST)

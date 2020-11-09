@@ -62,7 +62,7 @@ export class SignUpStatus {
     static DRIVER_DOCUMENTS = 7;
     static FINANCIAL_DETAILS = 8;
     static COMPLETED = 9;
-    static SC_VERIFICATION = 10;    
+    static SC_VERIFICATION = 10;
 }
 
 export class EmailStatus {
@@ -88,30 +88,26 @@ export class booleanType {
     static NO = 0;
 }
 
-export class screeningcanadastatus {
-    static FILE_COMPLETED = 'file.completed';    
-}
-
 export class phonenumbertype {
-    static OFFICE = 19;    
-    static PERSONAL = 20;    
-    static HOME = 21;    
+    static OFFICE = 19;
+    static PERSONAL = 20;
+    static HOME = 21;
 }
 
 export class WebscreenType {
-    static PROFILE = 1;    
+    static PROFILE = 1;
     static COMPANY = 2;
-    static SETTINGS = 3;     
+    static SETTINGS = 3;
 }
 
 export class licenseType {
-    static CANADA = 1;    
+    static CANADA = 1;
     static USA = 2;
-    static BOTH = 3;     
+    static BOTH = 3;
 }
 
 export class Typeofdistance {
-    static KM = 22;    
+    static KM = 22;
     static MILES = 23;
     static DEFAULTKM = 1.6;  // 1miles   = 1.6 KM 
 }
@@ -151,3 +147,4 @@ export class encryptionSecret {
     static SALTKEY = "06fe746c4d7174b827e5599eac0e26f2";
 }
 
+export const encryptKeys = ['password', 'emailId', 'newPassword', 'tempPassword', 'firstName', 'lastName', 'phoneNo', 'phoneNumber', 'age', 'phone'];

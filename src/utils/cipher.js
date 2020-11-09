@@ -1,33 +1,64 @@
 const crypto = require('crypto');
 const cryptLib = require('@skavinvarnan/cryptlib');
 
-const encrypt = (inputString, password = "dummy_password") => {
+const encrypt = (inputString) => {
     try {
-        const key = crypto.createCipher('aes-128-cbc', password);
-        const encodedString = key.update(inputString, 'utf8', 'hex');
-        return encodedString + key.final('hex');
+        // Difining algorithm 
+        const algorithm = 'aes-256-cbc';
+        // Defining key 
+        const key = Buffer.from(process.env.ENCRYPT_KEY.slice(0, 32));
+        // Defining iv 
+        const iv = Buffer.from(process.env.ENCRYPT_KEY_IV.slice(0, 16));
+
+        // Creating Cipheriv with its parameter 
+        let cipher =
+            crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+
+        // Updating text 
+        let encrypted = cipher.update(inputString);
+
+        // Using concatenation 
+        encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+        // Returning encrypted data 
+        return encrypted.toString('hex');
     } catch (e) {
-        info("Invalid input string or password.");
+        console.log(error);
         // Ignore invalid input string or password
     }
 };
 
-const decrypt = (inputString, password = "dummy_password") => {
+const decrypt = (inputString) => {
     try {
-        const key = crypto.createDecipher('aes-128-cbc', password);
-        const decodedString = key.update(inputString, 'hex', 'utf8');
-        return decodedString + key.final('utf8');
-    } catch (e) {
-        info("Invalid input string or password.");
-        // Ignore invalid input string or password
+        // Difining algorithm 
+        const algorithm = 'aes-256-cbc';
+        let iv = Buffer.from(process.env.ENCRYPT_KEY_IV.slice(0, 16));
+        const key = Buffer.from(process.env.ENCRYPT_KEY.slice(0, 32));
+
+        iv = Buffer.from(iv.toString('hex'), 'hex');
+        let encryptedText =
+            Buffer.from(inputString, 'hex');
+
+        // Creating Decipher 
+        let decipher = crypto.createDecipheriv(
+            algorithm, Buffer.from(key), iv);
+
+        // Updating encrypted text 
+        let decrypted = decipher.update(encryptedText);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+        // returns data after decryption 
+        return decrypted.toString();
+
+
+    } catch (error) {
+        console.log(error);
     }
 };
 
 const aesEncrpt = (value, key = process.env.AES_ENCRPT_KEY) => {
     try {
-        if (process.env.VAPT && Number(process.env.VAPT))
-            return cryptLib.encryptPlainTextWithRandomIV(value, key);
-        return value
+        return cryptLib.encryptPlainTextWithRandomIV(value, key);
     } catch (error) {
         console.log(error);
     }
@@ -35,9 +66,7 @@ const aesEncrpt = (value, key = process.env.AES_ENCRPT_KEY) => {
 
 const aesDecrpt = (value, key = process.env.AES_ENCRPT_KEY) => {
     try {
-        if (process.env.VAPT && Number(process.env.VAPT))
-            return cryptLib.decryptCipherTextWithRandomIV(value, key);
-        return value
+        return cryptLib.decryptCipherTextWithRandomIV(value, key);
     } catch (error) {
         console.log(error);
     }

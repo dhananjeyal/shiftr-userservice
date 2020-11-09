@@ -144,7 +144,7 @@ export const activateDeactivate = (user) => {
                     <p>You can now login to your account.</p>
                     <p>Regards</p>
                     <p>Shiftr Support</p>`;
-    let subject = "Account Activated";
+    let subject = "Account Reactivate";
     if (user.status === UserStatus.INACTIVE) {
         html = `<b>${userName},</b>
                 <p>Your Shiftr account has been suspended by Admin.</p>
@@ -187,9 +187,9 @@ export const resetPassword = (user) => {
     return sendMail(user.emailId, "Password Reset", 'emailTemp', { mailContent: html }, true)
 };
 // <p>Trip start yard:- ${tripDetails.startYard}</p>
-export const notifyBusOwner = (user, tripDetails) => {
+export const notifyBusOwner = (user, tripDetails, type) => {
     let html = `<b>Hello ${user.firstName},</b>
-                    <p>Your trip schedule for ${tripDetails.startDate} ${tripDetails.startTime} ${tripDetails.tripDestination} has been canceled by the Driver. Please contact the driver for more details.</p>
+                    <p>Your trip schedule for ${moment(tripDetails.startDate).format('DD/MM/YYYY')} ${tripDetails.startTime} ${tripDetails.tripDestination} has been cancelled by the Driver. Please contact the driver for more details.</p>
                     <p><b>Trip Details:-</b></p>
                     <p>Company name:- ${tripDetails.companyName}</p>
                     <p>Trip code:- ${tripDetails.tripCode}</p>
@@ -202,8 +202,25 @@ export const notifyBusOwner = (user, tripDetails) => {
                     <p>Driver contact:- ${tripDetails.driverPhoneNumber}</p>
                     <p>Driver address:- ${tripDetails.driverAddress}</p>
                     <p>Best regards</p>`;
+
+    if (type === UserRole.CUSTOMER_R) {
+            html = `<b>Hello ${user.firstName},</b>
+                    <p>Your trip schedule for ${moment(tripDetails.startDate).format('DD/MM/YYYY')} ${tripDetails.startTime} ${tripDetails.tripDestination} has been cancelled by the Carrier. Please contact the Carrier for more details.</p>
+                    <p><b>Trip Details:-</b></p>
+                    <p>Company name:- ${tripDetails.companyName}</p>
+                    <p>Trip code:- ${tripDetails.tripCode}</p>
+                    <p>Trip type:- ${tripDetails.type}</p>
+                    <p>Trip start date:- ${moment(tripDetails.startDate).format('DD/MM/YYYY')}</p>
+                    <p>Trip end date:- ${moment(tripDetails.endDate).format('DD/MM/YYYY')}</p>
+                    <p>Trip start time:- ${tripDetails.startTime}</p>
+                    <p><b>Carrier Details:-</b></p>
+                    <p>Carrier name:- ${tripDetails.driverFirstName} ${tripDetails.driverLastName}</p>
+                    <p>Carrier contact:- ${tripDetails.driverPhoneNumber}</p>
+                    <p>Carrier address:- ${tripDetails.driverAddress}</p>
+                    <p>Best regards</p>`;
+    }
     hbsOptions.viewEngine.defaultLayout = 'emailTemp'
-    return sendMail(user.emailId, "Notify Bus Owner", 'emailTemp', { mailContent: html }, true)
+    return sendMail(user.emailId, "Trip Cancellation", 'emailTemp', { mailContent: html }, true)
 };
 export const busOwnerEmail = (user, tripDetails, message) => {
     let html = `<b>Hello ${user.firstName},</b>
@@ -233,11 +250,11 @@ export const superAdminEmail = (tripDetails, message) => {
 };
 export const subscriptionNotification = (payload) => {
     let html = `<b>Hello ${payload.username},</b>
-                    <p>Welcome to shiftR ! Thank you for the subscription.!</p>                   
+                    <p>Welcome to shiftR ! Thank you for the subscription!</p>                   
                     <p><b>Plan Details:-</b></p>
                     <p>companyName:- ${payload.companyName}</p>
                     <p>Plan Type:- ${payload.planType}</p>
-                    <p>Plan Category(Monthly/Yearly):- ${payload.planDurationType}</p>
+                    <p>Plan Category(YEAR/MONTH):- ${payload.planDurationType}</p>
                     <p>Plan startdate:- ${payload.startdate}</p>
                     <p>plan enddate:- ${payload.expirydate}</p>
                     <p>TotalTrips:- ${payload.totalTrips}</p>

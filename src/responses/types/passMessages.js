@@ -12,5 +12,6 @@ module.exports = {
     deactivateUser: "You account has been deactivated now!",
     completeSignup: "Your Signup has been completed !Thank You for the signup!",
     title: "ShiftR",
-    updatedSuccessfully : "Updated successfully"
+    updatedSuccessfully : "Updated successfully",
+    driverFlowfinished: "Driver successfully completes the registration"
 };

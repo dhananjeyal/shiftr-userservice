@@ -2,9 +2,11 @@ import BaseJoi from 'joi';
 import joinDateExtension from 'joi-date-extensions';
 import Response from '../../responses/response';
 import { options } from "../user/user.validators";
-import { Gender, UserRole, booleanType, licenseType } from "../../constants";
-import { validateFile } from "../../utils";
-
+import { booleanType } from "../../constants";
+import { validateFile, s3GetSignedURL } from "../../middleware/multer";
+// (async()=>{
+//     console.log(await s3GetSignedURL('424bd9d27d56403fb58311e8598f178e.png'));
+// })()
 const Joi = BaseJoi.extend(joinDateExtension);
 
 const CreateExperienceSchema = {
@@ -18,19 +20,6 @@ const CreateExperienceSchema = {
     }).required(),
     countryType: Joi.number().required()
 }
-
-const phone = {
-    phones: Joi.object({
-        phoneNumber: Joi.number().required()
-    })
-}
-
-const lang = {
-    languages: Joi.object({
-        language: Joi.number().required()
-    })
-}
-
 
 // add joi schema
 const schemas = {
@@ -127,11 +116,12 @@ const schemas = {
     }),
 };
 
-export const CreateDriverProfile = (req, res, next) => {
-
+export const CreateDriverProfile = async (req, res, next) => {
     let option = options.basic;
+    const File = await validateFile(req, res, next)
     // Validate file
-    if (validateFile(req, res)) {
+    if (File) {
+        console.log(req.body);
         let schema = schemas.CreateDriverProfile();
         schema.validate({
             ...req.body,
@@ -192,9 +182,10 @@ export const updateDriverProfile = (req, res, next) => {
 /**
  * Financial Details - Mobile APP
  */
-export const financialDetails = (req, res, next) => {
+export const financialDetails = async (req, res, next) => {
     // Validate file
-    if (validateFile(req, res)) {
+    const File = await validateFile(req, res, next)
+    if (File) {
         let schema = schemas.financialDetails(req.body);
         let option = options.basic;
         schema.validate({
@@ -220,7 +211,7 @@ export const financialDetails = (req, res, next) => {
 /**
  * Upload Driver Documents - MobileApp
  */
-export const driverDocuments = (req, res, next) => {
+export const driverDocuments = async (req, res, next) => {
     // Validate file
     if (validateFile(req, res)) {
         let schema = schemas.driverDocuments;
@@ -250,9 +241,10 @@ export const driverDocuments = (req, res, next) => {
 /**
  * Upload Driver Documents - MobileApp
  */
-export const documentUpload = (req, res, next) => {
+export const documentUpload = async (req, res, next) => {
     // Validate file
-    if (validateFile(req, res)) {
+    const File = await validateFile(req, res, next)
+    if (File) {
         let schema = schemas.documentUpload;
         let option = options.basic;
         schema.validate({
@@ -268,9 +260,10 @@ export const documentUpload = (req, res, next) => {
 /**
  * Upload Profile Picture - MobileApp
  */
-export const profileUpload = (req, res, next) => {
+export const profileUpload = async (req, res, next) => {
     // Validate file
-    if (validateFile(req, res)) {
+    const File = await validateFile(req, res, next)
+    if (File) {
         let schema = schemas.profileUpload;
         let option = options.basic;
         schema.validate({
@@ -286,7 +279,7 @@ export const profileUpload = (req, res, next) => {
 /**
  * Upload Profile Picture - MobileApp
  */
-export const deleteDocument = (req, res, next) => {        
+export const deleteDocument = (req, res, next) => {
     let schema = schemas.deleteDocument;
     let option = options.basic;
     schema.validate({

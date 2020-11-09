@@ -25,7 +25,8 @@ export let userDetailsColumns = [
     'SRU04_ACCEPTANCE_RATIO_R as acceptanceRatio',
     'SRU04_TRAVEL_LOGIN_STATUS_F as firsttimeLoginstatus',
     'SRU04_NOTIFICATION_SETTINGS_F as notificationSettings',
-    'SRU04_PROFILE_I as userProfileImage'
+    'SRU04_PROFILE_I as userProfileImage',
+    'SRU04_EMERGENCY_PHONE_NO as emergency'
 ];
 
 
@@ -149,12 +150,6 @@ export let userListColumns = [
     `${UsersDetails.tableName}.SRU04_EXPERIENCE_D as experience`,
     `${UsersDetails.tableName}.SRU04_LICENSE_TYPE_N as license`,
     `${UsersDetails.tableName}.SRU04_ACCEPTANCE_RATIO_R as acceptanceRatio`
-];
-
-export let screeningCanadastatus = [
-    'SRU09_SCREENING_CANADA_STATUS_D as SCstatusId',    
-    'SRU09_SC_USER_N as screeningcanadaUserId',
-    'SRU09_SC_STATUS_N as ScreeningCanadastatus'
 ];
 
 export let contactInfoDetailsColumns = [

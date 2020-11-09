@@ -9,7 +9,7 @@ module.exports = (app) => {
         require('./helmet'),
         require('./logger'),
         require('./errorHandler'),
-        require('./multer'),
+        // require('./multer'),
         require('./swagger'),
     )(app);
 };
