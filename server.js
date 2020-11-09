@@ -22,11 +22,6 @@ process.on('uncaughtException', function (err) {
     console.error(err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.log('Unhandled rejection at ', promise, `reason: ${reason}`)
-    process.exit(1)
-})
-
 app.listen(port, () => {
     info(
         chalk.blue(" [ ✓ ] ") +
