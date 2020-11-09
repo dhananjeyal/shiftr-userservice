@@ -14,5 +14,15 @@ module.exports = {
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
         port: process.env.DB_PORT
+    },
+    pool: {
+        min: 10,
+        max: 80,
+        propagateCreateError: false,
+        idleTimeoutMillis: 30000,
+        createTimeoutMillis: 10000,
+        acquireTimeoutMillis: 10000,
+        reapIntervalMillis: 1000,
+        createRetryIntervalMillis: 1000
     }
 };
