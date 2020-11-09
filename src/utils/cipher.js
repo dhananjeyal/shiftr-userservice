@@ -1,41 +1,39 @@
 const crypto = require('crypto');
 const cryptLib = require('@skavinvarnan/cryptlib');
 
-const encrypt = (inputString, password = "dummy_password") => {
+exports.encrypt = (inputString) => {
     try {
         // Difining algorithm 
         const algorithm = 'aes-256-cbc';
         // Defining key 
-        const key = Buffer.from(process.env.ENCRYPT_KEY);
+        const key = Buffer.from(process.env.ENCRYPT_KEY.slice(0, 32));
         // Defining iv 
-        const iv = Buffer.from(process.env.ENCRYPT_KEY_IV);
+        const iv = Buffer.from(process.env.ENCRYPT_KEY_IV.slice(0, 16));
 
         // Creating Cipheriv with its parameter 
         let cipher =
             crypto.createCipheriv(algorithm, Buffer.from(key), iv);
 
         // Updating text 
-        let encrypted = cipher.update(text);
+        let encrypted = cipher.update(inputString);
 
         // Using concatenation 
         encrypted = Buffer.concat([encrypted, cipher.final()]);
 
         // Returning encrypted data 
-        return {
-            encryptedData: encrypted.toString('hex')
-        };
-
-    } catch (error) {
+        return encrypted.toString('hex');
+    } catch (e) {
         console.log(error);
+        // Ignore invalid input string or password
     }
 };
 
-const decrypt = (inputString, password = "dummy_password") => {
+exports.decrypt = (inputString) => {
     try {
         // Difining algorithm 
         const algorithm = 'aes-256-cbc';
-        let iv = Buffer.from(process.env.ENCRYPT_KEY_IV);
-        const key = Buffer.from(process.env.ENCRYPT_KEY);
+        let iv = Buffer.from(process.env.ENCRYPT_KEY_IV.slice(0, 16));
+        const key = Buffer.from(process.env.ENCRYPT_KEY.slice(0, 32));
 
         iv = Buffer.from(iv.toString('hex'), 'hex');
         let encryptedText =
