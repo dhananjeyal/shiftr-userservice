@@ -16,13 +16,13 @@ module.exports = {
         port: process.env.DB_PORT
     },
     pool: {
-        min: 10,
-        max: 80,
+        min: 2,
+        max: 6,
         propagateCreateError: false,
         idleTimeoutMillis: 30000,
-        createTimeoutMillis: 10000,
-        acquireTimeoutMillis: 10000,
+        createTimeoutMillis: 3000,
+        acquireTimeoutMillis: 30000,
         reapIntervalMillis: 1000,
-        createRetryIntervalMillis: 1000
+        createRetryIntervalMillis: 100
     }
 };
