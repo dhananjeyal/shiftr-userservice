@@ -17,6 +17,16 @@ process.on("unhandledRejection", (reason, p) =>
     error("Unhandled Rejection at: Promise ", p, reason)
 );
 
+process.on('uncaughtException', function (err) {
+    console.log("Node NOT Exiting...");
+    console.error(err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('Unhandled rejection at ', promise, `reason: ${reason}`)
+    process.exit(1)
+})
+
 app.listen(port, () => {
     info(
         chalk.blue(" [ ✓ ] ") +
