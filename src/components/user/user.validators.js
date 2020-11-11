@@ -177,6 +177,9 @@ const schemas = {
     mobilenumberExist: Joi.object().keys({
         mobileNumber: Joi.number().required()
     }),
+    excel: Joi.object().keys({
+        users: Joi.array().required()
+    })
 };
 
 export const options = {
@@ -208,9 +211,9 @@ export const signUpUser = (req, res, next) => {
     //     req.body.lastName = aesEncrpt(req.body.lastName)
     // if (req.body.phoneNo)
     //     req.body.phoneNo = aesEncrpt(req.body.phoneNo)
-    
+
     // next();
-        
+
     let schema = schemas.signUpUser;
     let option = options.basic;
     schema.validate({
@@ -230,7 +233,7 @@ export const travelsSignup = (req, res, next) => {
     //     req.body.emailId = aesDecrpt(req.body.emailId)
     // if (req.body.password)
     //     req.body.password = aesDecrpt(req.body.password)
-        
+
     let schema = schemas.travelsSignup;
     let option = options.basic;
     schema.validate({
@@ -239,7 +242,7 @@ export const travelsSignup = (req, res, next) => {
     }, option).then(() => {
         next();
     }).catch(err => {
-        Response.joierrors(req, res, err,true);
+        Response.joierrors(req, res, err, true);
     });
 };
 
@@ -382,6 +385,22 @@ export const travelsUpdate = (req, res, next) => {
  */
 export const mobilenumberExist = (req, res, next) => {
     let schema = schemas.mobilenumberExist;
+    let option = options.basic;
+    schema.validate({
+        ...req.body
+    }, option).then(() => {
+        next();
+    }).catch(err => {
+        Response.joierrors(req, res, err);
+    });
+};
+
+
+/**
+ * Excel - Exist
+ */
+export const excel = (req, res, next) => {
+    let schema = schemas.excel;
     let option = options.basic;
     schema.validate({
         ...req.body
