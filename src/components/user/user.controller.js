@@ -7,9 +7,12 @@ import Users from './model/user.model'
 import UserDetails from './model/userDetails.model';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import EXCEL from 'exceljs';
+import axios from 'axios';
+import path from 'path';
 
-import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails, driverLicenseReport } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus, encryptionSecret } from "../../constants";
+import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails, driverLicenseReport, adminExcelColumns } from "./model/user.columns";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus, encryptionSecret, licenseType } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import NotifyService from "../../services/notifyServices";
@@ -101,8 +104,8 @@ class UserController extends BaseController {
                 insertResult.emailId,
                 insertResult.verifyEmailLink
             );
-            
-            this.success(req, res, this.status.HTTP_OK, {...insertResult}, this.messageTypes.passMessages.userCreated);
+
+            this.success(req, res, this.status.HTTP_OK, { ...insertResult }, this.messageTypes.passMessages.userCreated);
 
             //push notification
             let notifyData = {
@@ -852,7 +855,6 @@ class UserController extends BaseController {
                         result = result[0];
                         // Active status check
                         if (result.status === UserStatus.ACTIVE) {
-                            const path = require("path");
                             const indexFile = path.resolve('./public/templates/emails/verified.html');
 
                             if (result.userDetails.emailStatus === EmailStatus.PENDING) {
@@ -2760,6 +2762,162 @@ class UserController extends BaseController {
             return this.success(req, res, this.status.HTTP_OK, result, this.messageTypes.successMessages.successful);
         } catch (e) {
             return this.internalServerError(req, res, e);
+        }
+    };
+
+    generateExcel = async (req, res) => {
+        try {
+            let data, list = [];
+            const { users } = req.body;
+
+            let filename = Date.now();
+            let filepath = 'public/';
+            let workbook = new EXCEL.Workbook();
+
+            // data = await Users.query()
+            //     .whereIn(`${Users.tableName}.SRU03_USER_MASTER_D`, users)
+            //     .join(UserDetails.tableName,
+            //         `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
+            //         `${Users.tableName}.SRU03_USER_MASTER_D`
+            //     )
+            //     .leftJoin(UserDocument.tableName,
+            //         `${UserDocument.tableName}.SRU03_USER_MASTER_D`,
+            //         `${Users.tableName}.SRU03_USER_MASTER_D`)
+            //     .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`)
+            //     .select(adminExcelColumns);
+
+            data = await Users.query()
+                .whereIn(`${Users.tableName}.SRU03_USER_MASTER_D`, users)
+                .eager(`[userDetails,documents]`)
+                .modifyEager('userDetails', (builder) => {
+                    builder.select(`SRU04_PHONE_N as phoneNo`,)
+                })
+                .modifyEager('documents', (builder) => {
+                    builder.select('SRU05_DOCUMENT_I as path', 'SRU01_TYPE_D as docType')
+                })
+                .select(`SRU03_FIRST_N as firstName`,
+                    `SRU03_LAST_N as lastName`,
+                    `SRU03_EMAIL_N as emailId`);
+            // console.log(data);
+            let worksheet = workbook.addWorksheet('Users', {
+                properties: { tabColor: { argb: 'FFC0000' } },
+                pageSetup: {
+                    paperSize: 9,
+                    orientation: 'landscape'
+                }
+            });
+            let headerlist = ['FIRST NAME', 'LAST NAME', 'EMAIL_ID', 'PHONE', 'LICENSE TYPE', 'EXPERIENCE', 'LICENSE_DOCUMENT', 'CRIMINAL_DOCUMENT', 'ABSTRACT_DOCUMENT', 'CVOR_DOCUMENT'];
+            let headerdata = [];
+            headerlist.forEach(element => {
+                var result = {
+                    "header": element,
+                    "key": element,
+                    "width": 20,
+                    style: {
+                        font: {
+                            name: 'Arial Narrow',
+                            size: 9
+                        },
+                        alignment: {
+                            vertical: 'middle',
+                            horizontal: 'center',
+                            wrapText: true
+                        }
+                    }
+                }
+                headerdata.push(result)
+            })
+
+            worksheet.columns = headerdata;
+
+            await Promise.all(data.map(async (obj, i) => {
+                let Result;
+                // let licenseType = obj.documents && obj.documents.length && obj.documents.find(x => x.docType == DocumentType.LICENSE);
+                // let criminalDoc = obj.documents && obj.documents.length && obj.documents.find(x => x.docType == DocumentType.CRIMINAL);
+                // let absDoc = obj.documents && obj.documents.length && obj.documents.find(x => x.docType == DocumentType.ABSTRACT);
+                // let cvorDoc = obj.documents && obj.documents.length && obj.documents.find(x => x.docType == DocumentType.CVOR);
+                let licenseType, criminalDoc, absDoc, cvorDoc;
+
+                Result = {
+                    "FIRST NAME": obj.firstName,
+                    "LAST NAME": obj.lastName,
+                    "EMAIL_ID": obj.emailId,
+                    "PHONE": obj.userDetails.phoneNo || "",
+                    "LICENSE TYPE": "",
+                    "EXPERIENCE": "",
+                    "LICENSE_DOCUMENT": "",
+                    "CRIMINAL_DOCUMENT": "",
+                    "ABSTRACT_DOCUMENT": "",
+                    "CVOR_DOCUMENT": ""
+                }
+                worksheet.addRow(Result).height = 70
+
+                if (obj.documents && obj.documents.length) {                    
+                    console.log(obj.documents,"obj.documents");
+                    await Promise.all(obj.documents.map(async (x) => {
+                        let rangeColumn = `F1:F6`
+                        if (i > 0) {
+                            // rangeColumn = `D${(i*6)+2}:F${(i*6)+6}`
+                            rangeColumn = `F${i + 1}`
+                        }
+                        if (x.path) {
+                            if (AWS_ACCESS_KEY)
+                                x.path = await s3GetSignedURL(x.path)
+                            await axios.get(x.path, {
+                                responseType: 'arraybuffer'
+                            }).then(async img => {
+                                console.log(x.path, img.data);
+                                let imageData = await workbook.addImage({
+                                    buffer: img.data,
+                                    extension: path.extname(x.path).split('.')[1].toLowerCase(),
+                                });
+                                await worksheet.addImage(imageData, {
+                                    tl: rangeColumn,
+                                    ext: {
+                                        width: 90,
+                                        height: 90
+                                    },
+                                    "editAs": "oneCell"
+                                });
+                            })
+                                .catch(e => {
+                                    console.log(e)
+                                })
+                        }
+                    }))
+
+                }
+            })
+            )
+            // worksheet.getRow(1).fill = {
+            //     type: 'pattern',
+            //     pattern: 'mediumGray',
+            //     fgColor: {
+            //         argb: 'F00DB00'
+            //     }
+            // };
+            // worksheet.getRow(1).font = { family: 4, size: 12, bold: true };
+            // worksheet.getRow(1).height = 30
+            // worksheet.getRow(1).alignment = { wrapText: true };
+            //Worksheet view
+            // worksheet.views = [{
+            //     state: 'frozen',
+            //     ySplit: 1
+            // }]
+            // console.log(worksheet,"worksheet");
+            // console.log(workbook,"workbook");
+            // await workbook.xlsx.writeFile(filepath + filename + '.xlsx');
+            await new Promise(async (resolve, rej) => {
+                await workbook.xlsx.writeFile(filepath + filename + '.xlsx')
+                    .then(function (data) {
+                        console.log(data, "datadatadatadata");
+                        return resolve(data)
+                    });
+            })
+            return this.success(req, res, this.status.HTTP_OK, `${process.env.PUBLIC_UPLOAD_LINK1}/${filepath}${filename}.xlsx`, this.messageTypes.successMessages.successful, filepath + filename + '.xlsx');
+
+        } catch (e) {
+            return this.internalServerError(req, res, e)
         }
     };
 }
