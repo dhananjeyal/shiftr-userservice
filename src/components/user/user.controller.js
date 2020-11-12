@@ -226,6 +226,20 @@ class UserController extends BaseController {
             insertResult.verifyEmailLink = `${host}/or1.0/v1/api/user/verify_email?token=${emailToken}`;
             insertResult.token = token
 
+            //TODO: Send the mail
+            mailer.busownerSignUp(
+                insertResult.firstName,
+                insertResult.emailId,
+                insertResult.verifyEmailLink
+            );
+
+            //Admin Notification
+            mailer.adminSignupnotification(
+                insertResult.firstName,
+                insertResult.emailId,
+                userType
+            );
+
             this.success(req, res, this.status.HTTP_OK, insertResult, this.messageTypes.passMessages.userCreated);
 
             //push notification
@@ -245,19 +259,20 @@ class UserController extends BaseController {
 
             await NotifyService.sendNotication(req, res, notifyData)
 
-            //TODO: Send the mail
-            await mailer.busownerSignUp(
-                insertResult.firstName,
-                insertResult.emailId,
-                insertResult.verifyEmailLink
-            );
+            // //TODO: Send the mail
+            // await mailer.busownerSignUp(
+            //     insertResult.firstName,
+            //     insertResult.emailId,
+            //     insertResult.verifyEmailLink
+            // );
 
-            //Admin Notification
-            return await mailer.adminSignupnotification(
-                insertResult.firstName,
-                insertResult.emailId,
-                userType
-            );
+            // //Admin Notification
+            // return await mailer.adminSignupnotification(
+            //     insertResult.firstName,
+            //     insertResult.emailId,
+            //     userType
+            // );
+            return true
 
         } catch (e) {
             return this.internalServerError(req, res, e);
@@ -2774,18 +2789,6 @@ class UserController extends BaseController {
             let filepath = 'public/';
             let workbook = new EXCEL.Workbook();
 
-            // data = await Users.query()
-            //     .whereIn(`${Users.tableName}.SRU03_USER_MASTER_D`, users)
-            //     .join(UserDetails.tableName,
-            //         `${UserDetails.tableName}.SRU03_USER_MASTER_D`,
-            //         `${Users.tableName}.SRU03_USER_MASTER_D`
-            //     )
-            //     .leftJoin(UserDocument.tableName,
-            //         `${UserDocument.tableName}.SRU03_USER_MASTER_D`,
-            //         `${Users.tableName}.SRU03_USER_MASTER_D`)
-            //     .groupBy(`${Users.tableName}.SRU03_USER_MASTER_D`)
-            //     .select(adminExcelColumns);
-
             data = await Users.query()
                 .whereIn(`${Users.tableName}.SRU03_USER_MASTER_D`, users)
                 .eager(`[userDetails,documents]`)
@@ -2852,8 +2855,8 @@ class UserController extends BaseController {
                 }
                 worksheet.addRow(Result).height = 70
 
-                if (obj.documents && obj.documents.length) {                    
-                    console.log(obj.documents,"obj.documents");
+                if (obj.documents && obj.documents.length) {
+                    console.log(obj.documents, "obj.documents");
                     await Promise.all(obj.documents.map(async (x) => {
                         let rangeColumn = `F1:F6`
                         if (i > 0) {
