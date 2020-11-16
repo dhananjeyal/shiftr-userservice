@@ -47,8 +47,8 @@ const schemas = {
         address1: Joi.string().required(),
         address2: Joi.string().required(),
         postalCode: Joi.string().required(),
-        latitude: Joi.number().required(),
-        longitude: Joi.number().required()
+        latitude: Joi.number(),
+        longitude: Joi.number()
         // longitude:Joi.string().required()
     }),
 
