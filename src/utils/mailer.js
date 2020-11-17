@@ -188,6 +188,7 @@ export const resetPassword = (user) => {
 };
 // <p>Trip start yard:- ${tripDetails.startYard}</p>
 export const notifyBusOwner = (user, tripDetails, type) => {
+    console.log('userType', type)
     let html = `<b>Hello ${user.firstName},</b>
                     <p>Your trip schedule for ${moment(tripDetails.startDate).format('DD/MM/YYYY')} ${tripDetails.startTime} ${tripDetails.tripDestination} has been cancelled by the Driver. Please contact the driver for more details.</p>
                     <p><b>Trip Details:-</b></p>
