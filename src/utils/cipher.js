@@ -23,7 +23,7 @@ const encrypt = (inputString) => {
         // Returning encrypted data 
         return encrypted.toString('hex');
     } catch (e) {
-        console.log(error);
+        console.log(e);
         // Ignore invalid input string or password
     }
 };
