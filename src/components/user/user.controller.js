@@ -12,7 +12,7 @@ import axios from 'axios';
 import path from 'path';
 
 import { adminListColumns, columns, userAddressColumns, userDetailsColumns, userListColumns, userEmailDetails, usersColumns, tripUserDetailsColumns, adminReportListColumns, supportContactus, driverLicenseList, financialDetails, driverLicenseReport, adminExcelColumns } from "./model/user.columns";
-import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus, encryptionSecret, licenseType } from "../../constants";
+import { DocumentType, EmailStatus, SignUpStatus, UserRole, UserStatus, NotifyType, AddressType, CountryType, booleanType, WebscreenType, phonenumbertype, EmailContents, tripTypes, subscriptionStatus, plandurationTypetext, DocumentStatus, TripStatus, encryptionSecret, COUNTRIES } from "../../constants";
 import { genHash, mailer } from "../../utils";
 import UserDocument from "./model/userDocument.model";
 import NotifyService from "../../services/notifyServices";
@@ -2791,12 +2791,21 @@ class UserController extends BaseController {
 
             data = await Users.query()
                 .whereIn(`${Users.tableName}.SRU03_USER_MASTER_D`, users)
-                .eager(`[userDetails,documents]`)
+                .eager(`[userDetails,documents,driverlicensesList,experienceDetails,addressDetails]`)
                 .modifyEager('userDetails', (builder) => {
                     builder.select(`SRU04_PHONE_N as phoneNo`,)
                 })
                 .modifyEager('documents', (builder) => {
                     builder.select('SRU05_DOCUMENT_I as path', 'SRU01_TYPE_D as docType')
+                })
+                .modifyEager('driverlicensesList', (builder) => {
+                    builder.select(`SRU22_LICENSE_TYPE_N as licenseType`)
+                })
+                .modifyEager('experienceDetails', (builder) => {
+                    builder.select(`SRU09_TOTALEXP_N as totalExp`, `SRU09_TYPE_N as countryType`)
+                })
+                .modifyEager('addressDetails', (builder) => {
+                    builder.select(userAddressColumns)
                 })
                 .select(`SRU03_FIRST_N as firstName`,
                     `SRU03_LAST_N as lastName`,
@@ -2809,7 +2818,7 @@ class UserController extends BaseController {
                     orientation: 'landscape'
                 }
             });
-            let headerlist = ['FIRST NAME', 'LAST NAME', 'EMAIL_ID', 'PHONE', 'LICENSE TYPE', 'EXPERIENCE', 'LICENSE_DOCUMENT', 'CRIMINAL_DOCUMENT', 'ABSTRACT_DOCUMENT', 'CVOR_DOCUMENT'];
+            let headerlist = ['FIRST NAME', 'LAST NAME', 'EMAIL_ID', 'PHONE', 'LICENSE TYPE', 'EXPERIENCE', "ADDRESS", 'LICENSE_DOCUMENT', 'CRIMINAL_DOCUMENT', 'ABSTRACT_DOCUMENT', 'CVOR_DOCUMENT'];
             let headerdata = [];
             headerlist.forEach(element => {
                 var result = {
@@ -2833,21 +2842,16 @@ class UserController extends BaseController {
 
             worksheet.columns = headerdata;
 
-            await Promise.all(data.map(async (obj, i) => {
+            await Promise.all(data.map(async (obj, index) => {
                 let Result;
-                // let licenseType = obj.documents && obj.documents.length && obj.documents.find(x => x.docType == DocumentType.LICENSE);
-                // let criminalDoc = obj.documents && obj.documents.length && obj.documents.find(x => x.docType == DocumentType.CRIMINAL);
-                // let absDoc = obj.documents && obj.documents.length && obj.documents.find(x => x.docType == DocumentType.ABSTRACT);
-                // let cvorDoc = obj.documents && obj.documents.length && obj.documents.find(x => x.docType == DocumentType.CVOR);
-                let licenseType, criminalDoc, absDoc, cvorDoc;
-
                 Result = {
                     "FIRST NAME": obj.firstName,
                     "LAST NAME": obj.lastName,
                     "EMAIL_ID": obj.emailId,
                     "PHONE": obj.userDetails.phoneNo || "",
-                    "LICENSE TYPE": "",
-                    "EXPERIENCE": "",
+                    "LICENSE TYPE": obj.driverlicensesList.length && obj.driverlicensesList.reduce((acc, cu) => (cu.licenseType && acc.concat(`${cu.licenseType},`)), ""),
+                    "EXPERIENCE": obj.experienceDetails.length && obj.experienceDetails.reduce((acc, cu) => (cu.totalExp && acc.concat(`${cu.totalExp}(${COUNTRIES[cu.countryType]}),`)), ""),
+                    "ADDRESS": obj.addressDetails && `${obj.addressDetails.addressLine1}, ${obj.addressDetails.postalCode}`,
                     "LICENSE_DOCUMENT": "",
                     "CRIMINAL_DOCUMENT": "",
                     "ABSTRACT_DOCUMENT": "",
@@ -2855,24 +2859,33 @@ class UserController extends BaseController {
                 }
                 worksheet.addRow(Result).height = 70
 
-                if (obj.documents && obj.documents.length) {
-                    console.log(obj.documents, "obj.documents");
-                    await Promise.all(obj.documents.map(async (x) => {
-                        let rangeColumn = `F1:F6`
+                if (obj.documents && obj.documents.length) { // IMAGE PARSING TO EXCEL
+                    await Promise.all(obj.documents.map(async (x, i) => {
+                        let rangeColumn = `G1:G6`
                         if (i > 0) {
                             // rangeColumn = `D${(i*6)+2}:F${(i*6)+6}`
-                            rangeColumn = `F${i + 1}`
+                            let number = i;
+                            let baseChar = ("G").charCodeAt(0);
+                            let letters = "";
+                            do {
+                                number -= 1;
+                                letters = String.fromCharCode(baseChar + (number % 26)) + letters;
+                                number = (number / 26) >> 0;
+                            } while (number > 0);
+                            rangeColumn = `${letters}${index + 1}`;
                         }
+                        // x.path = "3013dba5bdc04a4aac2baa33ce8ab18d.jpg"
                         if (x.path) {
-                            if (AWS_ACCESS_KEY)
+                            let extn = path.extname(x.path).split('.')[1].toLowerCase();
+                            if (AWS_ACCESS_KEY) {
                                 x.path = await s3GetSignedURL(x.path)
+                            }
                             await axios.get(x.path, {
                                 responseType: 'arraybuffer'
                             }).then(async img => {
-                                console.log(x.path, img.data);
                                 let imageData = await workbook.addImage({
                                     buffer: img.data,
-                                    extension: path.extname(x.path).split('.')[1].toLowerCase(),
+                                    extension: extn,
                                 });
                                 await worksheet.addImage(imageData, {
                                     tl: rangeColumn,

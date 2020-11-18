@@ -148,3 +148,8 @@ export class encryptionSecret {
 }
 
 export const encryptKeys = ['password', 'emailId', 'newPassword', 'tempPassword', 'firstName', 'lastName', 'phoneNo', 'phoneNumber', 'age', 'phone'];
+
+export class COUNTRIES {
+    static 17 = "CANADA";
+    static 18 = "USA";
+}
