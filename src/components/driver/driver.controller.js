@@ -750,7 +750,7 @@ class DriverController extends BaseController {
                 documentId: documentResponse.SRU05_DOCUMENT_D,
                 documentName: DocName,
                 documentType: DocType,
-                documentPath: attachment
+                documentPath: await s3GetSignedURL(attachment)
             }
 
             return this.success(req, res, this.status.HTTP_OK, responseData, this.messageTypes.passMessages.documentUpload);

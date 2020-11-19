@@ -1769,7 +1769,9 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(financialDetails);
 
-            const results = await userQuery.map((userValue) => {
+            const results = userQuery.map(async(userValue) => {
+                if (AWS_ACCESS_KEY && userValue.userprofile)
+                    userValue.userprofile = await s3GetSignedURL(userValue.userprofile)
                 specialityQuery.find((specialityValue) => {
                     if (userValue.userId === specialityValue.driveruserId) {
                         userValue.SpecialityDetails = specialityValue;
