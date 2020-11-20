@@ -1769,7 +1769,7 @@ class UserController extends BaseController {
                 .whereIn('SRU03_USER_MASTER_D', userids)
                 .select(financialDetails);
 
-            const results = userQuery.map(async(userValue) => {
+            const results = await Promise.all(userQuery.map(async (userValue) => {
                 if (AWS_ACCESS_KEY && userValue.userprofile)
                     userValue.userprofile = await s3GetSignedURL(userValue.userprofile)
                 specialityQuery.find((specialityValue) => {
@@ -1789,8 +1789,8 @@ class UserController extends BaseController {
                     userValue.driverLicenses = driverLicenses;
                 }
                 return userValue;
-            });
-
+            })
+            )
             return this.success(req, res, this.status.HTTP_OK, results, this.messageTypes.successMessages.getAll);
 
         } catch (e) {
