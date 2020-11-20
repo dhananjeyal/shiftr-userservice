@@ -7,6 +7,8 @@ import AuthController from './src/components/user/auth.controller'
 import glob from 'glob';
 import { encryptKeys } from './src/constants';
 import { aesDecrpt, aesEncrpt } from './src/utils/cipher'
+import moment from "moment-timezone";
+moment.tz.setDefault('America/Toronto');
 
 const app = express();
 
