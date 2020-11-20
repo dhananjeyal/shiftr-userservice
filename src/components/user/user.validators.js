@@ -77,7 +77,7 @@ const schemas = {
             }),
             phone: Joi.when('screenType', {
                 is: WebscreenType.PROFILE,
-                then: Joi.number().required()
+                then: Joi.string().required()
             }),
             // contactInfo: Joi.when('screenType', {
             //     is: 1,
